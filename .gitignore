@@ -147,3 +147,8 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# Vite PWA dev output, Playwright
+dev-dist/
+test-results/
+playwright-report/

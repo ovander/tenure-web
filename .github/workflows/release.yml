@@ -1,0 +1,71 @@
+name: release
+# A tag vX.Y.Z on main, pushed by the owner, publishes the built bundle as
+# tenure-web-<tag>.tar.gz (the files at the archive root) with its SHA-256;
+# tenure-api pins both in web/VERSION (RENT-BE-001 §9, Q-96).
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: The tag is on main, well-formed and matches package.json
+        run: |
+          [[ "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]
+          git fetch origin main
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+          test "v$(node -p 'require("./package.json").version')" = "$GITHUB_REF_NAME"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install, check, build
+        run: |
+          npm ci
+          npm audit --omit=dev
+          npm run api:check
+          npm run typecheck
+          npm run lint
+          npm test
+          npm run build
+
+      - name: Smoke under the CSP
+        run: |
+          npx playwright install --with-deps chromium
+          npm run e2e
+
+      - name: Package
+        run: |
+          v="$GITHUB_REF_NAME"
+          mkdir -p release
+          # Reproducible archive: sorted names, fixed owner and times.
+          tar --sort=name --owner=0 --group=0 --numeric-owner --mtime="@$(git log -1 --format=%ct)" \
+            -C dist -cf - . | gzip -n > "release/tenure-web-$v.tar.gz"
+          (cd release && sha256sum "tenure-web-$v.tar.gz" > SHA256SUMS && cat SHA256SUMS)
+          echo "Pin in tenure-api web/VERSION: $v $(cut -d' ' -f1 release/SHA256SUMS)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          v="$GITHUB_REF_NAME"
+          pre=""
+          [[ "$v" == *-* ]] && pre="--prerelease"
+          sum=$(cut -d' ' -f1 release/SHA256SUMS)
+          gh release create "$v" release/* --verify-tag --generate-notes --title "tenure-web $v" $pre \
+            --notes "Pin in tenure-api \`web/VERSION\`: \`$v $sum\`"

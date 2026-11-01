@@ -1,0 +1,21 @@
+@layer theme, base, primevue, components, utilities;
+@import 'tailwindcss';
+
+html,
+body,
+#app {
+  height: 100%;
+}
+body {
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color: #1f2937;
+  background: #f8fafc;
+}
+.amount {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.amount.negative {
+  color: #dc2626;
+}

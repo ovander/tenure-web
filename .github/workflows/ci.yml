@@ -3,7 +3,13 @@ on:
   pull_request:
   push:
     branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
+  # One job named ci: the required status check on main (RENT-BE-001 §9).
   ci:
     name: ci
     runs-on: ubuntu-latest
@@ -11,9 +17,50 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: gitleaks
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: placeholder
-        run: echo "lint, tests and audits are added with the first code PR"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install (lockfile only)
+        run: npm ci
+
+      # Runtime dependencies: no known vulnerability at all; build tooling:
+      # nothing high or critical (Q-W3).
+      - name: npm audit
+        run: |
+          npm audit --omit=dev
+          npm audit --audit-level=high
+
+      - name: API types match the vendored OpenAPI document
+        run: npm run api:check
+
+      - name: vue-tsc
+        run: npm run typecheck
+
+      - name: eslint
+        run: npm run lint
+
+      - name: Vitest
+        run: npm test
+
+      - name: Build and budget
+        run: npm run build
+
+      - name: Playwright smoke under the CSP
+        run: |
+          npx playwright install --with-deps chromium
+          npm run e2e
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright
+          path: test-results/
+          retention-days: 7
