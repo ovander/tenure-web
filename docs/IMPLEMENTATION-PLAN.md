@@ -1,0 +1,25 @@
+# Implementation plan — tenure-web, phase 1
+
+The screens of RENT-FE-001 §3 (S01–S14), built in slices that follow the backend's
+(tenure-api `docs/IMPLEMENTATION-PLAN.md`), whose APIs are all merged. Each slice is one issue,
+one branch and one PR. Each ships with its Vitest and Playwright tests under tenure's CSP, and
+each release is pinned in tenure-api `web/VERSION`.
+
+| Slice | Screens | API | Accept |
+| --- | --- | --- | --- |
+| 0 (done, v0.1.0) | Shell, S01 Home (job runs), S14 Settings › Profile | `/bff/*`, `/me`, `/jobs/runs` | Session through the BFF, CSRF on writes, no CSP violation |
+| 1 | S02 Assets list, S03 Asset hub (overview, activity), S04 Asset form with diagnostics | `/assets`, `/diagnostics`, `/audit/events` | Create → hub → edit (If-Match, 412) → DPE; accountant read-only |
+| 2 | S05 Lease hub, S06 Lease form (tenants drafted in it), S07 Guarantees, contract generation, blockers, uploads | `/leases`, `/tenants`, `/guarantees`, `/documents` (upload) | Flow 1: draft → guarantees → blockers → contract → activate |
+| 3 | S08 Billing month (dry run, issue, cancel and reissue), S09 Payments and matching | `/billing`, `/payments` | Flow 2: month reviewed in a « Simulation » panel, issued, receipts on matching |
+| 4 | S10 Charges ledger, syndic import, S11 Reconciliation wizard | `/charges`, `/reconciliations` | Flow 3: import → allocate → balances → RG → provision |
+| 5 | S12 Tax year (both regimes, 2044 drill-down, step-up issue) | `/tax/summaries` | Flow 4: issue with step-up, RF PDF and CSV in S13 |
+| 6 | S13 Documents (browse, number search, ZIP export), S14 Templates, Parameters, Grants | `/documents`, `/params`, `/grants`, `/me/export` | Export with step-up; grant then revoke; flow 5 (cancel and reissue) from any document |
+| 7 | S01 Home to-dos (arrears, blockers, obligations), activity on hubs, Playwright on the five flows against a seeded tenure in CI | all | The phase 1 gate on the web side |
+
+Rules that hold in every slice:
+- Amounts are integers (cents) and are converted by string, never through a float.
+- Dates are formatted dd/mm/yyyy and calendar days carry no time zone.
+- Write controls are hidden for read roles, and every list filter and wizard step lives in the URL.
+- Problems map to fields or to a summary, and a 412 reloads the data.
+- Step-up actions go through `withStepUp`.
+- French is the default for every text, with English optional; no inline script and no token in the browser.

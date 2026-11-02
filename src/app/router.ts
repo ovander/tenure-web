@@ -16,8 +16,10 @@ const soon = () => import('@/features/common/ComingSoon.vue')
 
 export const routes: RouteRecordRaw[] = [
   { path: '/', name: 'home', component: () => import('@/features/home/HomeView.vue'), meta: { title: 'nav.home' } },
-  { path: '/assets', name: 'assets', component: soon, meta: { title: 'nav.assets' } },
-  { path: '/assets/:id/:tab(overview|leases|charges|documents|activity)?', name: 'asset', component: soon, meta: { title: 'nav.assets' } },
+  { path: '/assets', name: 'assets', component: () => import('@/features/portfolio/AssetsList.vue'), meta: { title: 'nav.assets' } },
+  { path: '/assets/new', name: 'asset-new', component: () => import('@/features/portfolio/AssetForm.vue'), meta: { title: 'nav.assets', ownerOnly: true } },
+  { path: '/assets/:id/edit', name: 'asset-edit', component: () => import('@/features/portfolio/AssetForm.vue'), meta: { title: 'nav.assets', ownerOnly: true } },
+  { path: '/assets/:id/:tab(overview|leases|charges|documents|activity)?', name: 'asset', component: () => import('@/features/portfolio/AssetHub.vue'), meta: { title: 'nav.assets' } },
   { path: '/leases/:id/:tab(overview|contract|guarantees|billing|inventories)?', name: 'lease', component: soon, meta: { title: 'nav.assets' } },
   { path: '/billing', redirect: () => `/billing/${currentPeriod()}` },
   { path: '/billing/:period(\\d{4}-\\d{2})', name: 'billing', component: soon, meta: { title: 'nav.billing' } },

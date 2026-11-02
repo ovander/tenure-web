@@ -14,8 +14,9 @@ contracts and guarantees, 10-year immutable archive.
   `web/VERSION` and embeds.
 
 ## Status
-Phase 1. v0.1.0 is the shell: layout, session, S01 Home and S14 Settings › Profile. The
-other screens arrive slice by slice.
+Phase 1, slice by slice (`docs/IMPLEMENTATION-PLAN.md`):
+- v0.1.0 is the shell: layout, session, S01 Home and S14 Settings › Profile;
+- slice 1 adds the assets: list, hub, form and diagnostics.
 
 ## Development
 
