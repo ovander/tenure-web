@@ -38,3 +38,21 @@ Provisional:
   per-response nonce;
 - `/api` and `/bff` are never cached;
 - no offline write.
+
+**Q-W6 Ownership shares in the form — Open (slice 1).** The API takes `shares` in basis points
+per owner id. The app cannot list the owners of other portfolios, so it cannot offer them.
+Provisional:
+- a new asset gets the API's default, 100 % to the scope's owner;
+- an edit sends the existing shares back unchanged;
+- the hub shows the shares, naming the owners the caller knows;
+- editing shares waits for a way to pick co-owners (an open question for the grants slice).
+
+**Q-W7 Dwellings a box can hang off — Open (slice 1).** Provisional: the form lists the
+houses and apartments among the scope's first 100 assets (RENT-FE-001 §1: a handful of
+assets). A larger portfolio needs a search, which the API does not have yet.
+
+**Q-W8 Activity tab — Open (slice 1).** RENT-FE-001 §5 lets the co-owner read the audit tabs,
+but tenure-api serves `GET /audit/events` to the owner and the accountant only. Provisional:
+- the Activity tab is hidden for a co-owner until the two specs agree;
+- it lists the asset's own events, newest first, with the fields changed;
+- a diagnostic's events are recorded under the diagnostic and are not shown on the asset yet.
