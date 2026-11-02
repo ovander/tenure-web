@@ -25,6 +25,12 @@ const fresh = () => ({
   csrf: 'csrf-test-token',
   owner: { id: '00000000-0000-7000-8000-000000000001', legal_name: 'Bailleur Test', address: '1 rue de la Paix, Paris', tax_id: '', language: 'fr', version: 3 },
   extraScopes: [],
+  // role of the scope's own row: 'owner', or another role to read a granted scope only
+  role: 'owner',
+  assets: [],
+  diagnostics: [],
+  events: [],
+  seq: 0,
   runs: [{ id: 'r1', job: 'billing.monthly', period: '2026-11', status: 'succeeded', finished_at: '2026-11-01T05:00:12Z' }],
   requests: [],
 })
@@ -33,6 +39,7 @@ let state = fresh()
 const json = (res, status, body, headers = {}) => {
   res.writeHead(status, { 'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json', ...headers })
   res.end(JSON.stringify(body))
+  return true
 }
 const body = async (req) => {
   let s = ''
@@ -42,7 +49,7 @@ const body = async (req) => {
 
 function me() {
   const o = state.owner
-  const own = o ? [{ owner_id: o.id, legal_name: o.legal_name, role: 'owner' }] : []
+  const own = o ? [{ owner_id: o.id, legal_name: o.legal_name, role: state.role }] : []
   const scopes = [...own, ...state.extraScopes]
   return { sub: 'sub-test', admin: false, language: o?.language ?? 'fr', scopes, active_scope: scopes[0], owner: o }
 }
@@ -63,7 +70,73 @@ async function api(req, res, path) {
     return json(res, state.owner.version === 1 ? 201 : 200, state.owner, { ETag: `W/"${state.owner.version}"` })
   }
   if (path.startsWith('/jobs/runs')) return json(res, 200, { items: state.runs, total: state.runs.length, page: 1, size: 10 })
+  if (assets(req, res, path, entry)) return
   return json(res, 404, { type: 'about:blank', status: 404, title: 'Introuvable.' })
+}
+
+// A small model of tenure-api's portfolio rules (internal/portfolio): enough for
+// the screens' paths, not a second implementation.
+const uuid = () => `00000000-0000-7000-8000-${String(++state.seq).padStart(12, '0')}`
+const record = (action, type, id, before, after) =>
+  state.events.unshift({ id: state.events.length + 1, action, entity_type: type, entity_id: id, actor_sub: 'sub-test', occurred_at: new Date().toISOString(), before, after })
+function checkAsset(b) {
+  const errors = []
+  if (!b.address?.trim()) errors.push({ field: 'address', message: 'L’adresse est obligatoire.' })
+  if (b.controlled_zone && b.kind !== 'box' && (!b.rent_control_zone || !b.rent_control_category))
+    errors.push({ field: 'rent_control_zone', message: 'Zone et catégorie d’encadrement obligatoires en zone encadrée.' })
+  return errors
+}
+const invalid = (res, errors) => json(res, 422, { type: 'invariant/fields', status: 422, title: 'Données invalides.', errors })
+function assets(req, res, path, entry) {
+  const m = /^\/assets(?:\/([^/]+))?(\/diagnostics)?$/.exec(path) ?? /^\/diagnostics\/([^/]+)$/.exec(path)
+  if (path.startsWith('/audit/events')) {
+    const q = new URL(req.url, 'http://x').searchParams
+    const items = state.events.filter((e) => e.entity_type === q.get('entity_type') && e.entity_id === q.get('entity_id'))
+    return json(res, 200, { items, total: items.length, page: 1, size: 50 })
+  }
+  if (!m) return null
+  const write = req.method !== 'GET'
+  if (write && state.role !== 'owner') return json(res, 403, { type: 'auth/forbidden', status: 403, title: 'Accès refusé.' })
+  const b = entry.body
+  if (path.startsWith('/diagnostics/')) {
+    const d = state.diagnostics.find((x) => x.id === m[1])
+    if (!d) return json(res, 404, { status: 404 })
+    if (entry.ifMatch !== `W/"${d.version}"`) return json(res, 412, { type: 'http/stale', status: 412, title: 'Version périmée.' })
+    Object.assign(d, b, { version: d.version + 1 })
+    return json(res, 200, d)
+  }
+  if (!m[1]) {
+    if (req.method === 'GET') {
+      const q = new URL(req.url, 'http://x').searchParams
+      const page = Number(q.get('page') ?? 1), size = Number(q.get('size') ?? 20)
+      return json(res, 200, { items: state.assets.slice((page - 1) * size, page * size), total: state.assets.length, page, size })
+    }
+    const errors = checkAsset(b)
+    if (errors.length) return invalid(res, errors)
+    const a = { ...b, id: uuid(), version: 1, shares: b.shares ?? [{ owner_id: state.owner.id, bp: 10000 }] }
+    state.assets.push(a)
+    record('asset.create', 'asset', a.id, null, a)
+    return json(res, 201, a)
+  }
+  const a = state.assets.find((x) => x.id === m[1])
+  if (!a) return json(res, 404, { type: 'http/not-found', status: 404, title: 'Introuvable.' })
+  if (m[2]) {
+    if (req.method === 'GET') return json(res, 200, state.diagnostics.filter((d) => d.asset_id === a.id))
+    if (b.kind === 'dpe' && !b.not_required_reason && !/^[A-G]$/.test(b.result ?? '')) return invalid(res, [{ field: 'result', message: 'Classe DPE attendue : A à G.' }])
+    const d = { ...b, id: uuid(), asset_id: a.id, version: 1 }
+    state.diagnostics.push(d)
+    return json(res, 201, d)
+  }
+  if (req.method === 'GET') return json(res, 200, a, { ETag: `W/"${a.version}"` })
+  if (!entry.ifMatch) return json(res, 428, { type: 'http/precondition-required', status: 428 })
+  if (entry.ifMatch !== `W/"${a.version}"`) return json(res, 412, { type: 'http/stale', status: 412, title: 'Version périmée.' })
+  if (b.kind !== a.kind) return json(res, 409, { type: 'asset/kind-immutable', status: 409, title: 'Le type d’un bien ne peut pas être modifié.' })
+  const errors = checkAsset(b)
+  if (errors.length) return invalid(res, errors)
+  const before = { ...a }
+  Object.assign(a, b, { version: a.version + 1 })
+  record('asset.update', 'asset', a.id, before, { ...a })
+  return json(res, 200, a)
 }
 
 async function file(res, name) {
@@ -94,6 +167,7 @@ createServer(async (req, res) => {
   try {
     if (path === '/__mock/reset') { state = fresh(); return json(res, 200, {}) }
     if (path === '/__mock/state') { Object.assign(state, (await body(req)) ?? {}); return json(res, 200, {}) }
+    if (path === '/__mock/bump') { const a = state.assets.find((x) => x.id === url.searchParams.get('id')); if (a) a.version += 1; return json(res, 200, a ?? {}) }
     if (path === '/__mock/requests') return json(res, 200, state.requests)
     if (path === '/bff/session') return json(res, 200, state.authenticated ? { authenticated: true, user: { sub: 'sub-test', name: 'Test', roles: [] }, csrf: state.csrf } : { authenticated: false })
     if (path === '/bff/login') { state.requests.push({ method: 'GET', path: '/bff/login', query: url.search }); res.writeHead(200, { 'Content-Type': 'text/html' }); return res.end('<p id="socrate">Socrate</p>') }
