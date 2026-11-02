@@ -1,11 +1,16 @@
 <script setup lang="ts">
+import { watch } from 'vue'
 import Toast from 'primevue/toast'
+import { usePrimeVue } from 'primevue/config'
 import AppLayout from './app/AppLayout.vue'
 import StepUpDialog from './components/StepUpDialog.vue'
 import { useSession } from './stores/session'
-import { t } from './i18n'
+import { language, t } from './i18n'
+import { primevueLocale } from './app/primevueLocale'
 
 const s = useSession()
+const primevue = usePrimeVue()
+watch(language, (l) => Object.assign(primevue.config.locale ?? {}, primevueLocale[l]), { immediate: true })
 </script>
 
 <template>
