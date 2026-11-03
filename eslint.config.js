@@ -19,6 +19,9 @@ export default tseslint.config(
       'no-new-func': 'error',
       'vue/no-v-html': 'error',
       'no-restricted-globals': ['error', { name: 'localStorage', message: 'Nothing durable in the browser: use the API (sessionStorage only for per-tab conveniences).' }],
+      // PrimeVue's Tooltip writes a style attribute, which the CSP refuses
+      // (no nonce applies to attributes): use the title attribute (Q-W1).
+      'no-restricted-imports': ['error', { paths: [{ name: 'primevue/tooltip', message: 'Sets a style attribute the CSP blocks; use :title (Q-W1).' }] }],
       'no-restricted-syntax': [
         'error',
         { selector: "Literal[value=/^Bearer /]", message: 'The app never holds a token: the BFF session does.' },
