@@ -118,3 +118,23 @@ is in a zone tendue but outside rent control. tenure-api now has `tense_zone` be
 - S03 shows the zone tendue in the overview;
 - S06 offers the rent exemption when any asset of the lease is in a zone tendue, because the
   exemption lifts the relocation rule, never a rent-control cap.
+
+**Q-W15 Billing month and payments — Open (slice 3).** RENT-FE-001 gives S08 and S09 but no URL
+for payments, no « send again » route in the API, and receipts that tenure-api issues every hour
+(`billing.receipts`). Provisional:
+- S09 lives at `/billing/payments` under the Billing entry, since the navigation keeps six entries.
+  Its filters stay in the URL (`?unmatched=1`). The lease hub's Billing tab shows the same list,
+  restricted to the lease, along with its arrears and documents;
+- « Issue » stays disabled until a dry run has been shown in the « Simulation » panel. The dialog
+  restates the count and total of what the dry run computed. A part month (start or notice end)
+  and a carried-over credit are flagged as « À vérifier »;
+- « Cancel and reissue » needs a reason, which tenure-api prints on the cancellation. It is offered
+  on every live rent call; tenure-api refuses it once a receipt exists, and the dialog shows that
+  refusal;
+- « Send again » is not shown: tenure-api has no route to resend a document yet. The download
+  stays available;
+- a new payment proposes what the lease still owes, today's date and a bank transfer, and is
+  applied to the oldest rent calls unless the owner unticks the box. A manual match proposes the
+  same oldest-first split, which the owner can change;
+- « Émettre les quittances maintenant » triggers `billing.receipts` for the owner's scope rather
+  than waiting for the next hourly run.

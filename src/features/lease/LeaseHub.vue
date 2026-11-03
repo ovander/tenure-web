@@ -22,6 +22,7 @@ import ComingSoonPanel from '@/components/ComingSoonPanel.vue'
 import LeaseOverview from './LeaseOverview.vue'
 import LeaseContract from './LeaseContract.vue'
 import LeaseGuarantees from './LeaseGuarantees.vue'
+import LeaseBilling from '@/features/billing/LeaseBilling.vue'
 import LeaseInventories from './LeaseInventories.vue'
 
 const route = useRoute()
@@ -163,6 +164,7 @@ const confirmBody = computed(() => (confirming.value ? t(`confirm.${confirming.v
       <LeaseContract v-else-if="tab === 'contract'" :lease="lease" @changed="load" />
       <LeaseGuarantees v-else-if="tab === 'guarantees'" :lease="lease" @changed="load" />
       <LeaseInventories v-else-if="tab === 'inventories'" :lease="lease" @changed="load" />
+      <LeaseBilling v-else-if="tab === 'billing'" :lease="lease" />
       <ComingSoonPanel v-else />
 
       <ConfirmDialog v-model:visible="confirmVisible" :title="confirmLabel" :body="confirmBody" :confirm="confirmLabel" :busy="busy" :disabled="confirming === 'notice' && !endOn" @confirm="run">
