@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { watchCSP } from './csp'
 
 // Web slice 1 (RENT-FE-001 S02–S04) under tenure's CSP: list, create, hub,
 // edit with If-Match and a stale version, a diagnostic, the activity tab,
@@ -10,17 +11,10 @@ async function mock(page: Page, state: Record<string, unknown> = {}): Promise<vo
   await page.request.post('/__mock/reset')
   if (Object.keys(state).length) await page.request.post('/__mock/state', { data: state })
 }
-function watchCSP(page: Page): string[] {
-  const v: string[] = []
-  page.on('console', (m) => {
-    if (/Content Security Policy|Refused to/.test(m.text())) v.push(m.text())
-  })
-  return v
-}
 
 test('an owner creates an apartment, edits it after a concurrent change, adds a DPE', async ({ page }) => {
   await mock(page)
-  const violations = watchCSP(page)
+  const violations = await watchCSP(page)
   await page.goto('/assets')
   await expect(page.getByTestId('assets-empty')).toBeVisible()
   await page.getByTestId('add-asset').click()
@@ -86,6 +80,8 @@ test('an owner creates an apartment, edits it after a concurrent change, adds a 
   await expect(page.getByTestId('activity')).toContainText('lot')
   await expect(page.getByTestId('activity')).toContainText('Bien créé')
   await page.getByTestId('tab-leases').click()
+  await expect(page.getByTestId('asset-leases')).toContainText('Aucun bail')
+  await page.getByTestId('tab-documents').click()
   await expect(page.getByTestId('soon')).toBeVisible()
 
   // Back in the list, the row opens the hub.

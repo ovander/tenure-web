@@ -56,3 +56,28 @@ but tenure-api serves `GET /audit/events` to the owner and the accountant only. 
 - the Activity tab is hidden for a co-owner until the two specs agree;
 - it lists the asset's own events, newest first, with the fields changed;
 - a diagnostic's events are recorded under the diagnostic and are not shown on the asset yet.
+
+**Q-W9 Tenants — Open (slice 2).** RENT-FE-001 has no tenants screen: S06 drafts them with the
+lease. Provisional:
+- the lease form picks existing tenants or creates one in a dialog (names, e-mail, phone,
+  e-mail language, situation);
+- every tenant is joint and several (`solidary: true`, the API's default);
+- editing a tenant waits for a screen that needs it.
+
+**Q-W10 Deposit settlement — Open (slice 2).** The API has the deposit's status but no
+restitution amount or deductions. Provisional:
+- « Solder le dépôt » sets the status to settled once the lease is in notice or ended, which
+  lets the lease close;
+- the restitution statement belongs with the exit inventory in phase 2 (RENT-SPEC-009).
+
+**Q-W11 Amendments — Open (slice 2).** `POST /leases/{id}/amendments` (rent, tenant added,
+asset added) is not in this slice: flow 1 ends at activation. Amendments come with the billing
+slice, where a rent change shows on the next rent call.
+
+**Q-W12 Blockers and actions — Open (slice 2).** Provisional:
+- the hub lists the API's generation, activation and warning blockers by their titles, in the
+  language the API answers in;
+- « Générer le contrat » and « Activer le bail » are disabled while a blocker of their kind
+  remains, with a tooltip naming the first one;
+- every other refusal (a deposit not settled at close, a missing notice date) comes back as the
+  API's problem inside the confirmation dialog.

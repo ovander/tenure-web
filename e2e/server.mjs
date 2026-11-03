@@ -7,6 +7,7 @@ import { createServer } from 'node:http'
 import { readFile, stat } from 'node:fs/promises'
 import { randomBytes } from 'node:crypto'
 import { extname, join, normalize } from 'node:path'
+import { leaseRoutes } from './mock-leases.mjs'
 
 const dist = new URL('../dist/', import.meta.url).pathname
 const port = Number(process.env.PORT ?? 4173)
@@ -31,19 +32,35 @@ const fresh = () => ({
   diagnostics: [],
   events: [],
   seq: 0,
+  tenants: [],
+  leases: [],
+  leaseDocs: [],
+  guarantees: [],
+  inventories: [],
+  uploads: [],
   runs: [{ id: 'r1', job: 'billing.monthly', period: '2026-11', status: 'succeeded', finished_at: '2026-11-01T05:00:12Z' }],
   requests: [],
 })
 let state = fresh()
+const leases = (...a) => leaseRoutes({ state, json, invalid, uuid, record })(...a)
 
 const json = (res, status, body, headers = {}) => {
   res.writeHead(status, { 'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json', ...headers })
   res.end(JSON.stringify(body))
   return true
 }
+// body reads a JSON body, or a multipart one as its fields, the file part
+// becoming its file name.
 const body = async (req) => {
   let s = ''
   for await (const c of req) s += c
+  const ct = req.headers['content-type'] ?? ''
+  if (ct.startsWith('multipart/form-data')) {
+    const out = {}
+    for (const m of s.matchAll(/Content-Disposition: form-data; name="([^"]+)"(?:; filename="([^"]*)")?\r\n(?:[^\r]*\r\n)*?\r\n([\s\S]*?)\r\n--/g))
+      out[m[1]] = m[2] !== undefined ? m[2] : m[3]
+    return out
+  }
   return s ? JSON.parse(s) : undefined
 }
 
@@ -71,6 +88,7 @@ async function api(req, res, path) {
   }
   if (path.startsWith('/jobs/runs')) return json(res, 200, { items: state.runs, total: state.runs.length, page: 1, size: 10 })
   if (assets(req, res, path, entry)) return
+  if (leases(req, res, path, entry)) return
   return json(res, 404, { type: 'about:blank', status: 404, title: 'Introuvable.' })
 }
 

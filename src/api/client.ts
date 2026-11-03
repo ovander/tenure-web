@@ -80,7 +80,8 @@ export async function request<T>(method: string, path: string, opts: Options = {
   const url = new URL(path.startsWith('/bff/') ? path : `/api/v1${path}`, location.origin)
   for (const [k, v] of Object.entries(opts.query ?? {})) if (v !== undefined) url.searchParams.set(k, String(v))
   const headers: Record<string, string> = { Accept: 'application/json' }
-  if (opts.body !== undefined) headers['Content-Type'] = 'application/json'
+  const multipart = opts.body instanceof FormData
+  if (opts.body !== undefined && !multipart) headers['Content-Type'] = 'application/json'
   if (unsafe.has(method) && state.csrf) headers['X-CSRF-Token'] = state.csrf
   const scope = opts.scope === undefined ? state.scope : opts.scope
   if (scope && !path.startsWith('/bff/')) headers['X-Owner-Scope'] = scope
@@ -91,7 +92,9 @@ export async function request<T>(method: string, path: string, opts: Options = {
     res = await fetch(url, {
       method,
       headers,
-      body: opts.body === undefined ? undefined : JSON.stringify(opts.body),
+      // A FormData body is sent as multipart/form-data, the browser setting
+      // its boundary (POST /documents: fields first, the file last).
+      body: opts.body === undefined ? undefined : multipart ? (opts.body as FormData) : JSON.stringify(opts.body),
       credentials: 'same-origin',
       redirect: 'error',
     })
@@ -127,4 +130,12 @@ export const api = {
   post: <T>(path: string, body?: unknown, opts?: Options) => request<T>('POST', path, { ...opts, body }),
   put: <T>(path: string, body?: unknown, opts?: Options) => request<T>('PUT', path, { ...opts, body }),
   del: <T>(path: string, opts?: Options) => request<T>('DELETE', path, opts),
+  // upload posts a file and its fields as multipart/form-data, fields first
+  // and the file last, as POST /documents requires.
+  upload: <T>(path: string, fields: Record<string, string | undefined>, file: File, opts?: Options) => {
+    const form = new FormData()
+    for (const [k, v] of Object.entries(fields)) if (v) form.append(k, v)
+    form.append('file', file, file.name)
+    return request<T>('POST', path, { ...opts, body: form })
+  },
 }

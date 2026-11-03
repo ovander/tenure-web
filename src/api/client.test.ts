@@ -70,6 +70,17 @@ describe('api client', () => {
     expect(away).toHaveBeenCalledTimes(1)
   })
 
+  it('uploads multipart with the file last, the CSRF token and no JSON type', async () => {
+    const file = new File(['%PDF-1.7'], 'bail-signé.pdf', { type: 'application/pdf' })
+    await api.upload('/documents', { class: 'contract', lease_id: 'l1', signs_document_id: undefined }, file)
+    const body = calls[0]!.init.body as FormData
+    expect([...body.keys()]).toEqual(['class', 'lease_id', 'file'])
+    expect((body.get('file') as File).name).toBe('bail-signé.pdf')
+    expect(headers()['Content-Type']).toBeUndefined()
+    expect(headers()['X-CSRF-Token']).toBe('tok')
+    expect(headers()['X-Owner-Scope']).toBe('owner-1')
+  })
+
   it('reports a request without an answer as a NetworkError', async () => {
     next = () => {
       throw new TypeError('offline')
