@@ -26,7 +26,7 @@ async function open(): Promise<void> {
       <p class="font-medium">{{ label }} <span v-if="number" class="font-mono text-sm text-slate-600">{{ number }}</span></p>
       <p class="text-sm text-slate-500">
         <span v-if="issuedAt">{{ t('doc.issued') }} {{ timestamp(issuedAt) }}</span>
-        <span v-if="sha256" v-tooltip.bottom="`${t('doc.hash')} : ${sha256}`" class="ml-2 cursor-help underline decoration-dotted">SHA-256</span>
+        <span v-if="sha256" :title="`${t('doc.hash')} : ${sha256}`" class="ml-2 cursor-help underline decoration-dotted">SHA-256</span>
       </p>
     </div>
     <Button v-if="documentId" :label="t('doc.download')" icon="pi pi-download" size="small" severity="secondary" data-test="download" @click="open" />

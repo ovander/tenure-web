@@ -69,6 +69,12 @@ test('flow 1: from a draft to an active lease, then to its close', async ({ page
   await expect(page.getByTestId('blockers-generation')).toContainText('DPE')
   await expect(page.getByTestId('generate')).toBeDisabled()
   await expect(page.getByTestId('action-activate')).toBeDisabled()
+  // A blocked action names its blocker on hover, through the title attribute:
+  // hovering must not write a style attribute the CSP refuses (Q-W1).
+  await expect(page.getByTestId('generate-reason')).toHaveAttribute('title', /DPE/)
+  await page.getByTestId('generate-reason').hover()
+  await page.getByTestId('reason-activate').hover()
+  await page.waitForTimeout(500)
   await page.request.post('/__mock/state', { data: { diagnostics: [{ id: 'd1', asset_id: 'a1', kind: 'dpe', result: 'C', version: 1 }] } })
   await page.reload()
   await expect(page.getByTestId('blockers-generation')).toHaveCount(0)
