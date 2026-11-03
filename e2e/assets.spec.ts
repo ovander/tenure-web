@@ -86,6 +86,8 @@ test('an owner creates an apartment, edits it after a concurrent change, adds a 
   await expect(page.getByTestId('activity')).toContainText('lot')
   await expect(page.getByTestId('activity')).toContainText('Bien créé')
   await page.getByTestId('tab-leases').click()
+  await expect(page.getByTestId('asset-leases')).toContainText('Aucun bail')
+  await page.getByTestId('tab-documents').click()
   await expect(page.getByTestId('soon')).toBeVisible()
 
   // Back in the list, the row opens the hub.
