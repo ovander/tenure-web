@@ -2,7 +2,7 @@
 // S04 Asset form: create (/assets/new) or edit (/assets/{id}/edit). Euros and
 // m² are typed with two decimals and sent as integers; the kind is fixed once
 // created; a box may hang off a dwelling; a controlled zone needs its zone and
-// category. Shares are kept as they are (Q-W6).
+// category and implies the zone tendue (Q-W14). Shares are kept as they are (Q-W6).
 import { computed, onMounted, reactive, ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import InputText from 'primevue/inputtext'
@@ -29,7 +29,7 @@ const id = computed(() => route.params.id as string | undefined)
 const existing = ref<Asset | null>(null)
 const dwellings = ref<Asset[]>([])
 const badNumber = reactive({ surface: false, acquisition: false })
-const form = reactive<AssetInput>({ kind: 'apartment', address: '', lot: '', furnished: false, controlled_zone: false, rent_control_zone: '', rent_control_category: '' })
+const form = reactive<AssetInput>({ kind: 'apartment', address: '', lot: '', furnished: false, tense_zone: false, controlled_zone: false, rent_control_zone: '', rent_control_category: '' })
 
 async function reload(): Promise<void> {
   if (!id.value) return
@@ -47,6 +47,8 @@ const kinds = computed(() => (['house', 'apartment', 'box'] as AssetKind[]).map(
 const isDwelling = computed(() => !!form.kind && dwellingKinds.includes(form.kind))
 const dpeClasses = ['A', 'B', 'C', 'D', 'E', 'F', 'G'].map((c) => ({ value: c, label: c }))
 const parents = computed(() => [{ value: '', label: t('form.parentNone') }, ...dwellings.value.map((a) => ({ value: a.id ?? '', label: assetLabel(a) }))])
+// A rent-control area is always a tense area: the switch shows it locked on.
+const tense = computed({ get: () => !!form.tense_zone || !!form.controlled_zone, set: (v: boolean) => (form.tense_zone = v) })
 const parent = computed({ get: () => form.parent_asset_id ?? '', set: (v: string) => (form.parent_asset_id = v || undefined) })
 
 async function save(): Promise<void> {
@@ -55,10 +57,11 @@ async function save(): Promise<void> {
   if (badNumber.acquisition) local.acquisition_cents = t('common.invalidNumber')
   const body: AssetInput = { ...form }
   if (!isDwelling.value) {
-    Object.assign(body, { furnished: false, dpe_class: undefined, controlled_zone: false, rent_control_zone: '', rent_control_category: '' })
+    Object.assign(body, { furnished: false, dpe_class: undefined, tense_zone: false, controlled_zone: false, rent_control_zone: '', rent_control_category: '' })
   } else {
     body.parent_asset_id = undefined
     if (!body.controlled_zone) Object.assign(body, { rent_control_zone: '', rent_control_category: '' })
+    else body.tense_zone = true
   }
   let saved: Asset | undefined
   const ok = await submit(async () => {
@@ -103,6 +106,11 @@ async function save(): Promise<void> {
           <FormField id="dpe" :help="t('help.asset.dpe')" :label="t('form.dpe')" :error="errors.dpe_class">
             <Select v-model="form.dpe_class" input-id="dpe" :options="dpeClasses" option-label="label" option-value="value" show-clear class="w-40" />
           </FormField>
+        </div>
+        <div class="flex items-center gap-3">
+          <ToggleSwitch v-model="tense" input-id="tense_zone" :disabled="!!form.controlled_zone" />
+          <label for="tense_zone" class="text-sm font-medium">{{ t('form.tenseZone') }}</label>
+          <HelpTip id="tense_zone" :text="t('help.asset.tenseZone')" />
         </div>
         <div class="flex items-center gap-3">
           <ToggleSwitch v-model="form.controlled_zone" input-id="controlled_zone" />

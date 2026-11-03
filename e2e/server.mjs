@@ -147,7 +147,7 @@ function assets(req, res, path, entry) {
     }
     const errors = checkAsset(b)
     if (errors.length) return invalid(res, errors)
-    const a = { ...b, id: uuid(), version: 1, shares: b.shares ?? [{ owner_id: state.owner.id, bp: 10000 }] }
+    const a = { ...b, tense_zone: !!(b.tense_zone || b.controlled_zone), id: uuid(), version: 1, shares: b.shares ?? [{ owner_id: state.owner.id, bp: 10000 }] }
     state.assets.push(a)
     record('asset.create', 'asset', a.id, null, a)
     return json(res, 201, a)
@@ -168,7 +168,7 @@ function assets(req, res, path, entry) {
   const errors = checkAsset(b)
   if (errors.length) return invalid(res, errors)
   const before = { ...a }
-  Object.assign(a, b, { version: a.version + 1 })
+  Object.assign(a, b, { tense_zone: !!(b.tense_zone || b.controlled_zone), version: a.version + 1 })
   record('asset.update', 'asset', a.id, before, { ...a })
   return json(res, 200, a)
 }

@@ -12,6 +12,35 @@ async function mock(page: Page, state: Record<string, unknown> = {}): Promise<vo
   if (Object.keys(state).length) await page.request.post('/__mock/state', { data: state })
 }
 
+// Q-W14: a Baillargues flat is in a zone tendue without rent control; a
+// rent-control area always is one, and the switch shows it locked on.
+test('an owner records a flat in a zone tendue without rent control', async ({ page }) => {
+  await mock(page)
+  const violations = await watchCSP(page)
+  await page.goto('/assets/new')
+  await page.locator('#address').fill('3 rue du Fort, 34670 Baillargues')
+  await page.locator('#surface').fill('40')
+  await expect(page.locator('#tense_zone')).not.toBeChecked()
+  await page.locator('#controlled_zone').check()
+  await expect(page.locator('#tense_zone')).toBeChecked()
+  await expect(page.locator('#tense_zone')).toBeDisabled()
+  await page.locator('#controlled_zone').uncheck()
+  await expect(page.locator('#tense_zone')).toBeEnabled()
+  await expect(page.locator('#tense_zone')).not.toBeChecked()
+  await page.locator('#tense_zone').check()
+  await expect(page.locator('#rent_zone')).toHaveCount(0)
+  await page.getByTestId('help-tense_zone').focus()
+  await expect(page.getByTestId('help-text-tense_zone')).toBeVisible()
+  await expect(page.getByTestId('help-text-tense_zone')).toContainText('simulateur de service-public.fr')
+  await page.getByTestId('save').click()
+
+  await expect(page.getByTestId('details')).toContainText('Zone tendue')
+  await expect(page.getByTestId('details')).toContainText(/Zone tendue\s*Oui/)
+  const create = (await requests(page)).filter((r) => r.method === 'POST' && r.path === '/assets').at(-1)
+  expect(create?.body).toMatchObject({ tense_zone: true, controlled_zone: false, rent_control_zone: '', rent_control_category: '' })
+  expect(violations).toEqual([])
+})
+
 test('an owner creates an apartment, edits it after a concurrent change, adds a DPE', async ({ page }) => {
   await mock(page)
   const violations = await watchCSP(page)

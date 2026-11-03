@@ -29,6 +29,13 @@ describe('portfolio store', () => {
     expect(input).not.toHaveProperty('version')
   })
 
+  it('reads a rent-control asset as tense, and keeps a tense-only asset as such (Q-W14)', () => {
+    expect(toInput({ kind: 'apartment', address: 'a', controlled_zone: true }).tense_zone).toBe(true)
+    expect(toInput({ kind: 'apartment', address: 'a', tense_zone: true }).tense_zone).toBe(true)
+    expect(toInput({ kind: 'apartment', address: 'a', tense_zone: true }).controlled_zone).toBe(false)
+    expect(toInput({ kind: 'apartment', address: 'a' }).tense_zone).toBe(false)
+  })
+
   it('names an asset by address and lot', () => {
     expect(assetLabel({ address: '1 rue A', lot: 'Lot 2' })).toBe('1 rue A · Lot 2')
     expect(assetLabel({ address: '1 rue A', lot: '' })).toBe('1 rue A')

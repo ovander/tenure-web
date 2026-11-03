@@ -107,3 +107,14 @@ and an explanation on every input. Provisional:
 - The deposit is proposed at the legal cap, as owners usually ask; the help says less may be
   asked. No default is proposed for a notice date: the notice periods (`notice_months.*`) arrive
   in phase 2.
+
+**Q-W14 Zone tendue — Answered 2026-11-03 (owner question, tenure-api Q-102).** A Baillargues flat
+is in a zone tendue but outside rent control. tenure-api now has `tense_zone` beside
+`controlled_zone`. Decided:
+- S04 shows « En zone tendue » above the rent-control switch. While rent control is on, the
+  zone-tendue switch shows on and locked, because rent control implies the zone tendue;
+- the help text points to service-public.fr's simulator, since the app does not encode a list of
+  communes;
+- S03 shows the zone tendue in the overview;
+- S06 offers the rent exemption when any asset of the lease is in a zone tendue, because the
+  exemption lifts the relocation rule, never a rent-control cap.

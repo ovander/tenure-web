@@ -111,7 +111,8 @@ const exemptions = [
   { value: 'works', label: t('lease.exemption.works') },
   { value: 'under_valued', label: t('lease.exemption.under_valued') },
 ]
-const controlled = computed(() => (form.asset_ids ?? []).some((a) => assets.byId[a]?.controlled_zone))
+// The exemption lifts the relocation rule, which applies in a zone tendue (Q-W14).
+const tense = computed(() => (form.asset_ids ?? []).some((a) => assets.byId[a]?.tense_zone || assets.byId[a]?.controlled_zone))
 const tenantIds = computed({
   get: () => (form.tenants ?? []).map((x) => x.tenant_id ?? ''),
   set: (ids: string[]) => {
@@ -140,7 +141,7 @@ async function save(): Promise<void> {
   const body: LeaseInput = { ...form }
   if ((form.asset_ids ?? []).length > 1) body.rent_breakdown = (form.asset_ids ?? []).map((a) => ({ asset_id: a, rent_cents: breakdown[a] ?? 0 }))
   else body.rent_breakdown = undefined
-  if (!controlled.value) body.rent_exemption = undefined
+  if (!tense.value) body.rent_exemption = undefined
   let saved: Lease | undefined
   const ok = await submit(async () => {
     saved = existing.value?.id ? await leases.update(existing.value.id, body, existing.value.version ?? 0) : await leases.create(body)
@@ -212,7 +213,7 @@ async function save(): Promise<void> {
           <Select v-model="form.revision_month" input-id="revision_month" :options="months" option-label="label" option-value="value" />
         </FormField>
       </div>
-      <FormField v-if="controlled" id="exemption" :help="t('help.lease.exemption')" :label="t('lease.exemption')" :error="errors.rent_exemption">
+      <FormField v-if="tense" id="exemption" :help="t('help.lease.exemption')" :label="t('lease.exemption')" :error="errors.rent_exemption">
         <Select v-model="exemption" input-id="exemption" :options="exemptions" option-label="label" option-value="value" class="w-80" />
       </FormField>
       <fieldset v-if="form.kind !== 'box'" class="space-y-2">

@@ -6997,6 +6997,11 @@ export interface components {
             /** @description Shares defaults to 100 % for the owner of the scope. */
             shares?: components["schemas"]["portfolio.ShareView"][];
             surface_hundredths_m2?: number;
+            /**
+             * @description TenseZone is the zone tendue (Q-102); it is stored and returned as
+             *     true whenever ControlledZone is set.
+             */
+            tense_zone?: boolean;
         };
         /** @enum {string} */
         "portfolio.AssetKind": "house" | "apartment" | "box";
@@ -7019,6 +7024,11 @@ export interface components {
             /** @description Shares defaults to 100 % for the owner of the scope. */
             shares?: components["schemas"]["portfolio.ShareView"][];
             surface_hundredths_m2?: number;
+            /**
+             * @description TenseZone is the zone tendue (Q-102); it is stored and returned as
+             *     true whenever ControlledZone is set.
+             */
+            tense_zone?: boolean;
             updated_at?: string;
             version?: number;
         };
