@@ -11,6 +11,7 @@ import Message from 'primevue/message'
 import ToggleSwitch from 'primevue/toggleswitch'
 import { useToast } from 'primevue/usetoast'
 import FormField from '@/components/FormField.vue'
+import HelpTip from '@/components/HelpTip.vue'
 import DayInput from '@/components/DayInput.vue'
 import { useProblemForm } from '@/app/form'
 import { useAssets, type Diagnostic, type DiagnosticInput } from './store'
@@ -57,26 +58,27 @@ function close(): void {
   <Dialog v-model:visible="visible" modal :header="d ? t('common.edit') : t('diag.add')" class="w-[32rem]" data-test="diagnostic-dialog" @hide="close">
     <form class="space-y-4" novalidate @submit.prevent="save">
       <Message v-if="summary" severity="error" :closable="false" data-test="diag-error">{{ summary }}</Message>
-      <FormField id="diag_kind" :label="t('diag.kind')" :error="errors.kind">
+      <FormField id="diag_kind" :help="t('help.diag.kind')" :label="t('diag.kind')" :error="errors.kind">
         <Select v-model="form.kind" input-id="diag_kind" :options="kinds" option-label="label" option-value="value" :disabled="!!d" />
       </FormField>
       <div class="flex items-center gap-3">
         <ToggleSwitch v-model="notRequired" input-id="diag_not_required" />
         <label for="diag_not_required" class="text-sm font-medium">{{ t('diag.notRequired') }}</label>
+        <HelpTip id="diag_not_required" :text="t('help.diag.notRequired')" />
       </div>
-      <FormField v-if="notRequired" id="diag_reason" :label="t('diag.notRequiredReason')" :error="errors.not_required_reason">
+      <FormField v-if="notRequired" id="diag_reason" :help="t('help.diag.reason')" :label="t('diag.notRequiredReason')" :error="errors.not_required_reason">
         <InputText id="diag_reason" v-model="form.not_required_reason" :invalid="!!errors.not_required_reason" />
       </FormField>
       <template v-else>
         <div class="grid grid-cols-2 gap-4">
-          <FormField id="diag_done" :label="t('diag.doneOn')" :error="errors.done_on">
+          <FormField id="diag_done" :help="t('help.diag.doneOn')" :label="t('diag.doneOn')" :error="errors.done_on">
             <DayInput id="diag_done" v-model="form.done_on" :invalid="!!errors.done_on" />
           </FormField>
-          <FormField id="diag_valid" :label="`${t('diag.validUntil')} (${t('common.optional')})`" :error="errors.valid_until">
+          <FormField id="diag_valid" :help="t('help.diag.validUntil')" :label="`${t('diag.validUntil')} (${t('common.optional')})`" :error="errors.valid_until">
             <DayInput id="diag_valid" v-model="form.valid_until" />
           </FormField>
         </div>
-        <FormField id="diag_result" :label="t('diag.result')" :error="errors.result">
+        <FormField id="diag_result" :help="t('help.diag.result')" :label="t('diag.result')" :error="errors.result">
           <Select v-if="isDPE" v-model="form.result" input-id="diag_result" :options="dpeClasses" option-label="label" option-value="value" class="w-40" :invalid="!!errors.result" />
           <InputText v-else id="diag_result" v-model="form.result" />
         </FormField>

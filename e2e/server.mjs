@@ -38,6 +38,16 @@ const fresh = () => ({
   guarantees: [],
   inventories: [],
   uploads: [],
+  // Legal parameters, made up on purpose: the app must read them, never know
+  // them (tenure-api /params, /params/irl).
+  params: {
+    lease_term_months: { unfurnished: 30, unfurnished_legal_owner: 60, furnished: 10, furnished_student: 8 },
+    mobility_term_months: { min: 2, max: 8 },
+    'deposit_max_months.unfurnished': 1,
+    'deposit_max_months.furnished': 3,
+    'deposit_max_months.mobility': 0,
+  },
+  irl: [{ quarter: '2026-Q1', value: 14590, published_on: '2026-04-15' }, { quarter: '2026-Q2', value: 14632, published_on: '2026-07-15' }],
   runs: [{ id: 'r1', job: 'billing.monthly', period: '2026-11', status: 'succeeded', finished_at: '2026-11-01T05:00:12Z' }],
   requests: [],
 })
@@ -85,6 +95,12 @@ async function api(req, res, path) {
     if (!entry.body?.legal_name) return json(res, 422, { type: 'invariant/fields', status: 422, title: 'Données invalides.', errors: [{ field: 'legal_name', message: 'Le nom est obligatoire.' }] })
     state.owner = { ...(state.owner ?? { id: '00000000-0000-7000-8000-000000000001' }), ...entry.body, version: (v ?? 0) + 1 }
     return json(res, state.owner.version === 1 ? 201 : 200, state.owner, { ETag: `W/"${state.owner.version}"` })
+  }
+  if (path === '/params/irl') return json(res, 200, state.irl)
+  if (path === '/params') {
+    const key = new URL(req.url, 'http://x').searchParams.get('key')
+    const rows = Object.entries(state.params).filter(([k]) => !key || k === key).map(([k, value]) => ({ key: k, value, effective_from: '2024-01-01', source: 'test' }))
+    return json(res, 200, rows)
   }
   if (path.startsWith('/jobs/runs')) return json(res, 200, { items: state.runs, total: state.runs.length, page: 1, size: 10 })
   if (assets(req, res, path, entry)) return

@@ -84,6 +84,6 @@ const generate = (g: Guarantee) => act(() => store.guaranteeDocument(g.id ?? '')
         </template>
       </Column>
     </DataTable>
-    <GuaranteeDialog v-if="editing !== undefined && lease.id" :lease-id="lease.id" :guarantee="editing" :deposit-cents="lease.deposit_cents" @saved="changed" @close="editing = undefined" />
+    <GuaranteeDialog v-if="editing !== undefined && lease.id" :lease-id="lease.id" :guarantee="editing" :deposit-cents="lease.deposit_cents" :start-on="lease.start_on" @saved="changed" @close="editing = undefined" />
   </div>
 </template>

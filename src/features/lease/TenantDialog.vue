@@ -50,20 +50,20 @@ function close(): void {
   <Dialog v-model:visible="visible" modal :header="t('lease.addTenant')" class="w-[30rem]" data-test="tenant-dialog" @hide="close">
     <form class="space-y-4" novalidate @submit.prevent="save">
       <Message v-if="summary" severity="error" :closable="false">{{ summary }}</Message>
-      <FormField id="tenant_names" :label="t('tenant.names')" :error="errors.names">
+      <FormField id="tenant_names" :help="t('help.tenant.names')" :label="t('tenant.names')" :error="errors.names">
         <Textarea id="tenant_names" v-model="form.names" rows="2" :invalid="!!errors.names" />
       </FormField>
       <div class="grid grid-cols-2 gap-4">
-        <FormField id="tenant_email" :label="t('tenant.email')" :error="errors.email">
+        <FormField id="tenant_email" :help="t('help.tenant.email')" :label="t('tenant.email')" :error="errors.email">
           <InputText id="tenant_email" v-model="form.email" type="email" :invalid="!!errors.email" />
         </FormField>
-        <FormField id="tenant_phone" :label="t('tenant.phone')" :error="errors.phone">
+        <FormField id="tenant_phone" :help="t('help.tenant.phone')" :label="t('tenant.phone')" :error="errors.phone">
           <InputText id="tenant_phone" v-model="form.phone" type="tel" />
         </FormField>
-        <FormField id="tenant_language" :label="t('tenant.language')">
+        <FormField id="tenant_language" :help="t('help.tenant.language')" :label="t('tenant.language')">
           <Select v-model="form.language" input-id="tenant_language" :options="languages" option-label="label" option-value="value" />
         </FormField>
-        <FormField id="tenant_occupation" :label="t('tenant.occupation')" :error="errors.occupation">
+        <FormField id="tenant_occupation" :help="t('help.tenant.occupation')" :label="t('tenant.occupation')" :error="errors.occupation">
           <Select v-model="form.occupation" input-id="tenant_occupation" :options="occupations" option-label="label" option-value="value" />
         </FormField>
       </div>

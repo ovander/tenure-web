@@ -166,7 +166,7 @@ const confirmBody = computed(() => (confirming.value ? t(`confirm.${confirming.v
       <ComingSoonPanel v-else />
 
       <ConfirmDialog v-model:visible="confirmVisible" :title="confirmLabel" :body="confirmBody" :confirm="confirmLabel" :busy="busy" :disabled="confirming === 'notice' && !endOn" @confirm="run">
-        <FormField v-if="confirming === 'notice'" id="notice_end" :label="t('lease.endOn')">
+        <FormField v-if="confirming === 'notice'" id="notice_end" :help="t('help.lease.noticeEnd')" :label="t('lease.endOn')">
           <DayInput id="notice_end" v-model="endOn" />
         </FormField>
         <Message v-if="error" severity="error" :closable="false" class="mt-3" data-test="confirm-error">{{ error }}</Message>

@@ -9,6 +9,7 @@ import Textarea from 'primevue/textarea'
 import Select from 'primevue/select'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
+import HelpTip from '@/components/HelpTip.vue'
 import { useToast } from 'primevue/usetoast'
 import { api, ApiError } from '@/api/client'
 import type { Owner, OwnerInput } from '@/api/types'
@@ -68,22 +69,34 @@ async function save(): Promise<void> {
   <form class="space-y-5" novalidate data-test="profile" @submit.prevent="save">
     <Message v-if="ruleError" severity="error" :closable="false" data-test="form-error">{{ ruleError }}</Message>
     <div class="flex flex-col gap-1">
-      <label for="legal_name" class="text-sm font-medium">{{ t('profile.legalName') }}</label>
+      <span class="flex items-center gap-1">
+        <label for="legal_name" class="text-sm font-medium">{{ t('profile.legalName') }}</label>
+        <HelpTip id="legal_name" :text="t('help.profile.legalName')" />
+      </span>
       <InputText id="legal_name" v-model="form.legal_name" :invalid="!!errors.legal_name" autocomplete="name" />
       <small v-if="errors.legal_name" class="text-red-600">{{ errors.legal_name }}</small>
     </div>
     <div class="flex flex-col gap-1">
-      <label for="address" class="text-sm font-medium">{{ t('profile.address') }}</label>
+      <span class="flex items-center gap-1">
+        <label for="address" class="text-sm font-medium">{{ t('profile.address') }}</label>
+        <HelpTip id="address" :text="t('help.profile.address')" />
+      </span>
       <Textarea id="address" v-model="form.address" rows="3" :invalid="!!errors.address" autocomplete="street-address" />
       <small v-if="errors.address" class="text-red-600">{{ errors.address }}</small>
     </div>
     <div class="flex flex-col gap-1">
-      <label for="tax_id" class="text-sm font-medium">{{ t('profile.taxId') }}</label>
+      <span class="flex items-center gap-1">
+        <label for="tax_id" class="text-sm font-medium">{{ t('profile.taxId') }}</label>
+        <HelpTip id="tax_id" :text="t('help.profile.taxId')" />
+      </span>
       <InputText id="tax_id" v-model="form.tax_id" :invalid="!!errors.tax_id" />
       <small v-if="errors.tax_id" class="text-red-600">{{ errors.tax_id }}</small>
     </div>
     <div class="flex flex-col gap-1">
-      <label for="language" class="text-sm font-medium">{{ t('profile.language') }}</label>
+      <span class="flex items-center gap-1">
+        <label for="language" class="text-sm font-medium">{{ t('profile.language') }}</label>
+        <HelpTip id="language" :text="t('help.profile.language')" />
+      </span>
       <Select v-model="form.language" input-id="language" :options="languages" option-label="label" option-value="value" class="w-60" />
     </div>
     <p class="text-sm text-slate-500">{{ t('profile.socrate') }}</p>

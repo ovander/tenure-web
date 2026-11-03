@@ -11,13 +11,14 @@ import ToggleSwitch from 'primevue/toggleswitch'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
 import FormField from '@/components/FormField.vue'
+import HelpTip from '@/components/HelpTip.vue'
 import DecimalInput from '@/components/DecimalInput.vue'
 import DayInput from '@/components/DayInput.vue'
 import { useProblemForm } from '@/app/form'
 import { useLeases, guarantorOf, type Guarantee, type GuaranteeInput, type GuaranteeKind, type Guarantor } from './store'
 import { t, type Key } from '@/i18n'
 
-const props = defineProps<{ leaseId: string; guarantee: Guarantee | null; depositCents?: number }>()
+const props = defineProps<{ leaseId: string; guarantee: Guarantee | null; depositCents?: number; startOn?: string }>()
 const emit = defineEmits<{ saved: []; close: [] }>()
 const store = useLeases()
 const visible = ref(true)
@@ -37,8 +38,10 @@ const statuses = computed(() =>
 )
 const { errors, summary, busy, submit } = useProblemForm(async () => emit('saved'))
 
+// A guarantee other than the deposit is proposed valid from the lease start.
 function kindChanged(): void {
   form.status = form.kind === 'deposit' ? 'held' : 'valid'
+  if (form.kind !== 'deposit' && !form.valid_from) form.valid_from = props.startOn ?? null
 }
 
 async function save(): Promise<void> {
@@ -70,38 +73,38 @@ function close(): void {
     <form class="space-y-4" novalidate @submit.prevent="save">
       <Message v-if="summary" severity="error" :closable="false" data-test="guarantee-error">{{ summary }}</Message>
       <div class="grid grid-cols-2 gap-4">
-        <FormField id="g_kind" :label="t('guarantee.kind')" :error="errors.kind">
+        <FormField id="g_kind" :help="t('help.guarantee.kind')" :label="t('guarantee.kind')" :error="errors.kind">
           <Select v-model="form.kind" input-id="g_kind" :options="kinds" option-label="label" option-value="value" :disabled="!!g" @change="kindChanged" />
         </FormField>
-        <FormField id="g_status" :label="t('guarantee.status')" :error="errors.status">
+        <FormField id="g_status" :help="t('help.guarantee.status')" :label="t('guarantee.status')" :error="errors.status">
           <Select v-model="form.status" input-id="g_status" :options="statuses" option-label="label" option-value="value" />
         </FormField>
       </div>
-      <FormField v-if="form.kind === 'deposit'" id="g_amount" :label="t('guarantee.amount')" :error="errors.amount_cents">
+      <FormField v-if="form.kind === 'deposit'" id="g_amount" :help="t('help.guarantee.amount')" :label="t('guarantee.amount')" :error="errors.amount_cents">
         <DecimalInput id="g_amount" v-model="form.amount_cents" suffix="€" :invalid="!!errors.amount_cents" />
       </FormField>
       <template v-if="form.kind === 'surety'">
-        <FormField id="g_name" :label="t('guarantee.name')" :error="errors.guarantor">
+        <FormField id="g_name" :help="t('help.guarantee.name')" :label="t('guarantee.name')" :error="errors.guarantor">
           <InputText id="g_name" v-model="guarantor.name" :invalid="!!errors.guarantor" />
         </FormField>
-        <FormField id="g_address" :label="t('guarantee.address')">
+        <FormField id="g_address" :help="t('help.guarantee.address')" :label="t('guarantee.address')">
           <Textarea id="g_address" v-model="guarantor.address" rows="2" />
         </FormField>
         <div class="flex gap-6">
-          <label class="flex items-center gap-2 text-sm"><ToggleSwitch v-model="guarantor.legal_person" input-id="g_legal" />{{ t('guarantee.legalPerson') }}</label>
-          <label class="flex items-center gap-2 text-sm"><ToggleSwitch v-model="guarantor.solidary" input-id="g_solidary" />{{ t('guarantee.solidary') }}</label>
+          <span class="flex items-center gap-2 text-sm"><ToggleSwitch v-model="guarantor.legal_person" input-id="g_legal" /><label for="g_legal">{{ t('guarantee.legalPerson') }}</label><HelpTip id="g_legal" :text="t('help.guarantee.legalPerson')" /></span>
+          <span class="flex items-center gap-2 text-sm"><ToggleSwitch v-model="guarantor.solidary" input-id="g_solidary" /><label for="g_solidary">{{ t('guarantee.solidary') }}</label><HelpTip id="g_solidary" :text="t('help.guarantee.solidary')" /></span>
         </div>
       </template>
-      <FormField v-if="form.kind === 'visale'" id="g_visa" :label="t('guarantee.visa')">
+      <FormField v-if="form.kind === 'visale'" id="g_visa" :help="t('help.guarantee.visa')" :label="t('guarantee.visa')">
         <InputText id="g_visa" v-model="guarantor.visa_number" />
       </FormField>
       <div v-if="form.kind === 'insurance'" class="grid grid-cols-2 gap-4">
-        <FormField id="g_insurer" :label="t('guarantee.insurer')"><InputText id="g_insurer" v-model="guarantor.insurer" /></FormField>
-        <FormField id="g_policy" :label="t('guarantee.policy')"><InputText id="g_policy" v-model="guarantor.policy" /></FormField>
+        <FormField id="g_insurer" :help="t('help.guarantee.insurer')" :label="t('guarantee.insurer')"><InputText id="g_insurer" v-model="guarantor.insurer" /></FormField>
+        <FormField id="g_policy" :help="t('help.guarantee.policy')" :label="t('guarantee.policy')"><InputText id="g_policy" v-model="guarantor.policy" /></FormField>
       </div>
       <div v-if="form.kind !== 'deposit'" class="grid grid-cols-2 gap-4">
-        <FormField id="g_from" :label="t('guarantee.validFrom')" :error="errors.valid_from"><DayInput id="g_from" v-model="form.valid_from" /></FormField>
-        <FormField id="g_to" :label="t('guarantee.validTo')" :error="errors.valid_to"><DayInput id="g_to" v-model="form.valid_to" /></FormField>
+        <FormField id="g_from" :help="t('help.guarantee.validFrom')" :label="t('guarantee.validFrom')" :error="errors.valid_from"><DayInput id="g_from" v-model="form.valid_from" /></FormField>
+        <FormField id="g_to" :help="t('help.guarantee.validTo')" :label="t('guarantee.validTo')" :error="errors.valid_to"><DayInput id="g_to" v-model="form.valid_to" /></FormField>
       </div>
       <div class="flex justify-end gap-2">
         <Button :label="t('common.cancel')" severity="secondary" text @click="close" />

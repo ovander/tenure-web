@@ -85,3 +85,25 @@ slice, where a rent change shows on the next rent call.
   remains, with a tooltip naming the first one;
 - every other refusal (a deposit not settled at close, a missing notice date) comes back as the
   API's problem inside the confirmation dialog.
+
+**Q-W13 Field help and defaults — Open (owner feedback).** The owner asked for default values
+and an explanation on every input. Provisional:
+- **Help:** every field has a help tip beside its label: a short FR/EN text saying what is asked
+  and why, shown on hover and on keyboard focus and linked by `aria-describedby`. It is CSS only
+  (Q-W1). The texts state no legal number, because those come from the parameters.
+- **Defaults of a new lease:**
+  - start date: the 1st of next month (Europe/Paris);
+  - due day: the 1st;
+  - revision month: the start month;
+  - IRL: the latest published quarter and its value;
+  - term: `lease_term_months` for unfurnished and furnished, the longest `mobility_term_months`
+    for a mobility lease, none for a box;
+  - deposit: the rent × `deposit_max_months` for the kind, none for a box.
+- Each default follows its source (the kind, the rent, the start date) until the user changes
+  the field, and is then never overwritten. Without the parameter (tenure-api < v0.1.2) there is
+  no default, and the term's help says so.
+- **Other defaults:** a guarantee other than the deposit is valid from the lease start; an entry
+  inventory is dated the lease start, an exit one the lease end or today.
+- The deposit is proposed at the legal cap, as owners usually ask; the help says less may be
+  asked. No default is proposed for a notice date: the notice periods (`notice_months.*`) arrive
+  in phase 2.
