@@ -11,6 +11,10 @@ time, which `style-src 'self'` blocks. Provisional:
 - the app passes that nonce to PrimeVue (`csp.nonce`);
 - scripts stay `'self'` only, and `'unsafe-inline'` is never used;
 - the smoke test runs under this policy and fails on any violation.
+- a nonce never covers style **attributes**. PrimeVue's Tooltip directive writes one
+  (`setAttribute('style', …)`), so it is not used: a blocker or a hash is named through the
+  `title` attribute, and ESLint refuses `primevue/tooltip`. Any other component found writing a
+  style attribute gets the same treatment, never `'unsafe-inline'`.
 
 **Q-W2 What the shell holds — Open (shell).** Provisional:
 - v0.1.0 has the layout, the session and two screens: S01 Home, with the last job runs and the

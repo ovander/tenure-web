@@ -74,7 +74,7 @@ const details = computed(() => {
           </Column>
           <Column :header="t('diag.doneOn')">
             <template #body="{ data }">
-              <Tag v-if="data.not_required_reason" v-tooltip="data.not_required_reason" severity="secondary" :value="t('diag.notRequired')" />
+              <Tag v-if="data.not_required_reason" :title="data.not_required_reason" severity="secondary" :value="t('diag.notRequired')" />
               <span v-else>{{ date(data.done_on) }}</span>
             </template>
           </Column>

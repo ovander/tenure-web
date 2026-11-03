@@ -121,10 +121,10 @@ const confirmBody = computed(() => (confirming.value ? t(`confirm.${confirming.v
           <RouterLink v-if="lease.state === 'draft'" :to="`/leases/${lease.id}/edit`">
             <Button :label="t('common.edit')" icon="pi pi-pencil" severity="secondary" data-test="edit-lease" />
           </RouterLink>
-          <span v-if="lease.state === 'draft'" v-tooltip.bottom="blockers.generation?.[0]?.title">
+          <span v-if="lease.state === 'draft'" :title="blockers.generation?.[0]?.title" data-test="generate-reason">
             <Button :label="t('action.generate')" icon="pi pi-file" severity="secondary" :disabled="!!blockers.generation?.length" data-test="generate" @click="ask('generate')" />
           </span>
-          <span v-for="a in actions" :key="a" v-tooltip.bottom="blockedBy(a)">
+          <span v-for="a in actions" :key="a" :title="blockedBy(a)" :data-test="`reason-${a}`">
             <Button :label="t(`action.${a}` as Key)" :disabled="!!blockedBy(a)" :data-test="`action-${a}`" @click="ask(a)" />
           </span>
         </div>

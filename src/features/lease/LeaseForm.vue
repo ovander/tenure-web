@@ -130,7 +130,7 @@ async function save(): Promise<void> {
         <FormField id="lease_tenants" :label="t('lease.tenants')" :error="errors.tenants">
           <div class="flex gap-2">
             <MultiSelect v-model="tenantIds" input-id="lease_tenants" :options="tenantOptions" option-label="label" option-value="value" display="chip" class="min-w-0 flex-1" :invalid="!!errors.tenants" />
-            <Button v-tooltip="t('lease.addTenant')" type="button" icon="pi pi-user-plus" severity="secondary" :aria-label="t('lease.addTenant')" data-test="add-tenant" @click="addingTenant = true" />
+            <Button :title="t('lease.addTenant')" type="button" icon="pi pi-user-plus" severity="secondary" :aria-label="t('lease.addTenant')" data-test="add-tenant" @click="addingTenant = true" />
           </div>
         </FormField>
         <FormField id="start_on" :label="t('lease.startOn')" :error="errors.start_on">
