@@ -201,3 +201,50 @@ test('an accountant reads a lease with no write control and no guarantor', async
   await page.goto('/leases/new?asset_id=a1')
   await expect(page).toHaveURL(/\/$/)
 })
+
+test('a new lease proposes its defaults from the parameters, and help shows on focus', async ({ page }) => {
+  await mock(page)
+  const violations = await watchCSP(page)
+  await page.goto('/leases/new?asset_id=a1')
+  const first = await page.evaluate(() => {
+    const p = new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', timeZone: 'Europe/Paris' }).formatToParts(new Date())
+    const y = Number(p.find((x) => x.type === 'year')!.value)
+    const m = Number(p.find((x) => x.type === 'month')!.value)
+    return m === 12 ? { day: `01/01/${y + 1}`, month: 'janvier' } : { day: `01/${String(m + 1).padStart(2, '0')}/${y}`, month: '' }
+  })
+  await expect(page.locator('#start_on')).toHaveValue(first.day)
+  await expect(page.locator('#due_day')).toHaveValue('1')
+  // The latest IRL quarter and its value, from /params/irl.
+  await expect(page.locator('#irl_quarter')).toHaveValue('2026-Q2')
+  await expect(page.locator('#irl_value')).toHaveValue('146,32')
+  // The term and the deposit follow the kind's parameters (made-up values).
+  await expect(page.locator('#term_months')).toHaveValue('30')
+  await page.locator('#rent').fill('800')
+  await page.locator('#rent').press('Tab')
+  await expect(page.locator('#deposit')).toHaveValue('800,00')
+  await page.locator('#lease_kind').click()
+  await page.getByRole('option', { name: 'Location meublée' }).click()
+  await expect(page.locator('#term_months')).toHaveValue('10')
+  await expect(page.locator('#deposit')).toHaveValue(/^2[\s\u202f]400,00$/)
+  // A value the user typed is kept when the kind changes again.
+  await page.locator('#deposit').fill('1000')
+  await page.locator('#deposit').press('Tab')
+  await page.locator('#lease_kind').click()
+  await page.getByRole('option', { name: 'Location nue' }).click()
+  await expect(page.locator('#term_months')).toHaveValue('30')
+  await expect(page.locator('#deposit')).toHaveValue(/^1[\s\u202f]000,00$/)
+  // A box has no statutory term: none is proposed, and the help says so.
+  await page.locator('#lease_kind').click()
+  await page.getByRole('option', { name: 'Box ou parking' }).click()
+  await expect(page.locator('#term_months')).toHaveValue('')
+  // Help: hidden, then shown on keyboard focus, linked to its button.
+  const tip = page.getByTestId('help-text-term_months')
+  await expect(tip).toBeHidden()
+  await page.getByTestId('help-term_months').focus()
+  await expect(tip).toBeVisible()
+  await expect(tip).toContainText('Aucune durée légale')
+  await expect(page.getByTestId('help-term_months')).toHaveAttribute('aria-describedby', 'term_months-help')
+  await page.getByTestId('help-deposit').hover()
+  await expect(page.getByTestId('help-text-deposit')).toBeVisible()
+  expect(violations).toEqual([])
+})
