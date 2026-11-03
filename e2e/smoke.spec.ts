@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { watchCSP } from './csp'
 
 // Smoke of the shell (RENT-FE-001 §7) under tenure's CSP: a session is read
 // from the BFF, the CSRF token rides on unsafe requests, a missing session
@@ -12,17 +13,10 @@ async function mock(page: Page, state: Record<string, unknown> = {}): Promise<vo
 }
 const requests = async (page: Page): Promise<Req[]> => (await page.request.get('/__mock/requests')).json()
 
-function watchCSP(page: Page): string[] {
-  const violations: string[] = []
-  page.on('console', (m) => {
-    if (/Content Security Policy|Refused to/.test(m.text())) violations.push(m.text())
-  })
-  return violations
-}
 
 test('a signed-in owner sees home, styled, with no CSP violation', async ({ page }) => {
   await mock(page)
-  const violations = watchCSP(page)
+  const violations = await watchCSP(page)
   await page.goto('/')
   await expect(page.getByTestId('welcome')).toHaveText('Bonjour Bailleur Test')
   await expect(page.getByTestId('runs')).toContainText('billing.monthly')
@@ -53,7 +47,7 @@ test('without a session the app goes to the BFF login with its return path', asy
 
 test('the profile saves with If-Match and the CSRF token, and switches the language', async ({ page }) => {
   await mock(page)
-  const violations = watchCSP(page)
+  const violations = await watchCSP(page)
   await page.goto('/settings/profile')
   await expect(page.locator('#legal_name')).toHaveValue('Bailleur Test')
   await page.locator('#legal_name').fill('')

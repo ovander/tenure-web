@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { watchCSP } from './csp'
 
 // Web slice 2, RENT-FE-001 flow 1 « lease to activation » under tenure's CSP:
 // draft with a new tenant → blockers → DPE → contract → guarantees → signed
@@ -19,13 +20,6 @@ async function mock(page: Page, state: Record<string, unknown> = {}): Promise<vo
     },
   })
 }
-function watchCSP(page: Page): string[] {
-  const v: string[] = []
-  page.on('console', (m) => {
-    if (/Content Security Policy|Refused to/.test(m.text())) v.push(m.text())
-  })
-  return v
-}
 async function confirm(page: Page): Promise<void> {
   await page.getByTestId('confirm').click()
   await expect(page.getByTestId('confirm-dialog')).toBeHidden()
@@ -33,7 +27,7 @@ async function confirm(page: Page): Promise<void> {
 
 test('flow 1: from a draft to an active lease, then to its close', async ({ page }) => {
   await mock(page)
-  const violations = watchCSP(page)
+  const violations = await watchCSP(page)
 
   // The asset's Leases tab opens a new draft for it.
   await page.goto('/assets/a1/leases')
