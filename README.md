@@ -17,6 +17,8 @@ contracts and guarantees, 10-year immutable archive.
 Phase 1, slice by slice (`docs/IMPLEMENTATION-PLAN.md`):
 - v0.1.0 is the shell: layout, session, S01 Home and S14 Settings › Profile;
 - slice 1 adds the assets: list, hub, form and diagnostics.
+- slice 2 adds the leases: form with tenants, hub with blockers and transitions, contract,
+  guarantees and inventories.
 
 ## Development
 
