@@ -79,6 +79,7 @@ export function toInput(a: Asset): AssetInput {
     surface_hundredths_m2: a.surface_hundredths_m2 ?? undefined,
     furnished: a.furnished ?? false,
     dpe_class: a.dpe_class || undefined,
+    tense_zone: (a.tense_zone ?? false) || (a.controlled_zone ?? false),
     controlled_zone: a.controlled_zone ?? false,
     rent_control_zone: a.rent_control_zone ?? '',
     rent_control_category: a.rent_control_category ?? '',

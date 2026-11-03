@@ -37,6 +37,7 @@ const details = computed(() => {
     rows.push(['assets.surface', surface(a.surface_hundredths_m2)])
     rows.push(['assets.furnished', a.furnished ? t('common.yes') : t('common.no')])
     rows.push(['assets.dpe', a.dpe_class || t('common.none')])
+    rows.push(['hub.tenseZone', a.tense_zone || a.controlled_zone ? t('common.yes') : t('common.no')])
     rows.push(['hub.controlledZone', a.controlled_zone ? `${a.rent_control_zone} · ${a.rent_control_category}` : t('common.no')])
   }
   if (a.acquired_on) rows.push(['hub.acquired', date(a.acquired_on)])
