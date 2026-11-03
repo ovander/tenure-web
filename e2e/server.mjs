@@ -8,6 +8,7 @@ import { readFile, stat } from 'node:fs/promises'
 import { randomBytes } from 'node:crypto'
 import { extname, join, normalize } from 'node:path'
 import { leaseRoutes } from './mock-leases.mjs'
+import { billingRoutes } from './mock-billing.mjs'
 
 const dist = new URL('../dist/', import.meta.url).pathname
 const port = Number(process.env.PORT ?? 4173)
@@ -53,6 +54,7 @@ const fresh = () => ({
 })
 let state = fresh()
 const leases = (...a) => leaseRoutes({ state, json, invalid, uuid, record })(...a)
+const billing = (...a) => billingRoutes({ state, json, invalid, uuid, record })(...a)
 
 const json = (res, status, body, headers = {}) => {
   res.writeHead(status, { 'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json', ...headers })
@@ -104,6 +106,7 @@ async function api(req, res, path) {
   }
   if (path.startsWith('/jobs/runs')) return json(res, 200, { items: state.runs, total: state.runs.length, page: 1, size: 10 })
   if (assets(req, res, path, entry)) return
+  if (billing(req, res, path, entry)) return
   if (leases(req, res, path, entry)) return
   return json(res, 404, { type: 'about:blank', status: 404, title: 'Introuvable.' })
 }
