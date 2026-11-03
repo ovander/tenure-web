@@ -8,6 +8,7 @@ import Message from 'primevue/message'
 import { useToast } from 'primevue/usetoast'
 import DocumentCard from '@/components/DocumentCard.vue'
 import FilePicker from '@/components/FilePicker.vue'
+import HelpTip from '@/components/HelpTip.vue'
 import { ApiError } from '@/api/client'
 import { useLeases, type DocumentMeta, type Lease, type LeaseDocument } from './store'
 import { useSession } from '@/stores/session'
@@ -59,7 +60,7 @@ async function uploadSigned(): Promise<void> {
       </div>
     </section>
     <section v-if="s.canWrite && contract && lease.state === 'draft'" class="rounded-md border border-slate-200 bg-white p-5" data-test="upload-signed">
-      <h2 class="mb-3 font-medium">{{ t('contract.uploadSigned') }}</h2>
+      <h2 class="mb-3 flex items-center gap-1 font-medium">{{ t('contract.uploadSigned') }} <HelpTip id="signed" :text="t('help.contract.signed')" /></h2>
       <Message v-if="error" severity="error" :closable="false" class="mb-3" data-test="upload-error">{{ error }}</Message>
       <div class="flex flex-wrap items-center gap-3">
         <FilePicker id="signed" v-model="file" accept="application/pdf" />

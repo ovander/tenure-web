@@ -15,11 +15,14 @@ import Button from 'primevue/button'
 import Message from 'primevue/message'
 import { useToast } from 'primevue/usetoast'
 import FormField from '@/components/FormField.vue'
+import HelpTip from '@/components/HelpTip.vue'
 import DecimalInput from '@/components/DecimalInput.vue'
 import DayInput from '@/components/DayInput.vue'
 import TenantDialog from './TenantDialog.vue'
 import { useProblemForm } from '@/app/form'
 import { useAssets, assetLabel, type Asset } from '@/features/portfolio/store'
+import { Suggestions, depositFor, firstOfNextMonth, monthOf, termFor } from './defaults'
+import { latestIRL, param, type LeaseTerms, type Range } from '@/features/params/store'
 import { useLeases, toLeaseInput, tenantName, vettedClauses, mobilityReasons, type Lease, type LeaseInput, type LeaseKind, type Tenant } from './store'
 import { t, type Key } from '@/i18n'
 
@@ -35,8 +38,8 @@ const allTenants = ref<Tenant[]>([])
 const addingTenant = ref(false)
 const bad = reactive<Record<string, boolean>>({})
 const form = reactive<LeaseInput>({
-  kind: 'unfurnished', asset_ids: [], tenants: [], term_months: 36, due_day: 5, revision_month: 1, clauses: [],
-  rent_cents: undefined, provision_cents: 0, deposit_cents: 0, irl_ref_quarter: '', irl_ref_value: undefined,
+  kind: 'unfurnished', asset_ids: [], tenants: [], term_months: undefined, due_day: undefined, revision_month: undefined, clauses: [],
+  rent_cents: undefined, provision_cents: 0, deposit_cents: undefined, irl_ref_quarter: '', irl_ref_value: undefined,
 })
 const breakdown = reactive<Record<string, number | null | undefined>>({})
 
@@ -48,11 +51,48 @@ async function reload(): Promise<void> {
 }
 const { errors, summary, busy, submit } = useProblemForm(reload)
 
+// Defaults of a new lease (#11): each follows its source until the user
+// changes the field; the legal ones come from the API's parameters as of the
+// start date, never from code.
+const suggest = new Suggestions<LeaseInput>()
+const legal = reactive<{ terms?: LeaseTerms; mobility?: Range; caps: Record<string, number | undefined>; asOf?: string }>({ caps: {} })
+async function loadLegal(asOf: string | undefined): Promise<void> {
+  if (!asOf || legal.asOf === asOf) return
+  legal.asOf = asOf
+  const [terms, mobility, unf, fur, mob] = await Promise.all([
+    param<LeaseTerms>('lease_term_months', asOf),
+    param<Range>('mobility_term_months', asOf),
+    param<number>('deposit_max_months.unfurnished', asOf),
+    param<number>('deposit_max_months.furnished', asOf),
+    param<number>('deposit_max_months.mobility', asOf),
+  ])
+  Object.assign(legal, { terms, mobility, caps: { unfurnished: unf, furnished: fur, mobility: mob } })
+}
+function proposeLegal(): void {
+  if (id.value) return
+  suggest.propose(form, 'term_months', termFor(form.kind, legal.terms, legal.mobility))
+  suggest.propose(form, 'deposit_cents', depositFor(form.kind, form.rent_cents, legal.caps[form.kind ?? '']))
+  suggest.propose(form, 'revision_month', monthOf(form.start_on))
+}
+const termHelp = computed(() => (termFor(form.kind, legal.terms, legal.mobility) === undefined && !id.value ? t('help.lease.termNone') : t('help.lease.term')))
+watch(() => form.start_on, async (d) => {
+  await loadLegal(d ?? undefined)
+  proposeLegal()
+})
+watch(() => [form.kind, form.rent_cents], proposeLegal)
+
 onMounted(async () => {
   const [a, ts] = await Promise.all([assets.list(1, 100), leases.loadTenants()])
   allAssets.value = a.items
   allTenants.value = ts
   await reload()
+  if (!id.value) {
+    suggest.propose(form, 'start_on', firstOfNextMonth())
+    suggest.propose(form, 'due_day', 1)
+    const irl = await latestIRL()
+    suggest.propose(form, 'irl_ref_quarter', irl?.quarter)
+    suggest.propose(form, 'irl_ref_value', irl?.value)
+  }
   const from = route.query.asset_id as string | undefined
   if (!id.value && from) {
     form.asset_ids = [from]
@@ -117,66 +157,66 @@ async function save(): Promise<void> {
     <h1 class="mb-6 text-xl font-semibold">{{ id ? t('lease.edit') : t('lease.new') }}</h1>
     <form class="space-y-5" novalidate data-test="lease-form" @submit.prevent="save">
       <Message v-if="summary" severity="error" :closable="false" data-test="form-error">{{ summary }}</Message>
-      <FormField id="lease_kind" :label="t('lease.kind')" :error="errors.kind">
+      <FormField id="lease_kind" :help="t('help.lease.kind')" :label="t('lease.kind')" :error="errors.kind">
         <Select v-model="form.kind" input-id="lease_kind" :options="kinds" option-label="label" option-value="value" class="w-72" />
       </FormField>
-      <FormField v-if="form.kind === 'mobility'" id="mobility_reason" :label="t('lease.mobilityReason')" :error="errors.mobility_reason">
+      <FormField v-if="form.kind === 'mobility'" id="mobility_reason" :help="t('help.lease.mobilityReason')" :label="t('lease.mobilityReason')" :error="errors.mobility_reason">
         <Select v-model="form.mobility_reason" input-id="mobility_reason" :options="reasons" option-label="label" option-value="value" class="w-72" :invalid="!!errors.mobility_reason" />
       </FormField>
       <div class="grid gap-5 md:grid-cols-2">
-        <FormField id="lease_assets" :label="t('lease.assets')" :error="errors.asset_ids">
+        <FormField id="lease_assets" :help="t('help.lease.assets')" :label="t('lease.assets')" :error="errors.asset_ids">
           <MultiSelect v-model="form.asset_ids" input-id="lease_assets" :options="assetOptions" option-label="label" option-value="value" display="chip" :invalid="!!errors.asset_ids" />
         </FormField>
-        <FormField id="lease_tenants" :label="t('lease.tenants')" :error="errors.tenants">
+        <FormField id="lease_tenants" :help="t('help.lease.tenants')" :label="t('lease.tenants')" :error="errors.tenants">
           <div class="flex gap-2">
             <MultiSelect v-model="tenantIds" input-id="lease_tenants" :options="tenantOptions" option-label="label" option-value="value" display="chip" class="min-w-0 flex-1" :invalid="!!errors.tenants" />
             <Button :title="t('lease.addTenant')" type="button" icon="pi pi-user-plus" severity="secondary" :aria-label="t('lease.addTenant')" data-test="add-tenant" @click="addingTenant = true" />
           </div>
         </FormField>
-        <FormField id="start_on" :label="t('lease.startOn')" :error="errors.start_on">
+        <FormField id="start_on" :help="t('help.lease.startOn')" :label="t('lease.startOn')" :error="errors.start_on">
           <DayInput id="start_on" v-model="form.start_on" :invalid="!!errors.start_on" />
         </FormField>
-        <FormField id="term_months" :label="t('lease.term')" :error="errors.term_months">
+        <FormField id="term_months" :help="termHelp" :label="t('lease.term')" :error="errors.term_months">
           <InputNumber v-model="form.term_months" input-id="term_months" :min="1" :use-grouping="false" :invalid="!!errors.term_months" />
         </FormField>
-        <FormField id="rent" :label="t('lease.rent')" :error="errors.rent_cents">
+        <FormField id="rent" :help="t('help.lease.rent')" :label="t('lease.rent')" :error="errors.rent_cents">
           <DecimalInput id="rent" v-model="form.rent_cents" suffix="€" :invalid="!!errors.rent_cents" @invalid-input="(b) => (bad.rent_cents = b)" />
         </FormField>
-        <FormField id="provision" :label="t('lease.provision')" :error="errors.provision_cents">
+        <FormField id="provision" :help="t('help.lease.provision')" :label="t('lease.provision')" :error="errors.provision_cents">
           <DecimalInput id="provision" v-model="form.provision_cents" suffix="€" :invalid="!!errors.provision_cents" @invalid-input="(b) => (bad.provision_cents = b)" />
         </FormField>
-        <FormField id="deposit" :label="t('lease.deposit')" :error="errors.deposit_cents">
+        <FormField id="deposit" :help="t('help.lease.deposit')" :label="t('lease.deposit')" :error="errors.deposit_cents">
           <DecimalInput id="deposit" v-model="form.deposit_cents" suffix="€" :invalid="!!errors.deposit_cents" @invalid-input="(b) => (bad.deposit_cents = b)" />
         </FormField>
-        <FormField id="due_day" :label="t('lease.dueDay')" :error="errors.due_day">
+        <FormField id="due_day" :help="t('help.lease.dueDay')" :label="t('lease.dueDay')" :error="errors.due_day">
           <InputNumber v-model="form.due_day" input-id="due_day" :min="1" :max="28" :use-grouping="false" :invalid="!!errors.due_day" />
         </FormField>
       </div>
       <div v-if="(form.asset_ids ?? []).length > 1" class="rounded-md border border-slate-200 bg-white p-4" data-test="breakdown">
         <p class="mb-3 text-sm font-medium">{{ t('lease.breakdown') }}</p>
         <div class="grid gap-3 md:grid-cols-2">
-          <FormField v-for="a in form.asset_ids" :id="`part_${a}`" :key="a" :label="assets.byId[a] ? assetLabel(assets.byId[a]!) : a">
+          <FormField v-for="a in form.asset_ids" :id="`part_${a}`" :key="a" :help="t('help.lease.breakdown')" :label="assets.byId[a] ? assetLabel(assets.byId[a]!) : a">
             <DecimalInput :id="`part_${a}`" v-model="breakdown[a]" suffix="€" />
           </FormField>
         </div>
         <small class="text-slate-500">{{ t('lease.breakdownHint') }}</small>
       </div>
       <div class="grid gap-5 md:grid-cols-3">
-        <FormField id="irl_quarter" :label="t('lease.irlQuarter')" :error="errors.irl_ref_quarter" :hint="t('lease.irlQuarterHint')">
+        <FormField id="irl_quarter" :help="t('help.lease.irlQuarter')" :label="t('lease.irlQuarter')" :error="errors.irl_ref_quarter" :hint="t('lease.irlQuarterHint')">
           <InputText id="irl_quarter" v-model="form.irl_ref_quarter" placeholder="2025-Q2" :invalid="!!errors.irl_ref_quarter" />
         </FormField>
-        <FormField id="irl_value" :label="t('lease.irlValue')" :error="errors.irl_ref_value">
+        <FormField id="irl_value" :help="t('help.lease.irlValue')" :label="t('lease.irlValue')" :error="errors.irl_ref_value">
           <DecimalInput id="irl_value" v-model="form.irl_ref_value" suffix="IRL" :invalid="!!errors.irl_ref_value" @invalid-input="(b) => (bad.irl_ref_value = b)" />
         </FormField>
-        <FormField id="revision_month" :label="t('lease.revisionMonth')" :error="errors.revision_month">
+        <FormField id="revision_month" :help="t('help.lease.revisionMonth')" :label="t('lease.revisionMonth')" :error="errors.revision_month">
           <Select v-model="form.revision_month" input-id="revision_month" :options="months" option-label="label" option-value="value" />
         </FormField>
       </div>
-      <FormField v-if="controlled" id="exemption" :label="t('lease.exemption')" :error="errors.rent_exemption">
+      <FormField v-if="controlled" id="exemption" :help="t('help.lease.exemption')" :label="t('lease.exemption')" :error="errors.rent_exemption">
         <Select v-model="exemption" input-id="exemption" :options="exemptions" option-label="label" option-value="value" class="w-80" />
       </FormField>
       <fieldset v-if="form.kind !== 'box'" class="space-y-2">
-        <legend class="mb-1 text-sm font-medium">{{ t('lease.clauses') }}</legend>
+        <legend class="mb-1 flex items-center gap-1 text-sm font-medium">{{ t('lease.clauses') }} <HelpTip id="clauses" :text="t('help.lease.clauses')" /></legend>
         <div v-for="c in vettedClauses" :key="c" class="flex items-center gap-2">
           <Checkbox v-model="clauses" :input-id="`clause_${c}`" :value="c" />
           <label :for="`clause_${c}`" class="text-sm">{{ t(`clause.${c}` as Key) }}</label>

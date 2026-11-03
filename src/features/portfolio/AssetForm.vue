@@ -14,6 +14,7 @@ import Button from 'primevue/button'
 import Message from 'primevue/message'
 import { useToast } from 'primevue/usetoast'
 import FormField from '@/components/FormField.vue'
+import HelpTip from '@/components/HelpTip.vue'
 import DecimalInput from '@/components/DecimalInput.vue'
 import DayInput from '@/components/DayInput.vue'
 import { useProblemForm } from '@/app/form'
@@ -75,20 +76,20 @@ async function save(): Promise<void> {
     <h1 class="mb-6 text-xl font-semibold">{{ id ? t('form.editAsset') : t('form.newAsset') }}</h1>
     <form class="space-y-5" novalidate data-test="asset-form" @submit.prevent="save">
       <Message v-if="summary" severity="error" :closable="false" data-test="form-error">{{ summary }}</Message>
-      <FormField id="kind" :label="t('assets.kind')" :error="errors.kind" :hint="id ? t('form.kindLocked') : undefined">
+      <FormField id="kind" :help="t('help.asset.kind')" :label="t('assets.kind')" :error="errors.kind" :hint="id ? t('form.kindLocked') : undefined">
         <SelectButton id="kind" v-model="form.kind" :options="kinds" option-label="label" option-value="value" :allow-empty="false" :disabled="!!id" />
       </FormField>
       <div class="grid gap-5 md:grid-cols-2">
-        <FormField id="address" :label="t('assets.address')" :error="errors.address" class="md:col-span-2">
+        <FormField id="address" :help="t('help.asset.address')" :label="t('assets.address')" :error="errors.address" class="md:col-span-2">
           <Textarea id="address" v-model="form.address" rows="2" :invalid="!!errors.address" autocomplete="street-address" />
         </FormField>
-        <FormField id="lot" :label="`${t('assets.lot')} (${t('common.optional')})`" :error="errors.lot">
+        <FormField id="lot" :help="t('help.asset.lot')" :label="`${t('assets.lot')} (${t('common.optional')})`" :error="errors.lot">
           <InputText id="lot" v-model="form.lot" />
         </FormField>
-        <FormField v-if="form.kind !== 'box'" id="surface" :label="t('form.surface')" :error="errors.surface_hundredths_m2">
+        <FormField v-if="form.kind !== 'box'" id="surface" :help="t('help.asset.surface')" :label="t('form.surface')" :error="errors.surface_hundredths_m2">
           <DecimalInput id="surface" v-model="form.surface_hundredths_m2" suffix="m²" :invalid="!!errors.surface_hundredths_m2" @invalid-input="(b) => (badNumber.surface = b)" />
         </FormField>
-        <FormField v-else id="parent" :label="t('form.parent')" :error="errors.parent_asset_id">
+        <FormField v-else id="parent" :help="t('help.asset.parent')" :label="t('form.parent')" :error="errors.parent_asset_id">
           <Select v-model="parent" input-id="parent" :options="parents" option-label="label" option-value="value" :invalid="!!errors.parent_asset_id" />
         </FormField>
       </div>
@@ -97,29 +98,31 @@ async function save(): Promise<void> {
           <div class="flex items-center gap-3">
             <ToggleSwitch v-model="form.furnished" input-id="furnished" />
             <label for="furnished" class="text-sm font-medium">{{ t('assets.furnished') }}</label>
+            <HelpTip id="furnished" :text="t('help.asset.furnished')" />
           </div>
-          <FormField id="dpe" :label="t('form.dpe')" :error="errors.dpe_class">
+          <FormField id="dpe" :help="t('help.asset.dpe')" :label="t('form.dpe')" :error="errors.dpe_class">
             <Select v-model="form.dpe_class" input-id="dpe" :options="dpeClasses" option-label="label" option-value="value" show-clear class="w-40" />
           </FormField>
         </div>
         <div class="flex items-center gap-3">
           <ToggleSwitch v-model="form.controlled_zone" input-id="controlled_zone" />
           <label for="controlled_zone" class="text-sm font-medium">{{ t('form.controlledZone') }}</label>
+          <HelpTip id="controlled_zone" :text="t('help.asset.controlledZone')" />
         </div>
         <div v-if="form.controlled_zone" class="grid gap-5 md:grid-cols-2">
-          <FormField id="rent_zone" :label="t('form.rentZone')" :error="errors.rent_control_zone">
+          <FormField id="rent_zone" :help="t('help.asset.rentZone')" :label="t('form.rentZone')" :error="errors.rent_control_zone">
             <InputText id="rent_zone" v-model="form.rent_control_zone" :invalid="!!errors.rent_control_zone" />
           </FormField>
-          <FormField id="rent_category" :label="t('form.rentCategory')" :error="errors.rent_control_category">
+          <FormField id="rent_category" :help="t('help.asset.rentCategory')" :label="t('form.rentCategory')" :error="errors.rent_control_category">
             <InputText id="rent_category" v-model="form.rent_control_category" />
           </FormField>
         </div>
       </template>
       <div class="grid gap-5 md:grid-cols-2">
-        <FormField id="acquired_on" :label="`${t('form.acquiredOn')} (${t('common.optional')})`" :error="errors.acquired_on">
+        <FormField id="acquired_on" :help="t('help.asset.acquiredOn')" :label="`${t('form.acquiredOn')} (${t('common.optional')})`" :error="errors.acquired_on">
           <DayInput id="acquired_on" v-model="form.acquired_on" :invalid="!!errors.acquired_on" />
         </FormField>
-        <FormField id="acquisition" :label="`${t('form.acquisition')} (${t('common.optional')})`" :error="errors.acquisition_cents">
+        <FormField id="acquisition" :help="t('help.asset.acquisition')" :label="`${t('form.acquisition')} (${t('common.optional')})`" :error="errors.acquisition_cents">
           <DecimalInput id="acquisition" v-model="form.acquisition_cents" suffix="€" :invalid="!!errors.acquisition_cents" @invalid-input="(b) => (badNumber.acquisition = b)" />
         </FormField>
       </div>

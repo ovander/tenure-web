@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // The inventories tab: the entry inventory (needed to activate) and the
 // exit one, each with its signed document uploaded and scanned.
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Button from 'primevue/button'
@@ -29,6 +29,18 @@ const doneOn = ref<string | null>(null)
 const file = ref<File | null>(null)
 const busy = ref(false)
 const error = ref('')
+// The date is proposed: the lease start for the entry inventory, the lease
+// end (or today) for the exit one; the user's own date is kept.
+let proposedDay: string | null = null
+function today(): string {
+  return new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Europe/Paris' }).format(new Date())
+}
+function proposeDay(): void {
+  if (doneOn.value && doneOn.value !== proposedDay) return
+  proposedDay = kind.value === 'entry' ? (props.lease.start_on ?? null) : (props.lease.end_on || today())
+  doneOn.value = proposedDay
+}
+watch([kind, adding], proposeDay)
 const kinds = computed(() => (['entry', 'exit'] as const).filter((k) => !rows.value.some((r) => r.kind === k)).map((k) => ({ value: k, label: t(`inventory.kind.${k}` as Key) })))
 
 async function load(): Promise<void> {
@@ -66,10 +78,10 @@ async function save(): Promise<void> {
     <div v-if="adding" class="space-y-4 rounded-md border border-slate-200 bg-white p-5" data-test="inventory-form">
       <Message v-if="error" severity="error" :closable="false" data-test="inventory-error">{{ error }}</Message>
       <div class="grid gap-4 md:grid-cols-2">
-        <FormField id="inv_kind" :label="t('inventory.kind')"><Select v-model="kind" input-id="inv_kind" :options="kinds" option-label="label" option-value="value" /></FormField>
-        <FormField id="inv_done" :label="t('inventory.doneOn')"><DayInput id="inv_done" v-model="doneOn" /></FormField>
+        <FormField id="inv_kind" :help="t('help.inventory.kind')" :label="t('inventory.kind')"><Select v-model="kind" input-id="inv_kind" :options="kinds" option-label="label" option-value="value" /></FormField>
+        <FormField id="inv_done" :help="t('help.inventory.doneOn')" :label="t('inventory.doneOn')"><DayInput id="inv_done" v-model="doneOn" /></FormField>
       </div>
-      <FormField id="inv_file" :label="t('inventory.file')"><FilePicker id="inventory" v-model="file" accept="application/pdf" /></FormField>
+      <FormField id="inv_file" :help="t('help.inventory.file')" :label="t('inventory.file')"><FilePicker id="inventory" v-model="file" accept="application/pdf" /></FormField>
       <Button :label="t('common.save')" :disabled="!file || !doneOn" :loading="busy" data-test="save-inventory" @click="save" />
     </div>
     <DataTable :value="rows" size="small" data-key="id" data-test="inventories">
