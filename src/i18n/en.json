@@ -722,5 +722,6 @@
   "action.lease.amend": "Amendment",
   "action.lease.contract": "Contract generated",
   "action.lease.revise": "Rent revised (IRL)",
-  "action.lease.provision": "Provision adjusted"
+  "action.lease.provision": "Provision adjusted",
+  "blockers.validUntil": "valid until {date}"
 }

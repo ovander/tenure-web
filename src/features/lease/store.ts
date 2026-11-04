@@ -6,6 +6,8 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { api } from '@/api/client'
 import type { Page, Schemas } from '@/api/types'
+import { t, type Key } from '@/i18n'
+import { date } from '@/i18n/format'
 
 export type Lease = Schemas['lease.View']
 export type LeaseInput = Schemas['lease.Input']
@@ -162,6 +164,17 @@ export function toLeaseInput(l: Lease): LeaseInput {
 // tenantName is how a tenant is named: their names joined.
 export function tenantName(t: Pick<Tenant, 'names'> | undefined): string {
   return (t?.names ?? []).join(', ')
+}
+
+// blockerSubject says what a blocker is about (tenure-api Q-105), in the
+// owner's words: the diagnostic's name, the asset's label, and when an expired
+// diagnostic was last valid. Empty for a blocker about the lease itself.
+export function blockerSubject(b: Pick<Blocker, 'asset_id' | 'diagnostic' | 'valid_until'>, assetName: (id: string) => string | undefined): string {
+  return [
+    b.diagnostic ? t(`diag.kind.${b.diagnostic}` as Key) : '',
+    b.asset_id ? (assetName(b.asset_id) ?? '') : '',
+    b.valid_until ? t('blockers.validUntil', { date: date(b.valid_until) }) : '',
+  ].filter(Boolean).join(' · ')
 }
 
 // guarantorOf reads a guarantee's guarantor object.

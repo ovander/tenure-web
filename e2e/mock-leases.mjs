@@ -14,7 +14,7 @@ export function leaseRoutes(ctx) {
     for (const id of l.asset_ids) {
       const a = state.assets.find((x) => x.id === id)
       if (a && a.kind !== 'box' && !state.diagnostics.some((d) => d.asset_id === id && d.kind === 'dpe'))
-        generation.push({ type: 'lease/diagnostic-missing', title: 'Le diagnostic de performance énergétique (DPE) manque.', detail: a.address })
+        generation.push({ type: 'lease/diagnostic-missing', title: 'Le diagnostic de performance énergétique (DPE) manque.', detail: `asset ${a.id}: dpe`, asset_id: a.id, diagnostic: 'dpe' })
     }
     const contract = state.leaseDocs.filter((d) => d.lease_id === l.id && d.kind === 'contract').at(-1)
     const activation = []

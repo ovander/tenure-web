@@ -4,7 +4,7 @@
 // themselves. Pure functions: the view loads the data and passes today.
 import type { Key } from '@/i18n'
 import type { Arrears, BillingDoc, Payment } from '@/features/billing/store'
-import type { Blockers, Lease } from '@/features/lease/store'
+import type { Blocker, Blockers, Lease } from '@/features/lease/store'
 
 export type Severity = 'error' | 'warn' | 'info'
 
@@ -26,6 +26,9 @@ export interface TodoInput {
   billed: BillingDoc[]
   period: string
   label: (l: Lease) => string
+  // named says a blocker with what it is about (the asset, the diagnostic);
+  // its title when omitted.
+  named?: (b: Blocker) => string
   money: (cents: number) => string
   month: (period: string) => string
 }
@@ -58,10 +61,10 @@ export function todos(x: TodoInput): Todo[] {
     const blocking = [...(b.generation ?? []), ...(b.activation ?? [])]
     if (l.state === 'draft' && blocking.length)
       out.push({ id: `blocked-${id}`, severity: 'warn', key: 'todo.blocked', leaseId: id, to: `/leases/${id}/contract`,
-        params: { lease: x.label(l), n: blocking.length, first: blocking[0]?.title ?? '' } })
+        params: { lease: x.label(l), n: blocking.length, first: blocking[0] ? (x.named?.(blocking[0]) ?? blocking[0].title ?? '') : '' } })
     for (const [i, w] of (b.warnings ?? []).entries())
       out.push({ id: `warning-${id}-${i}`, severity: 'warn', key: 'todo.warning', leaseId: id, to: `/leases/${id}/overview`,
-        params: { lease: x.label(l), title: w.title ?? '' } })
+        params: { lease: x.label(l), title: x.named?.(w) ?? w.title ?? '' } })
   }
   const open = x.unmatched.filter((p) => (p.unmatched_cents ?? 0) > 0)
   if (open.length)

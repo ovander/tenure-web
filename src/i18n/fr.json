@@ -722,5 +722,6 @@
   "action.lease.amend": "Avenant",
   "action.lease.contract": "Contrat généré",
   "action.lease.revise": "Loyer révisé (IRL)",
-  "action.lease.provision": "Provision ajustée"
+  "action.lease.provision": "Provision ajustée",
+  "blockers.validUntil": "valable jusqu’au {date}"
 }

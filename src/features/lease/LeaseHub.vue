@@ -10,7 +10,7 @@ import Message from 'primevue/message'
 import Skeleton from 'primevue/skeleton'
 import { useToast } from 'primevue/usetoast'
 import { ApiError } from '@/api/client'
-import { useLeases, nextActions, tenantName, type Action, type Blockers, type Lease } from './store'
+import { useLeases, nextActions, tenantName, blockerSubject, type Action, type Blocker, type Blockers, type Lease } from './store'
 import { useAssets, assetLabel } from '@/features/portfolio/store'
 import { useSession } from '@/stores/session'
 import { t, type Key } from '@/i18n'
@@ -41,6 +41,13 @@ const error = ref('')
 const id = computed(() => route.params.id as string)
 const tab = computed(() => (route.params.tab as string) || 'overview')
 const tabs = ['overview', 'contract', 'guarantees', 'billing', 'inventories', 'activity'] as const
+// What a blocker is about, named in the owner's words (Q-105).
+function subject(b: Blocker): string {
+  return blockerSubject(b, (a) => (assets.byId[a] ? assetLabel(assets.byId[a]) : undefined))
+}
+function named(b: Blocker | undefined): string | undefined {
+  return b ? [b.title, subject(b)].filter(Boolean).join(' — ') : undefined
+}
 const firstAsset = computed(() => (lease.value?.asset_ids?.[0] ? assets.byId[lease.value.asset_ids[0]] : undefined))
 
 async function load(): Promise<void> {
@@ -67,7 +74,7 @@ const actions = computed(() => (lease.value?.state ? nextActions[lease.value.sta
 // The API answers why an action is refused; the hub shows the activation
 // blockers before the click.
 function blockedBy(a: Action): string | undefined {
-  if (a === 'activate') return blockers.value.activation?.[0]?.title
+  if (a === 'activate') return named(blockers.value.activation?.[0])
   return undefined
 }
 
@@ -123,7 +130,7 @@ const confirmBody = computed(() => (confirming.value ? t(`confirm.${confirming.v
           <RouterLink v-if="lease.state === 'draft'" :to="`/leases/${lease.id}/edit`">
             <Button :label="t('common.edit')" icon="pi pi-pencil" severity="secondary" data-test="edit-lease" />
           </RouterLink>
-          <span v-if="lease.state === 'draft'" :title="blockers.generation?.[0]?.title" data-test="generate-reason">
+          <span v-if="lease.state === 'draft'" :title="named(blockers.generation?.[0])" data-test="generate-reason">
             <Button :label="t('action.generate')" icon="pi pi-file" severity="secondary" :disabled="!!blockers.generation?.length" data-test="generate" @click="ask('generate')" />
           </span>
           <span v-for="a in actions" :key="a" :title="blockedBy(a)" :data-test="`reason-${a}`">
@@ -135,15 +142,30 @@ const confirmBody = computed(() => (confirming.value ? t(`confirm.${confirming.v
       <div v-if="s.canWrite" class="space-y-2" data-test="blockers">
         <Message v-if="blockers.generation?.length" severity="warn" :closable="false" data-test="blockers-generation">
           <strong>{{ t('blockers.generation') }}</strong>
-          <ul class="ml-5 list-disc"><li v-for="b in blockers.generation" :key="b.type">{{ b.title }} <span v-if="b.detail" class="text-slate-600">({{ b.detail }})</span></li></ul>
+          <ul class="ml-5 list-disc">
+            <li v-for="(b, i) in blockers.generation" :key="`${b.type}-${i}`" data-test="blocker">
+              {{ b.title }}
+              <template v-if="subject(b)"> — <RouterLink v-if="b.asset_id" :to="`/assets/${b.asset_id}`" class="underline" data-test="blocker-subject">{{ subject(b) }}</RouterLink><span v-else data-test="blocker-subject">{{ subject(b) }}</span></template>
+            </li>
+          </ul>
         </Message>
         <Message v-if="blockers.activation?.length" severity="warn" :closable="false" data-test="blockers-activation">
           <strong>{{ t('blockers.activation') }}</strong>
-          <ul class="ml-5 list-disc"><li v-for="b in blockers.activation" :key="b.type">{{ b.title }}</li></ul>
+          <ul class="ml-5 list-disc">
+            <li v-for="(b, i) in blockers.activation" :key="`${b.type}-${i}`" data-test="blocker">
+              {{ b.title }}
+              <template v-if="subject(b)"> — <RouterLink v-if="b.asset_id" :to="`/assets/${b.asset_id}`" class="underline" data-test="blocker-subject">{{ subject(b) }}</RouterLink><span v-else data-test="blocker-subject">{{ subject(b) }}</span></template>
+            </li>
+          </ul>
         </Message>
         <Message v-if="blockers.warnings?.length" severity="info" :closable="false" data-test="blockers-warnings">
           <strong>{{ t('blockers.warnings') }}</strong>
-          <ul class="ml-5 list-disc"><li v-for="b in blockers.warnings" :key="b.type">{{ b.title }}</li></ul>
+          <ul class="ml-5 list-disc">
+            <li v-for="(b, i) in blockers.warnings" :key="`${b.type}-${i}`" data-test="blocker">
+              {{ b.title }}
+              <template v-if="subject(b)"> — <RouterLink v-if="b.asset_id" :to="`/assets/${b.asset_id}`" class="underline" data-test="blocker-subject">{{ subject(b) }}</RouterLink><span v-else data-test="blocker-subject">{{ subject(b) }}</span></template>
+            </li>
+          </ul>
         </Message>
       </div>
 

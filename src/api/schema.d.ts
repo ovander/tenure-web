@@ -984,6 +984,15 @@ export interface paths {
                         "application/json": components["schemas"]["problem.Body"];
                     };
                 };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
             };
         };
         delete?: never;
@@ -2655,6 +2664,15 @@ export interface paths {
                         "application/json": components["schemas"]["problem.Body"];
                     };
                 };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
             };
         };
         delete?: never;
@@ -3276,6 +3294,15 @@ export interface paths {
                         "application/json": components["schemas"]["problem.Body"];
                     };
                 };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
             };
         };
         delete?: never;
@@ -3503,6 +3530,15 @@ export interface paths {
                 };
                 /** @description Unprocessable Entity */
                 422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Service Unavailable */
+                503: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -4012,6 +4048,15 @@ export interface paths {
                 };
                 /** @description Unprocessable Entity */
                 422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Service Unavailable */
+                503: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -5586,6 +5631,15 @@ export interface paths {
                         "application/json": components["schemas"]["problem.Body"];
                     };
                 };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
             };
         };
         delete?: never;
@@ -5737,6 +5791,15 @@ export interface paths {
                 };
                 /** @description Unprocessable Entity */
                 422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Service Unavailable */
+                503: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -6731,10 +6794,26 @@ export interface components {
             lease?: components["schemas"]["lease.View"];
         };
         "lease.Blocker": {
+            /**
+             * Format: uuid
+             * @description AssetID is the asset the blocker is about, when it is about one (Q-105).
+             */
+            asset_id?: string;
             detail?: string;
+            /**
+             * @description Diagnostic is the diagnostic kind a missing or expired diagnostic, or the
+             *     DPE class, is about.
+             * @enum {string}
+             */
+            diagnostic?: "dpe" | "erp" | "electricity" | "gas" | "lead" | "asbestos";
             title?: string;
             /** @example lease/diagnostic-expired */
             type?: string;
+            /**
+             * Format: date
+             * @description ValidUntil is the last day an expired diagnostic was valid.
+             */
+            valid_until?: string;
         };
         "lease.BlockersView": {
             activation?: components["schemas"]["lease.Blocker"][];
