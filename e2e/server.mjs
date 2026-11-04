@@ -95,6 +95,8 @@ async function api(req, res, path) {
   if (unsafe) entry.body = await body(req)
   state.requests.push(entry)
   if (!state.authenticated) return json(res, 401, { type: 'auth/unauthenticated', status: 401, title: 'Authentification requise.' })
+  // state.delay[path] slows a GET down, to put a screen's load in a race.
+  if (!unsafe && state.delay?.[path]) await new Promise((r) => setTimeout(r, state.delay[path]))
   if (unsafe && entry.csrf !== state.csrf) return json(res, 403, { type: 'bff/csrf', status: 403, title: 'Jeton CSRF invalide.' })
   if (path === '/me' && req.method === 'GET') return json(res, 200, me())
   if (path === '/me' && req.method === 'PUT') {

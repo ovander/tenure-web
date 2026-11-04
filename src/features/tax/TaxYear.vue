@@ -55,7 +55,11 @@ const owners = computed<OwnerSummary[]>(() => summary.value?.owners ?? [])
 const mine = computed(() => owners.value.find((o) => o.owner_id === s.active?.owner_id) ?? owners.value[0])
 const flagCounts = computed(() => flags.value.reduce<Record<string, number>>((m, f) => ({ ...m, [f.kind ?? '']: (m[f.kind ?? ''] ?? 0) + 1 }), {}))
 
+// seq numbers loads and computations: a load answered after a newer load or
+// a computation is dropped, so it cannot wipe what that one showed.
+let seq = 0
 async function load(): Promise<void> {
+  const ticket = ++seq
   view.value = undefined
   error.value = ''
   open.value = {}
@@ -69,9 +73,10 @@ async function load(): Promise<void> {
     billing.payments({ size: 100 }).then((p) => (paymentById.value = Object.fromEntries(p.items.map((x) => [x.id ?? '', x])))).catch(() => undefined),
   ])
   if (year.value !== y) return
-  view.value = v ?? null
   map.value = m
   lockYears.value = lock
+  if (ticket !== seq) return
+  view.value = v ?? null
   regime.value = v?.regime === 'micro' || (mine.value && lower(mine.value) === 'micro') ? 'micro' : 'reel'
 }
 onMounted(load)
@@ -84,6 +89,7 @@ async function compute(): Promise<void> {
   busy.value = true
   error.value = ''
   try {
+    seq++
     const v = await withStepUp(() => store.compute(year.value))
     if (v) {
       view.value = v
@@ -159,7 +165,7 @@ const issueBody = computed(() => {
         <span v-if="view" class="rounded bg-slate-100 px-2 py-0.5 text-sm" data-test="tax-state">{{ issued ? t('tax.state.issued') : t('tax.state.draft') }}</span>
       </div>
       <div v-if="s.canWrite && !issued" class="flex flex-wrap gap-2">
-        <Button :label="view ? t('tax.recompute') : t('tax.compute')" icon="pi pi-refresh" severity="secondary" :loading="busy && !issuing" data-test="compute" @click="compute" />
+        <Button :label="view ? t('tax.recompute') : t('tax.compute')" icon="pi pi-refresh" severity="secondary" :loading="busy && !issuing" :disabled="view === undefined" data-test="compute" @click="compute" />
         <Button v-if="view" :label="t('tax.issue')" icon="pi pi-lock" data-test="issue-tax" @click="issuing = true" />
       </div>
     </div>
