@@ -111,7 +111,7 @@ test('an owner creates an apartment, edits it after a concurrent change, adds a 
   await page.getByTestId('tab-leases').click()
   await expect(page.getByTestId('asset-leases')).toContainText('Aucun bail')
   await page.getByTestId('tab-documents').click()
-  await expect(page.getByTestId('soon')).toBeVisible()
+  await expect(page.getByTestId('docs-empty')).toBeVisible()
 
   // Back in the list, the row opens the hub.
   await page.getByRole('link', { name: 'Biens', exact: true }).first().click()

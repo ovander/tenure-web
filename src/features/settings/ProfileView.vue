@@ -15,6 +15,8 @@ import { api, ApiError } from '@/api/client'
 import type { Owner, OwnerInput } from '@/api/types'
 import { useSession } from '@/stores/session'
 import { t } from '@/i18n'
+import { withStepUp } from '@/app/stepUp'
+import { useDocuments, saveJSON } from '@/features/documents/store'
 
 const s = useSession()
 const toast = useToast()
@@ -28,6 +30,19 @@ const errors = ref<Record<string, string>>({})
 const ruleError = ref('')
 const saving = ref(false)
 const owner = computed(() => s.me?.owner)
+const exporting = ref(false)
+// The RGPD export of the caller (step_up), saved as a JSON file.
+async function exportMyData(): Promise<void> {
+  exporting.value = true
+  try {
+    const data = await withStepUp(() => useDocuments().myData())
+    if (data) saveJSON(`tenure-mes-donnees-${new Date().toISOString().slice(0, 10)}.json`, data)
+  } catch {
+    toast.add({ severity: 'error', summary: t('error.network'), life: 4000 })
+  } finally {
+    exporting.value = false
+  }
+}
 
 watchEffect(() => {
   const o = owner.value
@@ -101,5 +116,10 @@ async function save(): Promise<void> {
     </div>
     <p class="text-sm text-slate-500">{{ t('profile.socrate') }}</p>
     <Button type="submit" :label="owner ? t('profile.save') : t('profile.create')" :loading="saving" data-test="save" />
+    <section class="mt-8 border-t border-slate-200 pt-4">
+      <h2 class="mb-1 flex items-center gap-1 font-medium">{{ t('profile.myData') }} <HelpTip id="my_data" :text="t('help.profile.myData')" /></h2>
+      <p class="mb-3 text-sm text-slate-600">{{ t('profile.myDataBody') }}</p>
+      <Button type="button" :label="t('profile.myDataExport')" icon="pi pi-download" severity="secondary" :loading="exporting" data-test="my-data" @click="exportMyData" />
+    </section>
   </form>
 </template>
