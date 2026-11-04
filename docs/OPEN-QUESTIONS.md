@@ -251,3 +251,15 @@ technical `detail`, an asset id. Provisional:
 - the home page's « blocked » and « warning » to-dos read the same way;
 - a blocker without a subject, because it is about the lease itself, shows its title only. The
   technical `detail` is never shown.
+
+**Q-W22 Dependency alerts with no fix — Open (#29).** Dependabot reported three advisories, all
+in the build, lint and test toolchain. None reaches the bundle (`npm audit --omit=dev`: 0).
+- **glob** 9.0.0–14.0.1 (GHSA-3g3m-2fjr-6pw4) and **minimatch** 7.0.0–11.0.0
+  (GHSA-g3hv-75wg-m249) are fixed through `overrides`: glob 14.0.3, and minimatch 11.0.4 for the
+  affected range. The 5.x line used by `filelist` and `@redocly/openapi-core` is outside the
+  advisory. The built bundle is byte-for-byte the one of v0.12.0.
+- **deepmerge** ≤ 4.3.1 (GHSA-gcqx-w48m-w2h4, low) has no fixed version: 4.3.1 is the latest.
+  It is reached only through vite-plugin-pwa › workbox-build › @rollup/plugin-node-resolve.
+  There it merges the plugin options from our own vite configuration, at build time, never
+  untrusted input. Provisional: the alert is dismissed as a tolerable risk, and the override is
+  added once a fixed version is published. `npm audit` therefore keeps one low entry for it.
