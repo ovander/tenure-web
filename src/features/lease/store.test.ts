@@ -69,3 +69,14 @@ describe('lease store', () => {
     expect(tenantName(undefined)).toBe('')
   })
 })
+
+describe('blockerSubject', () => {
+  it('names the diagnostic, the asset and the end of an expired validity, never an id', async () => {
+    const { blockerSubject } = await import('./store')
+    const name = (id: string) => (id === 'a1' ? '12 rue des Lilas, Lyon' : undefined)
+    expect(blockerSubject({ asset_id: 'a1', diagnostic: 'dpe' }, name)).toBe('DPE · 12 rue des Lilas, Lyon')
+    expect(blockerSubject({ asset_id: 'a1', diagnostic: 'electricity', valid_until: '2026-03-31' }, name)).toBe('Électricité · 12 rue des Lilas, Lyon · valable jusqu’au 31/03/2026')
+    expect(blockerSubject({ asset_id: 'unknown' }, name)).toBe('')
+    expect(blockerSubject({}, name)).toBe('')
+  })
+})

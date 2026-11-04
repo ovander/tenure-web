@@ -240,3 +240,14 @@ three kinds, and the soonest six are shown:
 The **lease hub** gets the audit tab of RENT-FE-001 §7 as `/leases/{id}/activity`, named like
 the asset hub's (§2's URL scheme lists the asset's only). It lists the lease's own audit events. Events on its guarantees and inventories carry
 their own entity type, and appear there once the audit API can filter by lease.
+
+**Q-W21 What a blocker is about — Open (tenure-api Q-105).** A lease blocker used to show its
+technical `detail`, an asset id. Provisional:
+- the lease hub writes each blocker as « title — subject ». The subject is the diagnostic's name
+  (`diag.kind.*`), the asset's label and, for an expired diagnostic, « valable jusqu’au
+  dd/mm/yyyy »;
+- the subject links to the asset's overview, where diagnostics are recorded;
+- the disabled Generate and Activate buttons name the same subject in their tooltip;
+- the home page's « blocked » and « warning » to-dos read the same way;
+- a blocker without a subject, because it is about the lease itself, shows its title only. The
+  technical `detail` is never shown.

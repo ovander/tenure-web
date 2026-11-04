@@ -40,7 +40,7 @@ test('S01 lists what needs attention, most urgent first, each with its link', as
   expect(await todo.evaluateAll((els) => els.map((e) => e.getAttribute('data-kind')))).toEqual(['arrears', 'blocked', 'warning', 'unmatched', 'billing'])
   await expect(todo.nth(0)).toContainText('Jeanne Martin — 12 rue des Lilas, Lyon : 850,00 € en retard')
   await expect(todo.nth(1)).toContainText('Paul Durand — 3 chemin Vert, Nîmes : 3 point(s) à régler')
-  await expect(todo.nth(1)).toContainText('DPE')
+  await expect(todo.nth(1)).toContainText('manque. — DPE · 3 chemin Vert, Nîmes')
   await expect(todo.nth(2)).toContainText('Le DPE expire bientôt.')
   await expect(todo.nth(3)).toContainText('1 paiement(s) à rapprocher, 300,00 € non affecté(s)')
   await expect(todo.nth(4)).toContainText('1 appel(s) de loyer à émettre')

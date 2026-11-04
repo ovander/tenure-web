@@ -16,7 +16,7 @@ import { useSession } from '@/stores/session'
 import { t, type Key } from '@/i18n'
 import { currentPeriod, date, money, parisToday, timestamp } from '@/i18n/format'
 import StatusTag from '@/components/StatusTag.vue'
-import { useLeases, tenantName, type Blockers, type Lease } from '@/features/lease/store'
+import { useLeases, tenantName, blockerSubject, type Blocker, type Blockers, type Lease } from '@/features/lease/store'
 import { useAssets, assetLabel } from '@/features/portfolio/store'
 import { useBilling, type Arrears, type BillingDoc, type Payment } from '@/features/billing/store'
 import { nextDates, todos, type NextDate, type Todo } from './todos'
@@ -39,6 +39,10 @@ function label(l: Lease): string {
   const names = (l.tenants ?? []).map((x) => tenantName(leases.tenants[x.tenant_id ?? ''])).filter(Boolean).join(', ')
   const a = l.asset_ids?.[0] ? assets.byId[l.asset_ids[0]] : undefined
   return [names, a ? assetLabel(a) : ''].filter(Boolean).join(' — ') || (l.id ?? '')
+}
+function named(b: Blocker): string {
+  const what = blockerSubject(b, (a) => (assets.byId[a] ? assetLabel(assets.byId[a]) : undefined))
+  return [b.title, what].filter(Boolean).join(' — ')
 }
 const severity = (x: Todo) => (x.severity === 'info' ? 'info' : x.severity === 'error' ? 'error' : 'warn')
 
@@ -63,7 +67,7 @@ async function loadTodos(): Promise<void> {
     billing.payments({ unmatched: true, size: 100 }).then((p) => (unmatched = p.items)).catch(() => undefined),
     billing.documents({ period, kind: 'rent_call', size: 100 }).then((p) => (billed = p.items)).catch(() => undefined),
   ])
-  items.value = todos({ leases: all, blockers, arrears, unmatched, billed, period, label, money, month: monthLabel })
+  items.value = todos({ leases: all, blockers, arrears, unmatched, billed, period, label, named, money, month: monthLabel })
   next.value = nextDates(all, parisToday())
 }
 

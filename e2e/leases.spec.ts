@@ -67,6 +67,12 @@ test('flow 1: from a draft to an active lease, then to its close', async ({ page
 
   // Blocked, not surprised: the missing DPE is listed and generation disabled.
   await expect(page.getByTestId('blockers-generation')).toContainText('DPE')
+  // The blocker names its diagnostic and asset, never an id, and links to the
+  // asset where the diagnostic is recorded (Q-105).
+  const subject = page.getByTestId('blockers-generation').getByTestId('blocker-subject')
+  await expect(subject).toHaveText('DPE · 12 rue des Lilas, Lyon')
+  await expect(subject).toHaveAttribute('href', '/assets/a1')
+  await expect(page.getByTestId('blockers-generation')).not.toContainText('asset a1')
   await expect(page.getByTestId('generate')).toBeDisabled()
   await expect(page.getByTestId('action-activate')).toBeDisabled()
   // A blocked action names its blocker on hover, through the title attribute:

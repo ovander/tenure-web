@@ -929,6 +929,12 @@
                         "schema": {
                             "$ref": "#/definitions/problem.Body"
                         }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
                     }
                 }
             }
@@ -2428,6 +2434,12 @@
                         "schema": {
                             "$ref": "#/definitions/problem.Body"
                         }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
                     }
                 }
             }
@@ -2992,6 +3004,12 @@
                         "schema": {
                             "$ref": "#/definitions/problem.Body"
                         }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
                     }
                 }
             }
@@ -3175,6 +3193,12 @@
                     },
                     "422": {
                         "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
                         "schema": {
                             "$ref": "#/definitions/problem.Body"
                         }
@@ -3633,6 +3657,12 @@
                     },
                     "422": {
                         "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
                         "schema": {
                             "$ref": "#/definitions/problem.Body"
                         }
@@ -4994,6 +5024,12 @@
                         "schema": {
                             "$ref": "#/definitions/problem.Body"
                         }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
                     }
                 }
             }
@@ -5138,6 +5174,12 @@
                     },
                     "422": {
                         "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
                         "schema": {
                             "$ref": "#/definitions/problem.Body"
                         }
@@ -7102,8 +7144,25 @@
         "lease.Blocker": {
             "type": "object",
             "properties": {
+                "asset_id": {
+                    "description": "AssetID is the asset the blocker is about, when it is about one (Q-105).",
+                    "type": "string",
+                    "format": "uuid"
+                },
                 "detail": {
                     "type": "string"
+                },
+                "diagnostic": {
+                    "description": "Diagnostic is the diagnostic kind a missing or expired diagnostic, or the\nDPE class, is about.",
+                    "type": "string",
+                    "enum": [
+                        "dpe",
+                        "erp",
+                        "electricity",
+                        "gas",
+                        "lead",
+                        "asbestos"
+                    ]
                 },
                 "title": {
                     "type": "string"
@@ -7111,6 +7170,11 @@
                 "type": {
                     "type": "string",
                     "example": "lease/diagnostic-expired"
+                },
+                "valid_until": {
+                    "description": "ValidUntil is the last day an expired diagnostic was valid.",
+                    "type": "string",
+                    "format": "date"
                 }
             }
         },

@@ -30,6 +30,10 @@ describe('todos', () => {
     expect(out.map((x) => x.id)).toEqual(['arrears-l1', 'blocked-d1', 'warning-l1-0', 'unmatched', 'billing'])
     expect(out[0]).toMatchObject({ severity: 'error', to: '/leases/l1/billing', params: { overdue: '80000 c', outstanding: '85000 c' } })
     expect(out[1]).toMatchObject({ to: '/leases/d1/contract', params: { n: 2, first: 'DPE manquant' } })
+    // With a namer, the blocker says what it is about.
+    const named = todos(base({ leases: [draft], blockers: { d1: { generation: [{ title: 'DPE manquant', asset_id: 'a1', diagnostic: 'dpe' }], activation: [], warnings: [] } },
+      named: (b) => `${b.title} — ${b.diagnostic} · ${b.asset_id}` }))
+    expect(named[0]?.params.first).toBe('DPE manquant — dpe · a1')
     expect(out[3]?.params).toEqual({ n: 2, amount: '1500 c' })
     expect(out[4]).toMatchObject({ to: '/billing/2026-11', params: { n: 1, month: 'mois 2026-11' } })
   })
