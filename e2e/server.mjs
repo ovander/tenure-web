@@ -10,6 +10,7 @@ import { extname, join, normalize } from 'node:path'
 import { leaseRoutes } from './mock-leases.mjs'
 import { billingRoutes } from './mock-billing.mjs'
 import { chargeRoutes } from './mock-charges.mjs'
+import { taxRoutes } from './mock-tax.mjs'
 
 const dist = new URL('../dist/', import.meta.url).pathname
 const port = Number(process.env.PORT ?? 4173)
@@ -57,6 +58,7 @@ let state = fresh()
 const leases = (...a) => leaseRoutes({ state, json, invalid, uuid, record })(...a)
 const billing = (...a) => billingRoutes({ state, json, invalid, uuid, record })(...a)
 const charges = (...a) => chargeRoutes({ state, json, invalid, uuid, record })(...a)
+const tax = (...a) => taxRoutes({ state, json, invalid, uuid, record })(...a)
 
 const json = (res, status, body, headers = {}) => {
   res.writeHead(status, { 'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json', ...headers })
@@ -110,6 +112,7 @@ async function api(req, res, path) {
   if (assets(req, res, path, entry)) return
   if (billing(req, res, path, entry)) return
   if (charges(req, res, path, entry)) return
+  if (tax(req, res, path, entry)) return
   if (leases(req, res, path, entry)) return
   return json(res, 404, { type: 'about:blank', status: 404, title: 'Introuvable.' })
 }
