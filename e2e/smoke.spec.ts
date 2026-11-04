@@ -30,8 +30,8 @@ test('a signed-in owner sees home, styled, with no CSP violation', async ({ page
   await page.getByRole('link', { name: 'Facturation' }).click()
   await expect(page).toHaveURL(/\/billing\/\d{4}-\d{2}$/)
   await expect(page.getByTestId('billing-title')).toContainText('Facturation')
-  await page.getByRole('link', { name: 'Charges' }).click()
-  await expect(page).toHaveURL(/\/charges$/)
+  await page.getByRole('link', { name: 'Fiscalité' }).click()
+  await expect(page).toHaveURL(/\/tax\/\d{4}$/)
   await expect(page.getByTestId('soon')).toBeVisible()
   // One scope: no scope switcher.
   await expect(page.getByTestId('scope')).toHaveCount(0)

@@ -138,3 +138,26 @@ for payments, no « send again » route in the API, and receipts that tenure-api
   same oldest-first split, which the owner can change;
 - « Émettre les quittances maintenant » triggers `billing.receipts` for the owner's scope rather
   than waiting for the next hourly run.
+
+**Q-W16 Charges and reconciliation — Open (slice 4).** RENT-FE-001 flow 3 orders the wizard as
+import → allocate → balances → issue → new provision. tenure-api sets the new provision and the
+settlement on the allocated lines, before issuing, because issuing applies them. Provisional:
+- the syndic import lives in S10. It uploads the CSV, plus the optional PDF statement, through
+  `POST /documents` as class `supporting`, then maps the columns. The mapping proposed is the usual
+  French export: « Libellé », « Montant », « Récupérable », `;` and a decimal comma. Imported lines
+  are drafts, and each is confirmed one by one in the charge dialog, which shows the syndic's split
+  beside the owner's;
+- « Lancer la régularisation » stays disabled while drafts remain, and the API refuses to allocate
+  them. The calendar year is proposed as the exercise;
+- the wizard's steps are charges, allocation, balances, provisions and issue, kept in `?step=`. Steps
+  after charges open once the reconciliation is allocated. Each choice on a line (new provision,
+  « apply from the next rent call », settlement) is saved as it is made, with the line's
+  `If-Match`, so Back loses nothing. When nothing has been typed, the proposed provision is the one
+  sent;
+- the issue step lists what will be written before « Émettre les décomptes ». After the issue it
+  shows the RG statements, « Marquer comme soldée » and « Annuler la régularisation »; cancelling
+  needs a reason;
+- a new charge's recoverable part defaults to 0 €, so the tenant's share is never overstated. The
+  help text points to décret 87-713 and to the syndic's column;
+- the texts state no legal duration (archive retention, spread of a late statement). The spread
+  shows the instalments the API returns.
