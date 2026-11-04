@@ -122,6 +122,13 @@ export const useLeases = defineStore('leases', () => {
     for (const x of p.items) if (x.id) tenants.value[x.id] = x
     return p.items
   }
+  // updateTenant corrects a tenant (names, contact, language, occupation)
+  // with If-Match on its version.
+  async function updateTenant(id: string, input: TenantInput, version: number): Promise<Tenant> {
+    const x = (await api.put<Tenant>(`/tenants/${id}`, input, { ifMatch: version })).data
+    if (x.id) tenants.value[x.id] = x
+    return x
+  }
   async function createTenant(input: TenantInput): Promise<Tenant> {
     const x = (await api.post<Tenant>('/tenants', input)).data
     if (x.id) tenants.value[x.id] = x
@@ -130,7 +137,7 @@ export const useLeases = defineStore('leases', () => {
 
   return {
     byId, tenants, list, get, create, update, transition, blockers, generateContract, documents, guarantees, saveGuarantee,
-    guaranteeDocument, inventories, recordInventory, upload, uploads, loadTenants, createTenant,
+    guaranteeDocument, inventories, recordInventory, upload, uploads, loadTenants, createTenant, updateTenant,
   }
 })
 

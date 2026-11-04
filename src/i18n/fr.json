@@ -152,6 +152,7 @@
   "lease.assets": "Biens loués",
   "lease.tenants": "Locataires",
   "lease.addTenant": "Nouveau locataire",
+  "lease.editTenant": "Modifier le locataire",
   "lease.startOn": "Date de début",
   "lease.endOn": "Date de fin",
   "lease.term": "Durée (mois)",

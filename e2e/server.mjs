@@ -210,7 +210,7 @@ createServer(async (req, res) => {
   try {
     if (path === '/__mock/reset') { state = fresh(); return json(res, 200, {}) }
     if (path === '/__mock/state') { Object.assign(state, (await body(req)) ?? {}); return json(res, 200, {}) }
-    if (path === '/__mock/bump') { const a = state.assets.find((x) => x.id === url.searchParams.get('id')); if (a) a.version += 1; return json(res, 200, a ?? {}) }
+    if (path === '/__mock/bump') { const a = [...state.assets, ...state.tenants].find((x) => x.id === url.searchParams.get('id')); if (a) a.version += 1; return json(res, 200, a ?? {}) }
     if (path === '/__mock/requests') return json(res, 200, state.requests)
     if (path === '/bff/session') return json(res, 200, state.authenticated ? { authenticated: true, user: { sub: 'sub-test', name: 'Test', roles: [] }, csrf: state.csrf } : { authenticated: false })
     if (path === '/bff/login') { state.requests.push({ method: 'GET', path: '/bff/login', query: url.search }); res.writeHead(200, { 'Content-Type': 'text/html' }); return res.end('<p id="socrate">Socrate</p>') }

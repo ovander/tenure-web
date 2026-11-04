@@ -181,3 +181,14 @@ Provisional:
   line;
 - the issued year shows the RF PDF and the CSV of the lines as DocumentCards, opened through the
   signed link. The step-up export `GET …/lines.csv` of a draft is not offered in phase 1.
+
+**Q-W18 Editing a tenant — Answered 2026-11-04 (owner request).** RENT-FE-001 has the tenants
+drafted in the lease form (S06) but no screen to correct one afterwards. Decided:
+- the lease hub's overview lists each tenant with their e-mail and a « Modifier » button, shown
+  to the owner only;
+- the button opens the same dialog as the lease form, prefilled, and saves through
+  `PUT /tenants/{id}` with `If-Match`;
+- a 412 reloads the tenant and says the data changed in the meantime, so the next save wins;
+- the documents already issued keep the names they were issued with. Only later documents and
+  e-mails use the correction;
+- a separate tenants screen is not part of phase 1.

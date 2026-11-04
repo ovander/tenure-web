@@ -248,3 +248,33 @@ test('a new lease proposes its defaults from the parameters, and help shows on f
   await expect(page.getByTestId('help-text-deposit')).toBeVisible()
   expect(violations).toEqual([])
 })
+
+test('an owner corrects a tenant from the lease hub, with If-Match and a concurrent change', async ({ page }) => {
+  await mock(page, {
+    tenants: [{ id: 't1', names: ['Nina Faure'], email: 'nina@exemple.test', language: 'fr', version: 1 }],
+    leases: [{ id: 'l1', kind: 'unfurnished', state: 'active', asset_ids: ['a1'], tenants: [{ tenant_id: 't1' }], start_on: '2026-01-01', term_months: 36, rent_cents: 80000, version: 2 }],
+  })
+  const violations = await watchCSP(page)
+  await page.goto('/leases/l1')
+  await expect(page.getByTestId('tenant-email')).toContainText('nina@exemple.test')
+  await page.getByTestId('edit-tenant').click()
+  await expect(page.getByTestId('tenant-dialog')).toContainText('Modifier le locataire')
+  await expect(page.locator('#tenant_names')).toHaveValue('Nina Faure')
+  await expect(page.locator('#tenant_email')).toHaveValue('nina@exemple.test')
+
+  // Someone saved first: the dialog reloads the tenant and says so.
+  await page.request.post('/__mock/bump?id=t1')
+  await page.locator('#tenant_email').fill('nina.faure@exemple.test')
+  await page.getByTestId('save-tenant').click()
+  await expect(page.getByTestId('tenant-dialog')).toContainText('ont changé entre-temps')
+  await page.locator('#tenant_names').fill('Nina Faure\nLéo Faure')
+  await page.locator('#tenant_email').fill('nina.faure@exemple.test')
+  await page.getByTestId('save-tenant').click()
+  await expect(page.getByTestId('tenant-dialog')).toBeHidden()
+  await expect(page.getByTestId('tenant-name')).toHaveText('Nina Faure, Léo Faure')
+  await expect(page.getByTestId('tenant-email')).toContainText('nina.faure@exemple.test')
+  const puts = (await requests(page)).filter((r) => r.method === 'PUT' && r.path === '/tenants/t1')
+  expect(puts.map((r) => r.ifMatch)).toEqual(['W/"1"', 'W/"2"'])
+  expect(puts.at(-1)?.body).toMatchObject({ names: ['Nina Faure', 'Léo Faure'], email: 'nina.faure@exemple.test', language: 'fr' })
+  expect(violations).toEqual([])
+})
