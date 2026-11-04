@@ -16,6 +16,7 @@ import AssetActivity from './AssetActivity.vue'
 import ComingSoonPanel from '@/components/ComingSoonPanel.vue'
 import AssetLeases from '@/features/lease/AssetLeases.vue'
 import ChargesLedger from '@/features/charges/ChargesLedger.vue'
+import DocumentsView from '@/features/documents/DocumentsView.vue'
 
 const route = useRoute()
 const store = useAssets()
@@ -80,6 +81,7 @@ watch(id, load)
       <AssetLeases v-else-if="tab === 'leases'" :asset-id="asset.id ?? ''" />
       <AssetActivity v-else-if="tab === 'activity'" :asset-id="asset.id ?? ''" />
       <ChargesLedger v-else-if="tab === 'charges'" :asset-id="asset.id ?? ''" embedded />
+      <DocumentsView v-else-if="tab === 'documents'" :asset-id="asset.id ?? ''" embedded />
       <ComingSoonPanel v-else />
     </template>
   </section>

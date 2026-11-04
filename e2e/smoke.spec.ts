@@ -32,6 +32,8 @@ test('a signed-in owner sees home, styled, with no CSP violation', async ({ page
   await expect(page.getByTestId('billing-title')).toContainText('Facturation')
   await page.getByRole('link', { name: 'Documents' }).click()
   await expect(page).toHaveURL(/\/documents$/)
+  await expect(page.getByTestId('export')).toBeVisible()
+  await page.goto('/settings/templates')
   await expect(page.getByTestId('soon')).toBeVisible()
   // One scope: no scope switcher.
   await expect(page.getByTestId('scope')).toHaveCount(0)

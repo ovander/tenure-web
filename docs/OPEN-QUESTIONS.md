@@ -192,3 +192,23 @@ drafted in the lease form (S06) but no screen to correct one afterwards. Decided
 - the documents already issued keep the names they were issued with. Only later documents and
   e-mails use the correction;
 - a separate tenants screen is not part of phase 1.
+
+**Q-W19 Documents, parameters, grants — Open (slice 6).** Provisional:
+- S13 lists `GET /documents` filtered by asset, year, class and number, with the filters in the
+  URL. The API's document view carries no number, so the number is searched but not shown in the
+  table. A row shows the original file name of an upload, or « Document généré (modèle vN) »
+  with its SHA-256;
+- the ZIP export of a year or an asset goes through step-up, then `GET /documents/exports/{id}`
+  is polled every 1.5 s for at most a minute. The 10-minute link opens in a new tab;
+- flow 5 is open from the archive. A rent call's billing document is found by period and lease,
+  matched on `document_id`, then cancelled and reissued as on S08. If it no longer stands, the
+  screen says so;
+- the parameters are listed for everyone, newest value first, with their source link. Only an
+  admin (`me.admin`) can add a value. Its JSON is prefilled from the value in force, it is checked
+  before sending, and it is sent through step-up. The app writes no value of its own;
+- grants are given to a Socrate subject as accountant (the default) or co-owner, and revoked,
+  both through step-up. Revoked grants stay listed;
+- the profile offers the RGPD export (`GET /me/export`, step-up) as a JSON file built in the
+  browser (Blob, no data: URL);
+- **Templates:** tenure-api serves no route to list or read the versioned templates, so the screen
+  stays « Bientôt disponible » until the API offers one.

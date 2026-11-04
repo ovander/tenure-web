@@ -11,6 +11,7 @@ import { leaseRoutes } from './mock-leases.mjs'
 import { billingRoutes } from './mock-billing.mjs'
 import { chargeRoutes } from './mock-charges.mjs'
 import { taxRoutes } from './mock-tax.mjs'
+import { docRoutes } from './mock-docs.mjs'
 
 const dist = new URL('../dist/', import.meta.url).pathname
 const port = Number(process.env.PORT ?? 4173)
@@ -59,6 +60,7 @@ const leases = (...a) => leaseRoutes({ state, json, invalid, uuid, record })(...
 const billing = (...a) => billingRoutes({ state, json, invalid, uuid, record })(...a)
 const charges = (...a) => chargeRoutes({ state, json, invalid, uuid, record })(...a)
 const tax = (...a) => taxRoutes({ state, json, invalid, uuid, record })(...a)
+const docs = (...a) => docRoutes({ state, json, invalid, uuid, record })(...a)
 
 const json = (res, status, body, headers = {}) => {
   res.writeHead(status, { 'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json', ...headers })
@@ -84,7 +86,7 @@ function me() {
   const o = state.owner
   const own = o ? [{ owner_id: o.id, legal_name: o.legal_name, role: state.role }] : []
   const scopes = [...own, ...state.extraScopes]
-  return { sub: 'sub-test', admin: false, language: o?.language ?? 'fr', scopes, active_scope: scopes[0], owner: o }
+  return { sub: 'sub-test', admin: !!state.admin, language: o?.language ?? 'fr', scopes, active_scope: scopes[0], owner: o }
 }
 
 async function api(req, res, path) {
@@ -113,6 +115,7 @@ async function api(req, res, path) {
   if (billing(req, res, path, entry)) return
   if (charges(req, res, path, entry)) return
   if (tax(req, res, path, entry)) return
+  if (docs(req, res, path, entry)) return
   if (leases(req, res, path, entry)) return
   return json(res, 404, { type: 'about:blank', status: 404, title: 'Introuvable.' })
 }
