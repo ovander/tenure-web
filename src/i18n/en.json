@@ -152,6 +152,7 @@
   "lease.assets": "Assets let",
   "lease.tenants": "Tenants",
   "lease.addTenant": "New tenant",
+  "lease.editTenant": "Edit the tenant",
   "lease.startOn": "Start date",
   "lease.endOn": "End date",
   "lease.term": "Term (months)",

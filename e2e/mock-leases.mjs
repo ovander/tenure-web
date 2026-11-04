@@ -40,6 +40,16 @@ export function leaseRoutes(ctx) {
       state.tenants.push(x)
       return json(res, 201, x)
     }
+    let tm = /^\/tenants\/([^/]+)$/.exec(path)
+    if (tm) {
+      const x = state.tenants.find((y) => y.id === tm[1])
+      if (!x) return json(res, 404, { type: 'http/not-found', status: 404, title: 'Introuvable.' })
+      if (req.method === 'GET') return json(res, 200, x)
+      if (entry.ifMatch !== `W/"${x.version}"`) return stale(res)
+      if (!b?.names?.length) return invalid(res, [{ field: 'names', message: 'Au moins un nom est obligatoire.' }])
+      Object.assign(x, b, { version: x.version + 1 })
+      return json(res, 200, x)
+    }
     if (path === '/leases') {
       if (req.method === 'GET') {
         const items = state.leases.filter((l) => !q.get('asset_id') || l.asset_ids.includes(q.get('asset_id')))

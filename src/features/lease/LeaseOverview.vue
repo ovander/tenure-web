@@ -1,14 +1,24 @@
 <script setup lang="ts">
 // The hub's overview: assets, tenants, terms and the IRL revision.
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import { useLeases, tenantName, type Lease } from './store'
+import Button from 'primevue/button'
+import { useToast } from 'primevue/usetoast'
+import { useSession } from '@/stores/session'
+import { useLeases, tenantName, type Lease, type Tenant } from './store'
+import TenantDialog from './TenantDialog.vue'
 import { useAssets, assetLabel } from '@/features/portfolio/store'
 import { t, type Key } from '@/i18n'
 import { date, hundredths, money } from '@/i18n/format'
 
 const props = defineProps<{ lease: Lease }>()
 const store = useLeases()
+const s = useSession()
+const toast = useToast()
+const editing = ref<Tenant | null>(null)
+function updated(): void {
+  toast.add({ severity: 'success', summary: t('common.saved'), life: 3000 })
+}
 const assets = useAssets()
 const l = computed(() => props.lease)
 const monthly = computed(() => (l.value.rent_cents ?? 0) + (l.value.provision_cents ?? 0))
@@ -26,11 +36,17 @@ const monthly = computed(() => (l.value.rent_cents ?? 0) + (l.value.provision_ce
       </ul>
       <h2 class="mb-3 mt-5 font-medium">{{ t('lease.tenants') }}</h2>
       <ul class="space-y-1 text-sm">
-        <li v-for="x in l.tenants" :key="x.tenant_id">
-          {{ tenantName(store.tenants[x.tenant_id ?? '']) }}
+        <li v-for="x in l.tenants" :key="x.tenant_id" class="flex flex-wrap items-center gap-x-2" data-test="lease-tenant">
+          <span data-test="tenant-name">{{ tenantName(store.tenants[x.tenant_id ?? '']) }}</span>
           <span v-if="x.solidary !== false" class="text-slate-500">· {{ t('overview.solidary') }}</span>
+          <span v-if="store.tenants[x.tenant_id ?? '']?.email" class="text-slate-500" data-test="tenant-email">· {{ store.tenants[x.tenant_id ?? '']?.email }}</span>
+          <Button
+            v-if="s.canWrite && store.tenants[x.tenant_id ?? '']" :label="t('common.edit')" icon="pi pi-pencil" size="small" text data-test="edit-tenant"
+            @click="editing = store.tenants[x.tenant_id ?? ''] ?? null"
+          />
         </li>
       </ul>
+      <TenantDialog v-if="editing" :tenant="editing" @updated="updated" @close="editing = null" />
     </section>
     <section class="rounded-md border border-slate-200 bg-white p-5">
       <h2 class="mb-3 font-medium">{{ t('overview.terms') }}</h2>
