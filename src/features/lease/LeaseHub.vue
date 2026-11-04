@@ -24,6 +24,7 @@ import LeaseContract from './LeaseContract.vue'
 import LeaseGuarantees from './LeaseGuarantees.vue'
 import LeaseBilling from '@/features/billing/LeaseBilling.vue'
 import LeaseInventories from './LeaseInventories.vue'
+import ActivityList from '@/features/common/ActivityList.vue'
 
 const route = useRoute()
 const toast = useToast()
@@ -39,7 +40,7 @@ const busy = ref(false)
 const error = ref('')
 const id = computed(() => route.params.id as string)
 const tab = computed(() => (route.params.tab as string) || 'overview')
-const tabs = ['overview', 'contract', 'guarantees', 'billing', 'inventories'] as const
+const tabs = ['overview', 'contract', 'guarantees', 'billing', 'inventories', 'activity'] as const
 const firstAsset = computed(() => (lease.value?.asset_ids?.[0] ? assets.byId[lease.value.asset_ids[0]] : undefined))
 
 async function load(): Promise<void> {
@@ -165,6 +166,7 @@ const confirmBody = computed(() => (confirming.value ? t(`confirm.${confirming.v
       <LeaseGuarantees v-else-if="tab === 'guarantees'" :lease="lease" @changed="load" />
       <LeaseInventories v-else-if="tab === 'inventories'" :lease="lease" @changed="load" />
       <LeaseBilling v-else-if="tab === 'billing'" :lease="lease" />
+      <ActivityList v-else-if="tab === 'activity'" entity-type="lease" :entity-id="lease.id ?? ''" />
       <ComingSoonPanel v-else />
 
       <ConfirmDialog v-model:visible="confirmVisible" :title="confirmLabel" :body="confirmBody" :confirm="confirmLabel" :busy="busy" :disabled="confirming === 'notice' && !endOn" @confirm="run">

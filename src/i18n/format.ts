@@ -47,6 +47,11 @@ export function currentPeriod(now = new Date()): string {
   return `${y}-${m}`
 }
 
+// parisToday is the Europe/Paris calendar day of now, as YYYY-MM-DD.
+export function parisToday(now = new Date()): string {
+  return new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Europe/Paris' }).format(now)
+}
+
 // Two-decimal quantities kept as integers: euros in cents, surfaces in
 // hundredths of m². They are typed and shown the French way, « 1 234,56 »,
 // and converted by string, never through a float (CLAUDE.md money rule).

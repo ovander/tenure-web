@@ -3,6 +3,7 @@
 //   generation blocker  a dwelling without a DPE diagnostic
 //   activation blockers no generated contract, no signed copy, no entry inventory
 //   close               refused while a deposit is still held
+//   warnings            state.leaseWarnings[lease id], as set by the test
 const transitions = { draft: { activate: 'active' }, active: { notice: 'notice' }, notice: { end: 'ended' }, ended: { close: 'closed' } }
 
 export function leaseRoutes(ctx) {
@@ -22,7 +23,8 @@ export function leaseRoutes(ctx) {
       activation.push({ type: 'lease/contract-not-signed', title: 'L’exemplaire signé du contrat n’a pas été déposé.' })
     if (!state.inventories.some((i) => i.lease_id === l.id && i.kind === 'entry'))
       activation.push({ type: 'lease/entry-inventory-missing', title: 'L’état des lieux d’entrée manque.' })
-    return l.state === 'draft' ? { generation, activation, warnings: [] } : { generation: [], activation: [], warnings: [] }
+    const warnings = state.leaseWarnings?.[l.id] ?? []
+    return l.state === 'draft' ? { generation, activation, warnings } : { generation: [], activation: [], warnings }
   }
   const stale = (res) => json(res, 412, { type: 'http/stale', status: 412, title: 'Version périmée.' })
   const conflict = (res, type, title) => json(res, 409, { type, status: 409, title })
@@ -75,7 +77,11 @@ export function leaseRoutes(ctx) {
           if (req.method === 'GET') return json(res, 200, l)
           if (l.state !== 'draft') return conflict(res, 'lease/not-editable', 'Seul un bail en brouillon peut être modifié ; utilisez un avenant.')
           if (entry.ifMatch !== `W/"${l.version}"`) return stale(res)
-          Object.assign(l, b, { version: l.version + 1 })
+          {
+            const before = { ...l }
+            Object.assign(l, b, { version: l.version + 1 })
+            record('lease.update', 'lease', l.id, before, { ...l })
+          }
           return json(res, 200, l)
         case 'blockers':
           return json(res, 200, blockers(l))

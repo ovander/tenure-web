@@ -14,7 +14,8 @@ each release is pinned in tenure-api `web/VERSION`.
 | 4 | S10 Charges ledger, syndic import, S11 Reconciliation wizard | `/charges`, `/reconciliations` | Flow 3: import → allocate → balances → RG → provision |
 | 5 | S12 Tax year (both regimes, 2044 drill-down, step-up issue) | `/tax/summaries` | Flow 4: issue with step-up, RF PDF and CSV in S13 |
 | 6 | S13 Documents (browse, number search, ZIP export), S14 Templates, Parameters, Grants | `/documents`, `/params`, `/grants`, `/me/export` | Export with step-up; grant then revoke; flow 5 (cancel and reissue) from any document |
-| 7 | S01 Home to-dos (arrears, blockers, obligations), activity on hubs, Playwright on the five flows against a seeded tenure in CI | all | The phase 1 gate on the web side |
+| 7a | S01 Home to-dos (arrears, blockers, payments to match, the month to bill) and next dates, activity tab on the lease hub (Q-W20) | `/leases/{id}/arrears`, `/leases/{id}/blockers`, `/payments`, `/billing/documents`, `/audit/events` | Each to-do opens its screen; read roles see the same list |
+| 7b | Playwright on the five flows against a seeded tenure in CI | all | The phase 1 gate on the web side |
 
 Rules that hold in every slice:
 - Amounts are integers (cents) and are converted by string, never through a float.
