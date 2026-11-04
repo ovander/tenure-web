@@ -29,7 +29,7 @@ export const routes: RouteRecordRaw[] = [
   { path: '/charges', name: 'charges', component: () => import('@/features/charges/ChargesLedger.vue'), meta: { title: 'nav.charges' } },
   { path: '/reconciliations/:id', name: 'reconciliation', component: () => import('@/features/charges/ReconciliationWizard.vue'), meta: { title: 'nav.charges' } },
   { path: '/tax', redirect: () => `/tax/${Number(currentPeriod().slice(0, 4)) - 1}` },
-  { path: '/tax/:year(\\d{4})', name: 'tax', component: soon, meta: { title: 'nav.tax' } },
+  { path: '/tax/:year(\\d{4})', name: 'tax', component: () => import('@/features/tax/TaxYear.vue'), meta: { title: 'nav.tax' } },
   { path: '/documents', name: 'documents', component: soon, meta: { title: 'nav.documents' } },
   {
     path: '/settings',

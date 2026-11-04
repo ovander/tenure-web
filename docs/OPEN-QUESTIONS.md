@@ -161,3 +161,23 @@ settlement on the allocated lines, before issuing, because issuing applies them.
   help text points to décret 87-713 and to the syndic's column;
 - the texts state no legal duration (archive retention, spread of a late statement). The spread
   shows the instalments the API returns.
+
+**Q-W17 Tax year — Open (slice 5).** RENT-FE-001 S12 says « 2044 lines with drill-down » but not
+where the lines' labels come from, and tenure-api makes both computing and issuing step_up.
+Provisional:
+- the app writes no 2044 line number. Each line is named by the categories that
+  `form_2044_line_map` sends to it for that tax year (« Taxe foncière », « Frais de gestion »…).
+  The lines that count as income or interest come from the same parameter. When the parameter
+  is missing, a warning says so and the numbers are shown without labels;
+- « Calculer » / « Recalculer » and « Émettre le récapitulatif » go through `withStepUp`. A sign-in
+  older than the limit opens the step-up dialog, then Socrate, and the user comes back to
+  `/tax/{year}`;
+- micro-foncier and the régime réel are shown side by side. The card with the lower taxable base
+  is outlined, with a note that the choice is the owner's. The issue dialog preselects that regime,
+  disables micro-foncier when it is not open, and states the réel lock-in from
+  `reel_option_lock_years`;
+- a line opens onto its sources, charges and payments found by id, with a link to each. A source
+  flagged by the API (no supporting document, draft, unmatched) is shown in orange, and so is its
+  line;
+- the issued year shows the RF PDF and the CSV of the lines as DocumentCards, opened through the
+  signed link. The step-up export `GET …/lines.csv` of a draft is not offered in phase 1.
