@@ -114,3 +114,17 @@ test('an accountant reads an issued tax year with no write control', async ({ pa
   for (const id of ['compute', 'issue-tax']) await expect(page.getByTestId(id)).toHaveCount(0)
   expect(violations).toEqual([])
 })
+
+test('a computation made while the year is still loading stays on screen', async ({ page }) => {
+  // The page's payments arrive late: a click on « Calculer » must not have its
+  // draft wiped by the load that finishes after it.
+  await mock(page, { stepUpFresh: true, delay: { '/payments': 1500 } })
+  const violations = await watchCSP(page)
+  await page.goto('/tax/2025')
+  await page.getByTestId('compute').click()
+  await expect(page.getByTestId('tax-state')).toHaveText('brouillon')
+  await page.waitForTimeout(2000)
+  await expect(page.getByTestId('tax-state')).toHaveText('brouillon')
+  await expect(page.getByTestId('micro-taxable')).toHaveText(/6\s720,00\s€/)
+  expect(violations).toEqual([])
+})
