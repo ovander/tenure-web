@@ -12,7 +12,7 @@ import { useAssets, assetLabel, type Asset } from './store'
 import { useSession } from '@/stores/session'
 import { t, type Key } from '@/i18n'
 import AssetOverview from './AssetOverview.vue'
-import AssetActivity from './AssetActivity.vue'
+import ActivityList from '@/features/common/ActivityList.vue'
 import ComingSoonPanel from '@/components/ComingSoonPanel.vue'
 import AssetLeases from '@/features/lease/AssetLeases.vue'
 import ChargesLedger from '@/features/charges/ChargesLedger.vue'
@@ -79,7 +79,7 @@ watch(id, load)
       </nav>
       <AssetOverview v-if="tab === 'overview'" :asset="asset" />
       <AssetLeases v-else-if="tab === 'leases'" :asset-id="asset.id ?? ''" />
-      <AssetActivity v-else-if="tab === 'activity'" :asset-id="asset.id ?? ''" />
+      <ActivityList v-else-if="tab === 'activity'" entity-type="asset" :entity-id="asset.id ?? ''" />
       <ChargesLedger v-else-if="tab === 'charges'" :asset-id="asset.id ?? ''" embedded />
       <DocumentsView v-else-if="tab === 'documents'" :asset-id="asset.id ?? ''" embedded />
       <ComingSoonPanel v-else />

@@ -61,12 +61,8 @@ export const useAssets = defineStore('assets', () => {
     await loadDiagnostics(assetId)
   }
 
-  async function activity(assetId: string): Promise<AuditEvent[]> {
-    const q = { entity_type: 'asset', entity_id: assetId, page: 1, size: 50 }
-    return (await api.get<Page<AuditEvent>>('/audit/events', { query: q })).data.items
-  }
 
-  return { byId, diagnostics, list, dwellings, get, create, update, loadDiagnostics, saveDiagnostic, activity }
+  return { byId, diagnostics, list, dwellings, get, create, update, loadDiagnostics, saveDiagnostic }
 })
 
 // toInput turns an asset into the body of PUT /assets/{id}, shares included,

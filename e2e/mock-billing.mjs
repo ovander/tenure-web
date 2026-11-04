@@ -5,7 +5,8 @@
 //             for the period, prorated by days when it starts or ends in it
 //   cancel    a cancelling document and a reissued rent call; refused with a
 //             receipt, or without a reason
-//   arrears   live rent calls minus what payments applied to them
+//   arrears   live rent calls minus what payments applied to them; overdue
+//             past their due day when the test sets state.today
 //   receipts  one per live rent call paid in full (billing.receipts)
 
 export function billingRoutes(ctx) {
@@ -54,12 +55,14 @@ export function billingRoutes(ctx) {
         const paid = paidOn(d.id)
         const l = state.leases.find((x) => x.id === leaseId)
         const dueOn = `${d.period}-${String(l?.due_day ?? 5).padStart(2, '0')}`
-        return { billing_document_id: d.id, number: d.number, period: d.period, due_on: dueOn, total_cents: d.total_cents, paid_cents: paid, outstanding_cents: d.total_cents - paid, overdue: false, days_late: 0 }
+        const overdue = !!state.today && dueOn < state.today
+        const late = overdue ? Math.round((Date.parse(state.today) - Date.parse(dueOn)) / 86400000) : 0
+        return { billing_document_id: d.id, number: d.number, period: d.period, due_on: dueOn, total_cents: d.total_cents, paid_cents: paid, outstanding_cents: d.total_cents - paid, overdue, days_late: late }
       })
       .filter((x) => x.outstanding_cents > 0)
       .sort((a, b) => a.period.localeCompare(b.period))
     const out = items.reduce((s, x) => s + x.outstanding_cents, 0)
-    return { lease_id: leaseId, items, outstanding_cents: out, overdue_cents: 0 }
+    return { lease_id: leaseId, items, outstanding_cents: out, overdue_cents: items.filter((x) => x.overdue).reduce((s, x) => s + x.outstanding_cents, 0) }
   }
   function apply(p, lines) {
     const left = p.amount_cents - p.matches.reduce((s, m) => s + m.amount_cents, 0)

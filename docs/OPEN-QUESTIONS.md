@@ -212,3 +212,31 @@ drafted in the lease form (S06) but no screen to correct one afterwards. Decided
   browser (Blob, no data: URL);
 - **Templates:** tenure-api serves no route to list or read the versioned templates, so the screen
   stays « Bientôt disponible » until the API offers one.
+
+**Q-W20 Home to-dos, next dates, lease activity — Open (slice 7a).** tenure-api has no
+portfolio to-do route, so S01 builds its list from what it already serves, most urgent kind first:
+- **arrears:** a lease whose `GET /leases/{id}/arrears` has an overdue amount. An amount still
+  outstanding but not yet due is not a to-do;
+- **blocked:** a draft lease with generation or activation blockers (`GET /leases/{id}/blockers`),
+  linking to its contract tab and naming the first blocker;
+- **warning:** each warning the API returns for a lease, linking to its overview;
+- **unmatched:** the payments with an unapplied part (`GET /payments?unmatched=true`), as one item;
+- **billing:** this month's leases with no live rent call. A lease counts when it is active or
+  under notice, starts by the period's last day and does not end before its first day. The item
+  links to the billing month, whose dry run is the review (flow 2).
+
+The home makes one request per lease (blockers, arrears), which is enough for a handful of
+assets. A portfolio route would replace it if portfolios grow.
+
+**Next dates** come from the leases themselves, with no legal delay added in the app. There are
+three kinds, and the soonest six are shown:
+- the end of a notice (`end_on`);
+- the end of the current term (`start_on` plus `term_months`), renewed tacitly except for a
+  mobility lease, which ends;
+- the next month of IRL revision (`revision_month`), when the lease has an IRL reference, never
+  before the lease starts. Diagnostics, guarantees and reconciliations wait for the obligations
+  calendar (S16, phase 2).
+
+The **lease hub** gets the audit tab of RENT-FE-001 §7 as `/leases/{id}/activity`, named like
+the asset hub's (§2's URL scheme lists the asset's only). It lists the lease's own audit events. Events on its guarantees and inventories carry
+their own entity type, and appear there once the audit API can filter by lease.

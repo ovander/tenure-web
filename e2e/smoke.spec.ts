@@ -27,7 +27,7 @@ test('a signed-in owner sees home, styled, with no CSP violation', async ({ page
   await expect(tag).not.toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
   await expect(page.locator('style[data-primevue-style-id]').first()).toBeAttached()
   // Navigation and the placeholder screens.
-  await page.getByRole('link', { name: 'Facturation' }).click()
+  await page.getByRole('link', { name: 'Facturation', exact: true }).click()
   await expect(page).toHaveURL(/\/billing\/\d{4}-\d{2}$/)
   await expect(page.getByTestId('billing-title')).toContainText('Facturation')
   await page.getByRole('link', { name: 'Documents' }).click()
