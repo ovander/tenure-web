@@ -12,6 +12,7 @@ import { billingRoutes } from './mock-billing.mjs'
 import { chargeRoutes } from './mock-charges.mjs'
 import { taxRoutes } from './mock-tax.mjs'
 import { docRoutes } from './mock-docs.mjs'
+import { inventoryRoutes } from './mock-inventory.mjs'
 
 const dist = new URL('../dist/', import.meta.url).pathname
 const port = Number(process.env.PORT ?? 4173)
@@ -61,6 +62,7 @@ const billing = (...a) => billingRoutes({ state, json, invalid, uuid, record })(
 const charges = (...a) => chargeRoutes({ state, json, invalid, uuid, record })(...a)
 const tax = (...a) => taxRoutes({ state, json, invalid, uuid, record })(...a)
 const docs = (...a) => docRoutes({ state, json, invalid, uuid, record })(...a)
+const inventory = (...a) => inventoryRoutes({ state, json, invalid, uuid, record })(...a)
 
 const json = (res, status, body, headers = {}) => {
   res.writeHead(status, { 'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json', ...headers })
@@ -117,6 +119,7 @@ async function api(req, res, path) {
   if (billing(req, res, path, entry)) return
   if (charges(req, res, path, entry)) return
   if (tax(req, res, path, entry)) return
+  if (inventory(req, res, path, entry)) return
   if (docs(req, res, path, entry)) return
   if (leases(req, res, path, entry)) return
   return json(res, 404, { type: 'about:blank', status: 404, title: 'Introuvable.' })

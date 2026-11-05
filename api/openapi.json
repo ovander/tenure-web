@@ -461,6 +461,269 @@
                 }
             }
         },
+        "/assets/{id}/layout": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Version 0 until the layout is seeded or saved. Not for an accountant.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "An asset's layout: its rooms and their elements",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "asset id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/inventory.LayoutView"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The whole layout in order, with If-Match on its version (W/\"0\" before the first save). A room or element left out is removed; ids keep past inventories linked.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Replace an asset's layout",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "asset id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "layout version, W/\\",
+                        "name": "If-Match",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "layout",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/inventory.LayoutInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/inventory.LayoutView"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "412": {
+                        "description": "Precondition Failed",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "428": {
+                        "description": "Precondition Required",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/assets/{id}/layout/seed": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "From the latest template of the asset's kind (RENT-INV-001 §4): bedrooms numbered, rooms needing an absent feature left out, the furniture of a furnished dwelling added. Refused when the asset has rooms.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Seed an asset's first layout from a template",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "asset id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "what the template needs",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/inventory.SeedInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/inventory.LayoutView"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "412": {
+                        "description": "Precondition Failed",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
         "/audit/events": {
             "get": {
                 "security": [
@@ -2437,6 +2700,54 @@
                     },
                     "503": {
                         "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/inventory-templates": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The system templates and the owner's own, newest version first within each asset kind. Not for an accountant.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "The inventory templates the scope can read",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/inventory.TemplateView"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/problem.Body"
                         }
@@ -7105,6 +7416,235 @@
                 }
             }
         },
+        "inventory.Category": {
+            "type": "string",
+            "enum": [
+                "floor",
+                "walls",
+                "ceiling",
+                "joinery",
+                "electrical",
+                "plumbing",
+                "heating",
+                "appliance",
+                "furniture",
+                "other"
+            ],
+            "x-enum-varnames": [
+                "Floor",
+                "Walls",
+                "Ceiling",
+                "Joinery",
+                "Electrical",
+                "Plumbing",
+                "Heating",
+                "Appliance",
+                "Furniture",
+                "Other"
+            ]
+        },
+        "inventory.ElementInput": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "$ref": "#/definitions/inventory.Category"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "installed_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
+                }
+            }
+        },
+        "inventory.ElementView": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "enum": [
+                        "floor",
+                        "walls",
+                        "ceiling",
+                        "joinery",
+                        "electrical",
+                        "plumbing",
+                        "heating",
+                        "appliance",
+                        "furniture",
+                        "other"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/inventory.Category"
+                        }
+                    ]
+                },
+                "id": {
+                    "type": "string"
+                },
+                "installed_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "integer"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "inventory.LayoutInput": {
+            "type": "object",
+            "properties": {
+                "rooms": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.RoomInput"
+                    }
+                }
+            }
+        },
+        "inventory.LayoutView": {
+            "type": "object",
+            "properties": {
+                "asset_id": {
+                    "type": "string"
+                },
+                "rooms": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.RoomView"
+                    }
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "inventory.RoomInput": {
+            "type": "object",
+            "properties": {
+                "elements": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.ElementInput"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "surface_hundredths_m2": {
+                    "type": "integer"
+                }
+            }
+        },
+        "inventory.RoomView": {
+            "type": "object",
+            "properties": {
+                "elements": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.ElementView"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string",
+                    "enum": [
+                        "entry",
+                        "living",
+                        "kitchen",
+                        "bedroom",
+                        "bathroom",
+                        "wc",
+                        "storage",
+                        "outside",
+                        "garage",
+                        "box",
+                        "other"
+                    ]
+                },
+                "label": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "integer"
+                },
+                "surface_hundredths_m2": {
+                    "type": "integer"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "inventory.SeedInput": {
+            "type": "object",
+            "properties": {
+                "bedrooms": {
+                    "type": "integer"
+                },
+                "features": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "boolean"
+                    }
+                },
+                "furnished": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "inventory.TemplateView": {
+            "type": "object",
+            "properties": {
+                "asset_kind": {
+                    "type": "string",
+                    "enum": [
+                        "house",
+                        "apartment",
+                        "box"
+                    ]
+                },
+                "id": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "structure": {
+                    "type": "object"
+                },
+                "system": {
+                    "type": "boolean"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
         "jobs.Run": {
             "type": "object",
             "properties": {
@@ -7591,7 +8131,7 @@
                     "format": "date"
                 },
                 "items": {
-                    "description": "Items are structured from phase 2; free JSON array until then.",
+                    "description": "Items is retired (RENT-INV-001 §9): a non-empty value is refused with\ninventory/items-field-retired; the structured items come with the\ninventory capture.",
                     "type": "array",
                     "items": {
                         "type": "object"
@@ -7613,7 +8153,6 @@
                     "type": "string"
                 },
                 "document_id": {
-                    "description": "DocumentID is the uploaded état des lieux (class inventory, this lease).",
                     "type": "string"
                 },
                 "done_on": {
@@ -7622,13 +8161,6 @@
                 },
                 "id": {
                     "type": "string"
-                },
-                "items": {
-                    "description": "Items are structured from phase 2; free JSON array until then.",
-                    "type": "array",
-                    "items": {
-                        "type": "object"
-                    }
                 },
                 "kind": {
                     "type": "string",
@@ -7639,6 +8171,31 @@
                 },
                 "lease_id": {
                     "type": "string"
+                },
+                "legacy_items": {
+                    "type": "array",
+                    "items": {
+                        "type": "object"
+                    }
+                },
+                "mode": {
+                    "type": "string",
+                    "enum": [
+                        "amicable",
+                        "bailiff",
+                        "upload"
+                    ]
+                },
+                "state": {
+                    "type": "string",
+                    "enum": [
+                        "draft",
+                        "scheduled",
+                        "in_progress",
+                        "completed",
+                        "signed",
+                        "issued"
+                    ]
                 }
             }
         },

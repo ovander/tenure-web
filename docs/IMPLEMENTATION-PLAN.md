@@ -18,6 +18,7 @@ each release is pinned in tenure-api `web/VERSION`.
 | 7b | Playwright on the five flows against a seeded tenure in CI | all | The phase 1 gate on the web side |
 | 8 | S05 amendments (rent, tenant added, box added) on the contract tab, the IRL revision on the overview (Q-W23) | `/leases/{id}/amendments`, `/leases/{id}/revision` | AV-… listed with the lease documents; the revision explained in a dry run, then applied with its notice; read roles see neither |
 | 9 | S14 Templates: the document templates and their versions, read only (Q-W24) | `/templates` (tenure-api Q-106) | Versions newest first, the one in force marked, documents per version linked to S13; every role reads, an accountant the financial ones |
+| 10 | S15a Asset layout, the first inventory screen of phase 2 (RENT-INV-001 slice 3, Q-W25) | `/assets/{id}/layout`, `/assets/{id}/layout/seed` (tenure-api Q-109) | Seeded from the template, reordered, renamed, removed and added, saved with If-Match; 412 reloads; co-owner reads; accountant refused |
 
 Rules that hold in every slice:
 - Amounts are integers (cents) and are converted by string, never through a float.

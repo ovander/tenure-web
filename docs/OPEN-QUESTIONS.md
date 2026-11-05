@@ -305,3 +305,23 @@ and versions » without saying what the screen shows or who sees it. Provisional
   template is not offered, since tenure-api defers the per-owner override (Q-106).
 - The unused `ComingSoon` screen is removed; the hub's `ComingSoonPanel` stays.
 
+**Q-W25 Asset layout, S15a — Open (#39, tenure-api Q-109).** RENT-INV-001 §8 asks for a room list
+« with drag to reorder », elements per room, « seed from template » and `installed_on` per
+element. Provisional:
+- **Route.** `/assets/{id}/layout`, opened from a « Plan des pièces » button on the asset hub,
+  shown to every role but the accountant.
+- **No layout yet.** The owner seeds one: the number of bedrooms (not asked for a box), cellar,
+  garage, garden, and « loué meublé », proposed from the asset's own flag.
+- **Editing.**
+  - Rooms and elements are reordered with « monter / descendre » buttons rather than by drag:
+    usable on a tablet and from the keyboard, with no drag library to add under the CSP.
+  - A room has its name and kind. An element has its name, category, quantity and
+    installation date.
+  - Rooms and elements are added or removed in place. Removing one does not change the
+    inventories already made, since an inventory copies its labels (tenure-api Q-109).
+- **Save.** The whole layout is saved with If-Match on its version; an « unsaved changes »
+  marker shows until then. A field error (an empty room name) shows on its row, and a 412
+  reloads the stored layout and says so.
+- **Roles.** The co-owner reads without any write control. The accountant gets the API's 403,
+  shown as « not available to your role ».
+
