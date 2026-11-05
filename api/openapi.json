@@ -5302,6 +5302,54 @@
                 }
             }
         },
+        "/templates": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The templates embedded in this release (French only), each version with its SHA-256, whether new documents use it, and how many of the scope's documents it rendered. Read only; an accountant sees the financial ones.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "document"
+                ],
+                "summary": "List the document templates and their versions",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/document.TemplateView"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
         "/tenants": {
             "get": {
                 "security": [
@@ -6713,6 +6761,54 @@
                 },
                 "url": {
                     "type": "string"
+                }
+            }
+        },
+        "document.TemplateVersionView": {
+            "type": "object",
+            "properties": {
+                "current": {
+                    "description": "Current is the version new documents are rendered with: the latest,\nsince a template change only ever adds a version.",
+                    "type": "boolean"
+                },
+                "documents": {
+                    "type": "integer"
+                },
+                "first_issued_at": {
+                    "type": "string"
+                },
+                "last_issued_at": {
+                    "type": "string"
+                },
+                "sha256": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string",
+                    "example": "v2"
+                }
+            }
+        },
+        "document.TemplateView": {
+            "type": "object",
+            "properties": {
+                "class": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/document.Class"
+                        }
+                    ],
+                    "example": "contract"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "contract"
+                },
+                "versions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/document.TemplateVersionView"
+                    }
                 }
             }
         },

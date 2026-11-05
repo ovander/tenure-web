@@ -292,3 +292,16 @@ Provisional:
   dialog shows the API's problem and offers nothing to apply.
 - The daily job applies a due revision anyway. The button only lets the owner see it and apply
   it sooner.
+
+**Q-W24 Settings › Templates — Open (#37, tenure-api Q-106).** RENT-FE-001 S14 lists « templates
+and versions » without saying what the screen shows or who sees it. Provisional:
+- the screen is read only and built on `GET /templates`. Each template shows:
+  - its French name;
+  - its versions, newest first, the current one tagged « en vigueur »;
+  - for each version, the documents it produced and the days of the first and last issue;
+  - the head of each version's SHA-256, the full one in the title.
+- A template that produced documents links to the archive (S13) filtered on its class.
+- Every role sees the tab; an accountant gets the financial templates from the API. Editing a
+  template is not offered, since tenure-api defers the per-owner override (Q-106).
+- The unused `ComingSoon` screen is removed; the hub's `ComingSoonPanel` stays.
+

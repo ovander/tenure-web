@@ -5956,6 +5956,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the document templates and their versions
+         * @description The templates embedded in this release (French only), each version with its SHA-256, whether new documents use it, and how many of the scope's documents it rendered. Read only; an accountant sees the financial ones.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["document.TemplateView"][];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/tenants": {
         parameters: {
             query?: never;
@@ -6661,6 +6721,26 @@ export interface components {
         "document.Link": {
             expires_at?: string;
             url?: string;
+        };
+        "document.TemplateVersionView": {
+            /**
+             * @description Current is the version new documents are rendered with: the latest,
+             *     since a template change only ever adds a version.
+             */
+            current?: boolean;
+            documents?: number;
+            first_issued_at?: string;
+            last_issued_at?: string;
+            sha256?: string;
+            /** @example v2 */
+            version?: string;
+        };
+        "document.TemplateView": {
+            /** @example contract */
+            class?: components["schemas"]["document.Class"];
+            /** @example contract */
+            name?: string;
+            versions?: components["schemas"]["document.TemplateVersionView"][];
         };
         "document.View": {
             asset_id?: string;

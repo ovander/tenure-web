@@ -12,7 +12,6 @@ declare module 'vue-router' {
   }
 }
 
-const soon = () => import('@/features/common/ComingSoon.vue')
 
 export const routes: RouteRecordRaw[] = [
   { path: '/', name: 'home', component: () => import('@/features/home/HomeView.vue'), meta: { title: 'nav.home' } },
@@ -38,7 +37,7 @@ export const routes: RouteRecordRaw[] = [
     children: [
       { path: '', redirect: '/settings/profile' },
       { path: 'profile', name: 'profile', component: () => import('@/features/settings/ProfileView.vue'), meta: { title: 'settings.profile' } },
-      { path: 'templates', name: 'templates', component: soon, meta: { title: 'settings.templates', ownerOnly: true } },
+      { path: 'templates', name: 'templates', component: () => import('@/features/settings/TemplatesView.vue'), meta: { title: 'settings.templates' } },
       { path: 'params', name: 'params', component: () => import('@/features/settings/ParamsView.vue'), meta: { title: 'settings.params' } },
       { path: 'grants', name: 'grants', component: () => import('@/features/settings/GrantsView.vue'), meta: { title: 'settings.grants', ownerOnly: true } },
     ],
