@@ -34,7 +34,7 @@ test('a signed-in owner sees home, styled, with no CSP violation', async ({ page
   await expect(page).toHaveURL(/\/documents$/)
   await expect(page.getByTestId('export')).toBeVisible()
   await page.goto('/settings/templates')
-  await expect(page.getByTestId('soon')).toBeVisible()
+  await expect(page.getByTestId('template')).toHaveCount(2)
   // One scope: no scope switcher.
   await expect(page.getByTestId('scope')).toHaveCount(0)
   const scoped = (await requests(page)).find((r) => r.path.startsWith('/jobs/runs'))

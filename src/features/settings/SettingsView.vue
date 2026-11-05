@@ -10,7 +10,7 @@ const tabs = computed(() =>
   (
     [
       { to: '/settings/profile', key: 'settings.profile', show: true },
-      { to: '/settings/templates', key: 'settings.templates', show: s.canWrite },
+      { to: '/settings/templates', key: 'settings.templates', show: true },
       { to: '/settings/params', key: 'settings.params', show: true },
       { to: '/settings/grants', key: 'settings.grants', show: s.canWrite },
     ] as { to: string; key: Key; show: boolean }[]

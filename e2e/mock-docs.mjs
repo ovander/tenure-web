@@ -6,12 +6,22 @@
 //   grants           step_up to give or revoke; a grant is revoked, never deleted
 //   params PUT       admin and step_up; appended, never in the past
 //   /me/export       step_up
+//   GET /templates   state.templates (default: two made-up templates); an
+//                    accountant gets the financial ones (tenure-api Q-106)
 
 export function docRoutes(ctx) {
   const { state, json, invalid, uuid } = ctx
   state.archive ??= []
   state.exports ??= []
   state.grants ??= []
+  state.templates ??= [
+    { name: 'contract', class: 'contract', versions: [
+      { version: 'v1', current: false, sha256: '1'.repeat(64), documents: 2, first_issued_at: '2026-01-10T09:00:00Z', last_issued_at: '2026-03-02T09:00:00Z' },
+      { version: 'v2', current: true, sha256: '2'.repeat(64), documents: 1, first_issued_at: '2026-11-03T09:00:00Z', last_issued_at: '2026-11-03T09:00:00Z' },
+    ] },
+    { name: 'rent_call', class: 'rent_call', versions: [{ version: 'v1', current: true, sha256: '3'.repeat(64), documents: 0 }] },
+  ]
+  const financial = new Set(['rent_call', 'receipt', 'regularisation', 'revision_notice', 'tax_summary', 'cancellation'])
 
   const stepUp = (res) => json(res, 401, { type: 'auth/step-up-required', status: 401, title: 'Une authentification forte récente est nécessaire.' })
   const forbidden = (res) => json(res, 403, { type: 'auth/forbidden', status: 403, title: 'Accès refusé.' })
@@ -19,6 +29,8 @@ export function docRoutes(ctx) {
   return function route(req, res, path, entry) {
     const b = entry.body
     const q = new URL(req.url, 'http://x').searchParams
+    if (path === '/templates' && req.method === 'GET')
+      return json(res, 200, state.role === 'accountant' ? state.templates.filter((x) => financial.has(x.class)) : state.templates)
     if (path === '/documents' && req.method === 'GET' && !q.get('lease_id')) {
       const items = state.archive.filter((d) => (!q.get('asset_id') || d.asset_id === q.get('asset_id')) && (!q.get('year') || d.issued_at.startsWith(q.get('year')))
         && (!q.get('class') || d.class === q.get('class')) && (!q.get('number') || (d.number ?? '').includes(q.get('number'))))
