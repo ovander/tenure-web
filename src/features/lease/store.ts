@@ -26,6 +26,9 @@ export type Tenant = Schemas['portfolio.TenantView']
 export type TenantInput = Schemas['portfolio.TenantInput']
 export type DocumentMeta = Schemas['document.View']
 export type DocumentLink = Schemas['document.Link']
+export type AmendmentInput = Schemas['lease.AmendmentInput']
+export type AmendmentKind = Schemas['lease.AmendmentKind']
+export type AmendmentResult = Schemas['lease.AmendmentResult']
 
 // Guarantor is the guarantor object of a guarantee (tenure-api
 // lease.Guarantor): who stands behind a surety, Visale's visa, the insurer.
@@ -46,6 +49,15 @@ export const vettedClauses = ['boiler_servicing', 'chimney_sweeping', 'garden_up
 export const mobilityReasons = [
   'vocational_training', 'higher_education', 'apprenticeship', 'internship', 'civic_service', 'job_transfer', 'temporary_assignment',
 ] as const
+
+// amendmentKinds are what an amendment can change (tenure-api lease.AmendmentKind).
+export const amendmentKinds: AmendmentKind[] = ['rent', 'tenant_add', 'asset_add']
+
+// amendable says whether a lease can be amended: it is current (active or
+// under notice).
+export function amendable(l: Pick<Lease, 'state'>): boolean {
+  return l.state === 'active' || l.state === 'notice'
+}
 
 // nextActions is the lifecycle of tenure-api internal/lease/state.go.
 export const nextActions: Record<LeaseState, Action[]> = {
@@ -101,6 +113,13 @@ export const useLeases = defineStore('leases', () => {
   async function guaranteeDocument(id: string): Promise<LeaseDocument> {
     return (await api.post<LeaseDocument>(`/guarantees/${id}/document`)).data
   }
+  // amend applies an amendment to a current lease (rent outside IRL, a
+  // tenant or a box added) and issues its numbered AV-… (tenure-api Q-71).
+  async function amend(id: string, input: AmendmentInput): Promise<AmendmentResult> {
+    const r = (await api.post<AmendmentResult>(`/leases/${id}/amendments`, input)).data
+    if (r.lease) keep(r.lease)
+    return r
+  }
   async function inventories(id: string): Promise<Inventory[]> {
     return (await api.get<Inventory[]>(`/leases/${id}/inventories`)).data
   }
@@ -139,7 +158,7 @@ export const useLeases = defineStore('leases', () => {
 
   return {
     byId, tenants, list, get, create, update, transition, blockers, generateContract, documents, guarantees, saveGuarantee,
-    guaranteeDocument, inventories, recordInventory, upload, uploads, loadTenants, createTenant, updateTenant,
+    guaranteeDocument, amend, inventories, recordInventory, upload, uploads, loadTenants, createTenant, updateTenant,
   }
 })
 

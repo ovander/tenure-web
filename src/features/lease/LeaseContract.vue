@@ -1,7 +1,8 @@
 <script setup lang="ts">
 // The contract tab: documents generated from the lease (contract,
 // amendments, DG, CA) as DocumentCards, and the signed copy of the contract,
-// uploaded (scanned) and linked to the document it signs (Q-69).
+// uploaded (scanned) and linked to the document it signs (Q-69). A current
+// lease is amended from here (AmendmentDialog, Q-W23).
 import { computed, onMounted, ref } from 'vue'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
@@ -9,8 +10,9 @@ import { useToast } from 'primevue/usetoast'
 import DocumentCard from '@/components/DocumentCard.vue'
 import FilePicker from '@/components/FilePicker.vue'
 import HelpTip from '@/components/HelpTip.vue'
+import AmendmentDialog from './AmendmentDialog.vue'
 import { ApiError } from '@/api/client'
-import { useLeases, type DocumentMeta, type Lease, type LeaseDocument } from './store'
+import { useLeases, amendable, type AmendmentResult, type DocumentMeta, type Lease, type LeaseDocument } from './store'
 import { useSession } from '@/stores/session'
 import { t, type Key } from '@/i18n'
 
@@ -24,6 +26,12 @@ const uploads = ref<DocumentMeta[]>([])
 const file = ref<File | null>(null)
 const busy = ref(false)
 const error = ref('')
+const amending = ref(false)
+async function amended(r: AmendmentResult): Promise<void> {
+  toast.add({ severity: 'success', summary: t('amendment.done', { number: r.amendment?.number ?? '' }), life: 5000 })
+  await load()
+  emit('changed')
+}
 const contract = computed(() => docs.value.filter((d) => d.kind === 'contract').at(-1))
 
 async function load(): Promise<void> {
@@ -53,7 +61,10 @@ async function uploadSigned(): Promise<void> {
 <template>
   <div class="space-y-6">
     <section>
-      <h2 class="mb-3 font-medium">{{ t('contract.documents') }}</h2>
+      <div class="mb-3 flex items-center justify-between gap-2">
+        <h2 class="font-medium">{{ t('contract.documents') }}</h2>
+        <Button v-if="s.canWrite && amendable(lease)" :label="t('amendment.open')" icon="pi pi-file-edit" size="small" severity="secondary" data-test="amend" @click="amending = true" />
+      </div>
       <p v-if="docs.length === 0" class="text-sm text-slate-500" data-test="no-documents">{{ t('contract.none') }}</p>
       <div class="space-y-2">
         <DocumentCard v-for="d in docs" :key="d.id" :label="t(`doc.kind.${d.kind}` as Key)" :number="d.number" :issued-at="d.issued_at" :sha256="d.sha256" :document-id="d.document_id" />
@@ -73,5 +84,6 @@ async function uploadSigned(): Promise<void> {
         <DocumentCard v-for="u in uploads" :key="u.id" :label="u.original_name ?? ''" :issued-at="u.issued_at" :sha256="u.sha256" :document-id="u.id" />
       </div>
     </section>
+    <AmendmentDialog v-if="amending" v-model:visible="amending" :lease="lease" @saved="amended" />
   </div>
 </template>

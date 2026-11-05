@@ -23,7 +23,7 @@ vi.mock('@/api/client', () => ({
   },
 }))
 
-const { useLeases, toLeaseInput, nextActions, guarantorOf, tenantName } = await import('./store')
+const { useLeases, toLeaseInput, nextActions, guarantorOf, tenantName, amendable } = await import('./store')
 
 beforeEach(() => {
   setActivePinia(createPinia())
@@ -60,6 +60,13 @@ describe('lease store', () => {
       { method: 'PUT', path: '/guarantees/g1', body: { kind: 'deposit', status: 'settled' }, ifMatch: 2 },
       { method: 'UPLOAD', path: '/documents', fields: { class: 'contract', lease_id: 'l1', asset_id: 'a1', signs_document_id: 'doc-ct' }, file: 'signé.pdf' },
     ])
+  })
+
+  it('amends only a current lease, and posts the amendment as given', async () => {
+    expect(['draft', 'active', 'notice', 'ended', 'closed'].filter((st) => amendable({ state: st as never }))).toEqual(['active', 'notice'])
+    const s = useLeases()
+    await s.amend('l1', { kind: 'rent', effective_on: '2026-12-01', rent_cents: 82000, reason: 'accord' })
+    expect(calls).toEqual([{ method: 'POST', path: '/leases/l1/amendments', body: { kind: 'rent', effective_on: '2026-12-01', rent_cents: 82000, reason: 'accord' } }])
   })
 
   it('reads guarantors and names tenants', () => {

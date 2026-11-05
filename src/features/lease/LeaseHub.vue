@@ -183,7 +183,7 @@ const confirmBody = computed(() => (confirming.value ? t(`confirm.${confirming.v
           {{ t(`tab.${x}` as Key) }}
         </RouterLink>
       </nav>
-      <LeaseOverview v-if="tab === 'overview'" :lease="lease" />
+      <LeaseOverview v-if="tab === 'overview'" :lease="lease" @changed="load" />
       <LeaseContract v-else-if="tab === 'contract'" :lease="lease" @changed="load" />
       <LeaseGuarantees v-else-if="tab === 'guarantees'" :lease="lease" @changed="load" />
       <LeaseInventories v-else-if="tab === 'inventories'" :lease="lease" @changed="load" />
