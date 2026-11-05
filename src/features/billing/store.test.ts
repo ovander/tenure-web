@@ -1,10 +1,18 @@
 import { describe, expect, it } from 'vitest'
-import { exception, feesTotal, live, shiftPeriod, split } from './store'
+import { exception, feesTotal, live, revisionNotes, shiftPeriod, split } from './store'
 
 describe('billing helpers', () => {
   it('sums the fees in cents', () => {
     expect(feesTotal([{ total_cents: 85000 }, { total_cents: 51548 }, {}])).toBe(136548)
     expect(feesTotal([])).toBe(0)
+  })
+
+  it('says what limited a revision, a forfeiture first', () => {
+    expect(revisionNotes({ forfeited: true, capped_by: 'irl_cap' })).toEqual(['revision.forfeited'])
+    expect(revisionNotes({ above_ceiling: true })).toEqual(['revision.aboveCeiling'])
+    expect(revisionNotes({ capped_by: 'irl_cap' })).toEqual(['revision.cappedIrl'])
+    expect(revisionNotes({ capped_by: 'rent_control.zone_ceiling' })).toEqual(['revision.cappedCeiling'])
+    expect(revisionNotes({ capped_by: '' })).toEqual([])
   })
 
   it('flags a part month before a carried credit', () => {

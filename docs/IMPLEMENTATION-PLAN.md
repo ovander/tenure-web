@@ -16,6 +16,7 @@ each release is pinned in tenure-api `web/VERSION`.
 | 6 | S13 Documents (browse, number search, ZIP export), S14 Templates, Parameters, Grants | `/documents`, `/params`, `/grants`, `/me/export` | Export with step-up; grant then revoke; flow 5 (cancel and reissue) from any document |
 | 7a | S01 Home to-dos (arrears, blockers, payments to match, the month to bill) and next dates, activity tab on the lease hub (Q-W20) | `/leases/{id}/arrears`, `/leases/{id}/blockers`, `/payments`, `/billing/documents`, `/audit/events` | Each to-do opens its screen; read roles see the same list |
 | 7b | Playwright on the five flows against a seeded tenure in CI | all | The phase 1 gate on the web side |
+| 8 | S05 amendments (rent, tenant added, box added) on the contract tab, the IRL revision on the overview (Q-W23) | `/leases/{id}/amendments`, `/leases/{id}/revision` | AV-… listed with the lease documents; the revision explained in a dry run, then applied with its notice; read roles see neither |
 
 Rules that hold in every slice:
 - Amounts are integers (cents) and are converted by string, never through a float.

@@ -18,6 +18,7 @@ export type Payment = Schemas['payment.View']
 export type PaymentInput = Schemas['payment.Input']
 export type PaymentMethod = NonNullable<PaymentInput['method']>
 export type MatchLine = Schemas['payment.MatchLine']
+export type RevisionView = Schemas['billing.RevisionView']
 
 export const paymentMethods: PaymentMethod[] = ['transfer', 'direct_debit', 'cheque', 'cash', 'card', 'caf', 'other']
 
@@ -32,6 +33,11 @@ export const useBilling = defineStore('billing', () => {
   }
   async function cancel(id: string, reason: string): Promise<CancelResult> {
     return (await api.post<CancelResult>(`/billing/documents/${id}/cancel`, { reason })).data
+  }
+  // revise computes (dryRun) or applies the IRL revision due today on a
+  // lease; applying it issues the revision notice (RENT-SPEC-003).
+  async function revise(leaseId: string, dryRun: boolean): Promise<RevisionView> {
+    return (await api.post<RevisionView>(`/leases/${leaseId}/revision`, { dry_run: dryRun })).data
   }
   async function arrears(leaseId: string): Promise<Arrears> {
     return (await api.get<Arrears>(`/leases/${leaseId}/arrears`)).data
@@ -54,8 +60,21 @@ export const useBilling = defineStore('billing', () => {
   async function issueReceipts(): Promise<void> {
     await api.post('/jobs/billing.receipts/trigger', {})
   }
-  return { run, documents, cancel, arrears, payments, payment, record, match, issueReceipts }
+  return { run, documents, cancel, revise, arrears, payments, payment, record, match, issueReceipts }
 })
+
+export type Revision = NonNullable<NonNullable<RevisionView['revision']>['revision']>
+
+// revisionNotes says what limited a revision, as i18n keys (RENT-SPEC-003,
+// tenure-api Q-13, Q-34): forfeited when claimed too late, the current rent
+// already above the zone ceiling, or the new rent capped by a rule.
+export function revisionNotes(r: Revision): ('revision.forfeited' | 'revision.aboveCeiling' | 'revision.cappedIrl' | 'revision.cappedCeiling')[] {
+  if (r.forfeited) return ['revision.forfeited']
+  if (r.above_ceiling) return ['revision.aboveCeiling']
+  if (r.capped_by === 'irl_cap') return ['revision.cappedIrl']
+  if (r.capped_by === 'rent_control.zone_ceiling') return ['revision.cappedCeiling']
+  return []
+}
 
 // feesTotal is the sum of the fees' totals, in cents.
 export function feesTotal(fees: Fee[]): number {

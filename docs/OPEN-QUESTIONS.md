@@ -74,9 +74,9 @@ restitution amount or deductions. Provisional:
   lets the lease close;
 - the restitution statement belongs with the exit inventory in phase 2 (RENT-SPEC-009).
 
-**Q-W11 Amendments — Open (slice 2).** `POST /leases/{id}/amendments` (rent, tenant added,
-asset added) is not in this slice: flow 1 ends at activation. Amendments come with the billing
-slice, where a rent change shows on the next rent call.
+**Q-W11 Amendments — Answered by slice 8 (Q-W23).** `POST /leases/{id}/amendments` (rent,
+tenant added, asset added) was not in slice 2, whose flow 1 ends at activation. Slice 8 gives it a
+screen.
 
 **Q-W12 Blockers and actions — Open (slice 2).** Provisional:
 - the hub lists the API's generation, activation and warning blockers by their titles, in the
@@ -263,3 +263,32 @@ in the build, lint and test toolchain. None reaches the bundle (`npm audit --omi
   There it merges the plugin options from our own vite configuration, at build time, never
   untrusted input. Provisional: the alert is dismissed as a tolerable risk, and the override is
   added once a fixed version is published. `npm audit` therefore keeps one low entry for it.
+
+**Q-W23 Amendments and the IRL revision on the lease hub — Open (slice 8, #35).** RENT-FE-001
+gives S05 a contract tab and the IRL reference but no screen for amending a current lease or
+revising its rent. tenure-api has both routes: amendments (Q-71) and the revision (Q-13, Q-34).
+Provisional:
+- « Établir un avenant » is on the contract tab, for an owner, on an active lease or one under
+  notice. The dialog takes:
+  - the kind: a rent change outside IRL, a tenant added, or a box added;
+  - the effective date (today);
+  - the new rent (proposed at the current one for a rent change; empty, so unchanged, for a box);
+  - the tenant, among those not yet on the lease, or created on the spot;
+  - the box, among the portfolio's boxes not on the lease;
+  - an optional reason.
+- The AV-… joins the lease documents, and the hub reloads the amended lease. The API's refusals
+  (same rent, a box under another lease, a zone ceiling) show in the dialog.
+- The signed copy of an amendment is not asked for: Q-71 makes it optional, and it can be
+  uploaded later.
+- « Réviser le loyer » is on the overview, for an owner, on a current lease with an IRL
+  reference. Opening it runs the revision as a dry run and shows:
+  - the anniversary;
+  - the new index against the reference;
+  - the current, indexed and revised rents;
+  - the zone ceiling, when there is one;
+  - the first month at the new rent;
+  - what limited it: forfeited, already above the ceiling, the IRL cap, or the zone ceiling.
+- « Appliquer la révision » applies it and issues the revision notice. When none is due, the
+  dialog shows the API's problem and offers nothing to apply.
+- The daily job applies a due revision anyway. The button only lets the owner see it and apply
+  it sooner.

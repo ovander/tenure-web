@@ -1,17 +1,21 @@
 <script setup lang="ts">
-// The hub's overview: assets, tenants, terms and the IRL revision.
+// The hub's overview: assets, tenants, terms and the IRL revision, which an
+// owner can compute and apply from here (RevisionDialog, Q-W23).
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import Button from 'primevue/button'
 import { useToast } from 'primevue/usetoast'
 import { useSession } from '@/stores/session'
-import { useLeases, tenantName, type Lease, type Tenant } from './store'
+import { useLeases, amendable, tenantName, type Lease, type Tenant } from './store'
 import TenantDialog from './TenantDialog.vue'
+import RevisionDialog from './RevisionDialog.vue'
+import type { RevisionView } from '@/features/billing/store'
 import { useAssets, assetLabel } from '@/features/portfolio/store'
 import { t, type Key } from '@/i18n'
 import { date, hundredths, money } from '@/i18n/format'
 
 const props = defineProps<{ lease: Lease }>()
+const emit = defineEmits<{ changed: [] }>()
 const store = useLeases()
 const s = useSession()
 const toast = useToast()
@@ -21,6 +25,13 @@ function updated(): void {
 }
 const assets = useAssets()
 const l = computed(() => props.lease)
+const revising = ref(false)
+const canRevise = computed(() => s.canWrite && amendable(l.value) && !!l.value.irl_ref_quarter)
+function revised(v: RevisionView): void {
+  const n = v.notice?.number
+  toast.add({ severity: 'success', summary: n ? t('revision.done', { number: n }) : t('revision.doneNoNotice'), life: 5000 })
+  emit('changed')
+}
 const monthly = computed(() => (l.value.rent_cents ?? 0) + (l.value.provision_cents ?? 0))
 </script>
 
@@ -49,7 +60,10 @@ const monthly = computed(() => (l.value.rent_cents ?? 0) + (l.value.provision_ce
       <TenantDialog v-if="editing" :tenant="editing" @updated="updated" @close="editing = null" />
     </section>
     <section class="rounded-md border border-slate-200 bg-white p-5">
-      <h2 class="mb-3 font-medium">{{ t('overview.terms') }}</h2>
+      <div class="mb-3 flex items-center justify-between gap-2">
+        <h2 class="font-medium">{{ t('overview.terms') }}</h2>
+        <Button v-if="canRevise" :label="t('revision.open')" icon="pi pi-chart-line" size="small" severity="secondary" data-test="revise" @click="revising = true" />
+      </div>
       <dl class="grid grid-cols-[12rem_1fr] gap-x-4 gap-y-2 text-sm" data-test="lease-terms">
         <dt class="text-slate-500">{{ t('lease.startOn') }}</dt><dd>{{ date(l.start_on) }}</dd>
         <template v-if="l.end_on"><dt class="text-slate-500">{{ t('lease.endOn') }}</dt><dd>{{ date(l.end_on) }}</dd></template>
@@ -64,6 +78,7 @@ const monthly = computed(() => (l.value.rent_cents ?? 0) + (l.value.provision_ce
         </template>
         <template v-if="l.mobility_reason"><dt class="text-slate-500">{{ t('lease.mobilityReason') }}</dt><dd>{{ t(`mobility.${l.mobility_reason}` as Key) }}</dd></template>
       </dl>
+      <RevisionDialog v-if="revising" v-model:visible="revising" :lease="l" @applied="revised" />
     </section>
   </div>
 </template>
