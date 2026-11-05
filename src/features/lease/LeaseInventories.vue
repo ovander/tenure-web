@@ -118,6 +118,7 @@ async function save(): Promise<void> {
       <Column class="w-1">
         <template #body="{ data }">
           <div class="flex justify-end gap-1 whitespace-nowrap">
+            <Button v-if="data.mode !== 'upload' && data.state === 'completed'" :label="t('inventory.signAction')" icon="pi pi-pen-to-square" text size="small" data-test="open-review" @click="router.push(`/inventories/${data.id}/review`)" />
             <Button v-if="data.mode !== 'upload'" :label="data.state === 'issued' ? t('inventory.open') : t('inventory.capture')" icon="pi pi-pencil" text size="small" data-test="open-capture" @click="router.push(`/inventories/${data.id}/capture`)" />
             <Button v-if="data.document_id" icon="pi pi-download" text size="small" :aria-label="t('doc.download')" @click="download(data.document_id)" />
           </div>

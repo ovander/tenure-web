@@ -125,7 +125,28 @@ async function readProblem(res: Response): Promise<Problem> {
   return { status: res.status, title: res.statusText }
 }
 
+// blob fetches a file the API renders (a PDF), with the same session,
+// scope and problem handling as request.
+async function blob(path: string): Promise<Blob> {
+  const headers: Record<string, string> = { Accept: 'application/pdf, application/problem+json' }
+  if (state.scope) headers['X-Owner-Scope'] = state.scope
+  let res: Response
+  try {
+    res = await fetch(new URL(`/api/v1${path}`, location.origin), { headers, credentials: 'same-origin', redirect: 'error' })
+  } catch (e) {
+    throw new NetworkError(String(e))
+  }
+  if (res.ok) return res.blob()
+  const problem = await readProblem(res)
+  if (res.status === 401) {
+    if (problem.type === STEP_UP) throw new StepUpRequired(401, problem)
+    state.onUnauthenticated()
+  }
+  throw new ApiError(res.status, problem)
+}
+
 export const api = {
+  blob,
   get: <T>(path: string, opts?: Options) => request<T>('GET', path, opts),
   post: <T>(path: string, body?: unknown, opts?: Options) => request<T>('POST', path, { ...opts, body }),
   put: <T>(path: string, body?: unknown, opts?: Options) => request<T>('PUT', path, { ...opts, body }),

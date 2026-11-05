@@ -17,6 +17,7 @@ export const routes: RouteRecordRaw[] = [
   { path: '/', name: 'home', component: () => import('@/features/home/HomeView.vue'), meta: { title: 'nav.home' } },
   { path: '/assets', name: 'assets', component: () => import('@/features/portfolio/AssetsList.vue'), meta: { title: 'nav.assets' } },
   { path: '/assets/new', name: 'asset-new', component: () => import('@/features/portfolio/AssetForm.vue'), meta: { title: 'nav.assets', ownerOnly: true } },
+  { path: '/inventories/:id/review', name: 'inventory-review', component: () => import('@/features/inventory/ReviewView.vue'), meta: { title: 'nav.assets' } },
   { path: '/inventories/:id/capture', name: 'inventory-capture', component: () => import('@/features/inventory/CaptureView.vue'), meta: { title: 'nav.assets' } },
   { path: '/assets/:id/layout', name: 'asset-layout', component: () => import('@/features/inventory/LayoutView.vue'), meta: { title: 'nav.assets' } },
   { path: '/assets/:id/edit', name: 'asset-edit', component: () => import('@/features/portfolio/AssetForm.vue'), meta: { title: 'nav.assets', ownerOnly: true } },

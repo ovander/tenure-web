@@ -65,3 +65,14 @@ describe('PhotoQueue', () => {
     expect(q.pending).toBe(0)
   })
 })
+
+describe('signatures', () => {
+  it('lists the parties still to sign and keys them by party and name', async () => {
+    const { unsigned, partyKey } = await import('./capture')
+    const s = { parties: [{ party: 'owner', name: 'A', signed: true }, { party: 'tenant', name: 'Léa', signed: false }, { party: 'tenant', name: 'Paul' }] }
+    expect(unsigned(s).map((p) => p.name)).toEqual(['Léa', 'Paul'])
+    expect(unsigned({})).toEqual([])
+    expect(partyKey({ party: 'tenant', name: 'Léa' })).toBe('tenant:Léa')
+    expect(partyKey({ party: 'tenant', signer_name: 'Léa' })).toBe('tenant:Léa')
+  })
+})
