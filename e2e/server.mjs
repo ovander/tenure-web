@@ -21,9 +21,13 @@ const types = {
   '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.woff': 'font/woff', '.ttf': 'font/ttf', '.eot': 'application/vnd.ms-fontobject',
   '.webmanifest': 'application/manifest+json', '.json': 'application/json',
 }
+// The archive: inventory photos come from the object store's own origin
+// through signed links (tenure-api Q-110, INV-OD-12), here a second port.
+const archivePort = port + 1
+const archive = `http://127.0.0.1:${archivePort}`
 export const csp = (nonce) =>
   "default-src 'self'; script-src 'self'; " + `style-src 'self' 'nonce-${nonce}'; ` +
-  "img-src 'self' data:; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; " +
+  `img-src 'self' data: blob: ${archive}; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; ` +
   "object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
 
 const fresh = () => ({
@@ -55,6 +59,7 @@ const fresh = () => ({
   irl: [{ quarter: '2026-Q1', value: 14590, published_on: '2026-04-15' }, { quarter: '2026-Q2', value: 14632, published_on: '2026-07-15' }],
   runs: [{ id: 'r1', job: 'billing.monthly', period: '2026-11', status: 'succeeded', finished_at: '2026-11-01T05:00:12Z' }],
   requests: [],
+  archive,
 })
 let state = fresh()
 const leases = (...a) => leaseRoutes({ state, json, invalid, uuid, record })(...a)
@@ -238,3 +243,10 @@ createServer(async (req, res) => {
     json(res, 500, { status: 500, title: String(e) })
   }
 }).listen(port, '127.0.0.1', () => console.log(`e2e server on http://127.0.0.1:${port}`))
+
+// The archive serves a signed photo link as an image, nothing else.
+createServer((req, res) => {
+  if (!/^\/photo\/[0-9a-f-]+$/.test(new URL(req.url ?? '/', archive).pathname)) { res.writeHead(404); return res.end() }
+  res.writeHead(200, { 'Content-Type': 'image/svg+xml', 'Cache-Control': 'no-store' })
+  res.end('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="30"><rect width="40" height="30" fill="#7c3aed"/></svg>')
+}).listen(archivePort, '127.0.0.1')

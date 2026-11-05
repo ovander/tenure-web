@@ -19,6 +19,7 @@ each release is pinned in tenure-api `web/VERSION`.
 | 8 | S05 amendments (rent, tenant added, box added) on the contract tab, the IRL revision on the overview (Q-W23) | `/leases/{id}/amendments`, `/leases/{id}/revision` | AV-… listed with the lease documents; the revision explained in a dry run, then applied with its notice; read roles see neither |
 | 9 | S14 Templates: the document templates and their versions, read only (Q-W24) | `/templates` (tenure-api Q-106) | Versions newest first, the one in force marked, documents per version linked to S13; every role reads, an accountant the financial ones |
 | 10 | S15a Asset layout, the first inventory screen of phase 2 (RENT-INV-001 slice 3, Q-W25) | `/assets/{id}/layout`, `/assets/{id}/layout/seed` (tenure-api Q-109) | Seeded from the template, reordered, renamed, removed and added, saved with If-Match; 412 reloads; co-owner reads; accountant refused |
+| 11 | S15b Entry inventory capture, on site and tablet first (RENT-INV-001 slice 5, Q-W26) | `/leases/{id}/inventories` (mode amicable), `/inventories/{id}`, `/items`, `/meters`, `/keys`, `/transitions`, `/photos` (tenure-api Q-110, Q-111) | Created from the lease tab, scheduled, started, every item assessed and saved with If-Match, a photo previewed then shown from the archive under the CSP, meters and keys saved, completed once the checks clear; a failed save shown and retried; co-owner reads; accountant refused |
 
 Rules that hold in every slice:
 - Amounts are integers (cents) and are converted by string, never through a float.

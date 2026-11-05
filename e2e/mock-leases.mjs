@@ -8,6 +8,7 @@
 //   revision            state.revisions[lease id], as set by the test; none ⇒ 409
 const transitions = { draft: { activate: 'active' }, active: { notice: 'notice' }, notice: { end: 'ended' }, ended: { close: 'closed' } }
 
+import { draftCapture } from './mock-inventory.mjs'
 export function leaseRoutes(ctx) {
   const { state, json, invalid, uuid, record } = ctx
 
@@ -106,9 +107,16 @@ export function leaseRoutes(ctx) {
           }
         case 'inventories':
           if (req.method === 'GET') return json(res, 200, state.inventories.filter((i) => i.lease_id === l.id))
+          if (b.mode === 'amicable') {
+            if (state.inventories.some((i) => i.lease_id === l.id && i.kind === 'entry')) return json(res, 409, { type: 'inventory/already-recorded', status: 409, title: 'Cet état des lieux est déjà enregistré.' })
+            const i = { id: uuid(), lease_id: l.id, kind: 'entry', mode: 'amicable', state: 'draft' }
+            if (!draftCapture(state, i, l, uuid)) return json(res, 422, { type: 'inventory/layout-missing', status: 422, title: 'Un bien du bail n’a pas encore de plan de pièces : créez-le avant l’état des lieux.' })
+            state.inventories.push(i)
+            return json(res, 201, i)
+          }
           if (!b.done_on) return invalid(res, [{ field: 'done_on', message: 'La date de l’état des lieux est obligatoire.' }])
           {
-            const i = { ...b, id: uuid(), lease_id: l.id }
+            const i = { ...b, mode: 'upload', state: 'issued', id: uuid(), lease_id: l.id }
             state.inventories.push(i)
             return json(res, 201, i)
           }
