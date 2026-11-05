@@ -59,9 +59,14 @@ watch(id, load)
           <h1 class="text-xl font-semibold" data-test="asset-title">{{ assetLabel(asset) }}</h1>
           <p class="text-sm text-slate-500">{{ t(`kind.${asset.kind}` as Key) }}</p>
         </div>
-        <RouterLink v-if="s.canWrite" :to="`/assets/${asset.id}/edit`">
-          <Button :label="t('common.edit')" icon="pi pi-pencil" severity="secondary" data-test="edit-asset" />
-        </RouterLink>
+        <div class="flex flex-wrap gap-2">
+          <RouterLink v-if="s.role !== 'accountant'" :to="`/assets/${asset.id}/layout`">
+            <Button :label="t('layout.title')" icon="pi pi-th-large" severity="secondary" data-test="open-layout" />
+          </RouterLink>
+          <RouterLink v-if="s.canWrite" :to="`/assets/${asset.id}/edit`">
+            <Button :label="t('common.edit')" icon="pi pi-pencil" severity="secondary" data-test="edit-asset" />
+          </RouterLink>
+        </div>
       </div>
       <nav class="flex gap-1 border-b border-slate-200" role="tablist">
         <RouterLink

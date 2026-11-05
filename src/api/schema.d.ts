@@ -478,6 +478,308 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/assets/{id}/layout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * An asset's layout: its rooms and their elements
+         * @description Version 0 until the layout is seeded or saved. Not for an accountant.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description asset id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["inventory.LayoutView"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        /**
+         * Replace an asset's layout
+         * @description The whole layout in order, with If-Match on its version (W/"0" before the first save). A room or element left out is removed; ids keep past inventories linked.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description layout version, W/\ */
+                    "If-Match": string;
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description asset id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description layout */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["inventory.LayoutInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["inventory.LayoutView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Failed */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Required */
+                428: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/assets/{id}/layout/seed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Seed an asset's first layout from a template
+         * @description From the latest template of the asset's kind (RENT-INV-001 §4): bedrooms numbered, rooms needing an absent feature left out, the furniture of a furnished dwelling added. Refused when the asset has rooms.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description asset id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description what the template needs */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["inventory.SeedInput"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["inventory.LayoutView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Failed */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/audit/events": {
         parameters: {
             query?: never;
@@ -2675,6 +2977,66 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inventory-templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The inventory templates the scope can read
+         * @description The system templates and the owner's own, newest version first within each asset kind. Not for an accountant.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["inventory.TemplateView"][];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -6836,6 +7198,68 @@ export interface components {
             size?: number;
             total?: number;
         };
+        /** @enum {string} */
+        "inventory.Category": "floor" | "walls" | "ceiling" | "joinery" | "electrical" | "plumbing" | "heating" | "appliance" | "furniture" | "other";
+        "inventory.ElementInput": {
+            category?: components["schemas"]["inventory.Category"];
+            id?: string;
+            /** Format: date */
+            installed_on?: string;
+            label?: string;
+            quantity?: number;
+        };
+        "inventory.ElementView": {
+            /** @enum {unknown} */
+            category?: "floor" | "walls" | "ceiling" | "joinery" | "electrical" | "plumbing" | "heating" | "appliance" | "furniture" | "other";
+            id?: string;
+            /** Format: date */
+            installed_on?: string;
+            label?: string;
+            position?: number;
+            quantity?: number;
+            version?: number;
+        };
+        "inventory.LayoutInput": {
+            rooms?: components["schemas"]["inventory.RoomInput"][];
+        };
+        "inventory.LayoutView": {
+            asset_id?: string;
+            rooms?: components["schemas"]["inventory.RoomView"][];
+            version?: number;
+        };
+        "inventory.RoomInput": {
+            elements?: components["schemas"]["inventory.ElementInput"][];
+            id?: string;
+            kind?: string;
+            label?: string;
+            surface_hundredths_m2?: number;
+        };
+        "inventory.RoomView": {
+            elements?: components["schemas"]["inventory.ElementView"][];
+            id?: string;
+            /** @enum {string} */
+            kind?: "entry" | "living" | "kitchen" | "bedroom" | "bathroom" | "wc" | "storage" | "outside" | "garage" | "box" | "other";
+            label?: string;
+            position?: number;
+            surface_hundredths_m2?: number;
+            version?: number;
+        };
+        "inventory.SeedInput": {
+            bedrooms?: number;
+            features?: {
+                [key: string]: boolean;
+            };
+            furnished?: boolean;
+        };
+        "inventory.TemplateView": {
+            /** @enum {string} */
+            asset_kind?: "house" | "apartment" | "box";
+            id?: string;
+            source?: string;
+            structure?: Record<string, never>;
+            system?: boolean;
+            version?: number;
+        };
         "jobs.Run": {
             dry_run?: boolean;
             finished_at?: string;
@@ -6985,23 +7409,29 @@ export interface components {
             document_id?: string;
             /** Format: date */
             done_on?: string;
-            /** @description Items are structured from phase 2; free JSON array until then. */
+            /**
+             * @description Items is retired (RENT-INV-001 §9): a non-empty value is refused with
+             *     inventory/items-field-retired; the structured items come with the
+             *     inventory capture.
+             */
             items?: Record<string, never>[];
             /** @enum {string} */
             kind?: "entry" | "exit";
         };
         "lease.InventoryView": {
             created_at?: string;
-            /** @description DocumentID is the uploaded état des lieux (class inventory, this lease). */
             document_id?: string;
             /** Format: date */
             done_on?: string;
             id?: string;
-            /** @description Items are structured from phase 2; free JSON array until then. */
-            items?: Record<string, never>[];
             /** @enum {string} */
             kind?: "entry" | "exit";
             lease_id?: string;
+            legacy_items?: Record<string, never>[];
+            /** @enum {string} */
+            mode?: "amicable" | "bailiff" | "upload";
+            /** @enum {string} */
+            state?: "draft" | "scheduled" | "in_progress" | "completed" | "signed" | "issued";
         };
         /** @enum {string} */
         "lease.Kind": "unfurnished" | "furnished" | "mobility" | "box";
