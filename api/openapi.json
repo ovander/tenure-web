@@ -3497,6 +3497,372 @@
                 }
             }
         },
+        "/inventories/{id}/preview": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Unnumbered and not archived, marked as a draft: printed to be signed by hand, then uploaded as the signed copy. Only once the capture is completed.",
+                "produces": [
+                    "application/pdf"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "The completed inventory as a PDF to sign",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "inventory id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/inventories/{id}/signatures": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The signing links of a pending request are shown to the owner only. Not for an accountant.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "An inventory's parties, signatures and electronic request",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "inventory id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/inventory.SignaturesView"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "wet_scan: the signed copy (uploaded through POST /documents, class inventory, this lease) and the parties who signed it, with their reservations. esign: a request to the signature provider for every party still to sign, each with an e-mail; the answer carries one link per party, opened on the tablet in turn. When the last party has signed, the inventory is issued into its EE document.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Sign a completed inventory",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "inventory id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "signatures",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/inventory.SignInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/inventory.SignaturesView"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/inventories/{id}/signatures/cancel": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "At the provider and in Tenure, so the parties may sign by hand instead.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Cancel the pending electronic request",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "inventory id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/inventory.SignaturesView"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/inventories/{id}/signatures/refresh": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Records each party who has signed; once all have, archives the signed file as evidence and issues the EE document. Called after each party signs on the tablet; no webhook.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Read the pending electronic request at the provider",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "inventory id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/inventory.SignaturesView"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
         "/inventories/{id}/transitions": {
             "post": {
                 "security": [
@@ -8923,6 +9289,52 @@
                 }
             }
         },
+        "inventory.RequestSignerView": {
+            "type": "object",
+            "properties": {
+                "link": {
+                    "type": "string"
+                },
+                "party": {
+                    "type": "string"
+                },
+                "signed": {
+                    "type": "boolean"
+                },
+                "signer_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "inventory.RequestView": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "signers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.RequestSignerView"
+                    }
+                },
+                "state": {
+                    "type": "string",
+                    "enum": [
+                        "pending",
+                        "done",
+                        "cancelled",
+                        "refused"
+                    ]
+                }
+            }
+        },
         "inventory.RoomInput": {
             "type": "object",
             "properties": {
@@ -9002,6 +9414,112 @@
                 },
                 "furnished": {
                     "type": "boolean"
+                }
+            }
+        },
+        "inventory.SignInput": {
+            "type": "object",
+            "properties": {
+                "document_id": {
+                    "type": "string"
+                },
+                "method": {
+                    "type": "string",
+                    "enum": [
+                        "wet_scan",
+                        "esign"
+                    ]
+                },
+                "signers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.SignerInput"
+                    }
+                }
+            }
+        },
+        "inventory.SignatureView": {
+            "type": "object",
+            "properties": {
+                "evidence_document_id": {
+                    "type": "string"
+                },
+                "method": {
+                    "type": "string",
+                    "enum": [
+                        "esign",
+                        "wet_scan"
+                    ]
+                },
+                "party": {
+                    "type": "string"
+                },
+                "reservations": {
+                    "type": "string"
+                },
+                "signed_at": {
+                    "type": "string"
+                },
+                "signer_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "inventory.SignaturesView": {
+            "type": "object",
+            "properties": {
+                "document_id": {
+                    "type": "string"
+                },
+                "esign_available": {
+                    "type": "boolean"
+                },
+                "parties": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.Party"
+                    }
+                },
+                "request": {
+                    "$ref": "#/definitions/inventory.RequestView"
+                },
+                "signatures": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.SignatureView"
+                    }
+                },
+                "state": {
+                    "type": "string",
+                    "enum": [
+                        "draft",
+                        "scheduled",
+                        "in_progress",
+                        "completed",
+                        "signed",
+                        "issued"
+                    ]
+                }
+            }
+        },
+        "inventory.SignerInput": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "party": {
+                    "type": "string",
+                    "enum": [
+                        "owner",
+                        "tenant"
+                    ]
+                },
+                "reservations": {
+                    "type": "string"
+                },
+                "signer_name": {
+                    "type": "string"
                 }
             }
         },
