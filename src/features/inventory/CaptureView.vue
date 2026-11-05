@@ -316,6 +316,7 @@ const stateSeverity: Record<string, string> = { draft: 'secondary', scheduled: '
         </div>
         <div v-else-if="inv.state === 'completed'" class="flex flex-wrap items-center gap-3">
           <span class="text-sm text-slate-600">{{ t('inventory.completedNext') }}</span>
+          <RouterLink :to="`/inventories/${id}/review`" data-test="to-review"><Button :label="t('inventory.signAction')" icon="pi pi-pen-to-square" /></RouterLink>
           <Button :label="t('inventory.action.reopen')" icon="pi pi-replay" severity="secondary" :loading="busy" data-test="reopen" @click="move('reopen')" />
         </div>
         <div v-else-if="inv.state === 'signed'">

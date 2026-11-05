@@ -17,7 +17,9 @@ export function draftCapture(state, inv, lease, uuid) {
   }
   state.captures ??= {}
   state.captures[inv.id] = { id: inv.id, lease_id: lease.id, kind: 'entry', mode: 'amicable', state: 'draft', place: '', observations: '', version: 1,
-    rooms, meters: [], keys: [], parties: [{ party: 'owner', name: state.owner?.legal_name ?? '', signed: false }] }
+    rooms, meters: [], keys: [], signatures: [], requests: [],
+    parties: [{ party: 'owner', name: state.owner?.legal_name ?? '', signed: false },
+      ...(lease.tenants ?? []).flatMap((lt) => (state.tenants.find((x) => x.id === lt.tenant_id)?.names ?? []).map((name) => ({ party: 'tenant', name, signed: false })))] }
   return state.captures[inv.id]
 }
 
@@ -37,6 +39,7 @@ function checks(c) {
 
 export function inventoryRoutes(ctx) {
   const { state, json, invalid, uuid, record } = ctx
+  const ctxRecord = record
   state.layouts ??= {}
   state.captures ??= {}
   const forbidden = (res) => json(res, 403, { type: 'auth/forbidden', status: 403, title: 'Accès refusé.' })
@@ -68,13 +71,39 @@ export function inventoryRoutes(ctx) {
   // The capture routes of tenure-api (Q-111), and the photo pipeline (Q-110)
   // with its signed links on the archive origin.
   function capture(req, res, path, entry) {
-    const m = /^\/inventories\/([^/]+)(?:\/(items|meters|keys|transitions|photos)(?:\/([^/]+))?(\/content)?)?$/.exec(path)
+    const m = /^\/inventories\/([^/]+)(?:\/(items|meters|keys|transitions|photos|preview|signatures)(?:\/([^/]+))?(\/content)?)?$/.exec(path)
     if (!m) return false
     if (state.role === 'accountant') return forbidden(res)
     const c = state.captures[m[1]]
     if (!c) return json(res, 404, { type: 'http/not-found', status: 404, title: 'Ressource introuvable.' })
     const sub = m[2]
     if (req.method === 'GET' && !sub) return json(res, 200, view(c), { ETag: `W/"${c.version}"` })
+    const sigView = () => ({ state: c.state, esign_available: state.esign !== false, parties: c.parties, signatures: c.signatures,
+      document_id: c.document_id, request: c.requests.at(-1) && { ...c.requests.at(-1), signers: c.requests.at(-1).signers.map((x) => ({ ...x,
+        link: state.role === 'owner' && c.requests.at(-1).state === 'pending' && !x.signed ? x.link : undefined })) } })
+    const notSignable = (res) => json(res, 409, { type: 'inventory/not-signable', status: 409, title: 'L’état des lieux se signe une fois la saisie terminée.' })
+    // The last signature issues the EE document.
+    const recordSigned = (signers, method, evidence) => {
+      for (const x of signers) {
+        const pt = c.parties.find((p) => p.party === x.party && p.name === x.signer_name)
+        pt.signed = true
+        c.signatures.push({ party: x.party, signer_name: x.signer_name, method, signed_at: new Date().toISOString(), reservations: x.reservations ?? '', evidence_document_id: evidence })
+      }
+      if (c.parties.every((p) => p.signed)) {
+        c.state = 'issued'
+        c.document_id = uuid()
+        const inv = state.inventories.find((i) => i.id === c.id)
+        if (inv) Object.assign(inv, { state: 'issued', document_id: c.document_id })
+      }
+      ctxRecord('inventory.signature.add', 'inventory', c.id, null, { method, signers })
+    }
+    if (sub === 'preview' && req.method === 'GET') {
+      if (c.state !== 'completed') return notSignable(res)
+      res.writeHead(200, { 'Content-Type': 'application/pdf', 'Cache-Control': 'no-store' })
+      res.end('%PDF-1.7\n% copie à signer\n%%EOF\n')
+      return true
+    }
+    if (sub === 'signatures' && req.method === 'GET' && !m[3]) return json(res, 200, sigView())
     if (req.method === 'GET' && sub === 'photos' && m[4]) return json(res, 200, { url: `${state.archive}/photo/${m[3]}`, expires_at: new Date(Date.now() + 600000).toISOString() })
     if (state.role !== 'owner') return forbidden(res)
     const b = entry.body ?? {}
@@ -128,6 +157,43 @@ export function inventoryRoutes(ctx) {
       ;(it ?? meter).photos.push(photo.id)
       record('inventory.photo.add', 'inventory', c.id, null, photo)
       return json(res, 201, photo)
+    }
+    if (sub === 'signatures') {
+      const pending = c.requests.find((r) => r.state === 'pending')
+      if (m[3] === 'refresh') {
+        if (!pending) return json(res, 200, sigView())
+        for (const x of pending.signers) if ((state.esignSigned ?? []).includes(x.party + ':' + x.signer_name)) x.signed = true
+        if (pending.signers.every((x) => x.signed)) {
+          pending.state = 'done'
+          recordSigned(pending.signers, 'esign', uuid())
+        }
+        return json(res, 200, sigView())
+      }
+      if (m[3] === 'cancel') {
+        if (!pending) return json(res, 404, { status: 404 })
+        pending.state = 'cancelled'
+        ctxRecord('inventory.signature.cancel', 'inventory', c.id, null, {})
+        return json(res, 200, sigView())
+      }
+      if (c.state !== 'completed') return notSignable(res)
+      if (pending) return json(res, 409, { type: 'inventory/signature-pending', status: 409, title: 'Une demande de signature électronique est en cours : terminez-la ou annulez-la d’abord.' })
+      const open = c.parties.filter((p) => !p.signed)
+      const errors = []
+      ;(b.signers ?? []).forEach((x, i) => {
+        if (!open.some((p) => p.party === x.party && p.name === x.signer_name)) errors.push({ field: `signers[${i}].signer_name`, message: 'Cette personne n’est pas une partie qui reste à signer.' })
+        if (b.method === 'esign' && !/^[^@\s]+@[^@\s]+$/.test(x.email ?? '')) errors.push({ field: `signers[${i}].email`, message: 'Adresse e-mail attendue : le prestataire de signature l’exige.' })
+      })
+      if (errors.length) return invalid(res, errors)
+      if (b.method === 'wet_scan') {
+        if (!b.document_id) return invalid(res, [{ field: 'document_id', message: 'La copie signée est obligatoire.' }])
+        recordSigned(b.signers, 'wet_scan', b.document_id)
+        return json(res, 200, sigView())
+      }
+      if (state.esign === false) return json(res, 409, { type: 'inventory/esign-unavailable', status: 409, title: 'La signature électronique n’est pas configurée : utilisez la copie signée à la main.' })
+      c.requests.push({ id: uuid(), provider: 'yousign', state: 'pending', created_at: new Date().toISOString(),
+        signers: b.signers.map((x, i) => ({ party: x.party, signer_name: x.signer_name, link: `https://sign.example.test/s${i + 1}`, signed: false, reservations: x.reservations })) })
+      ctxRecord('inventory.signature.request', 'inventory', c.id, null, {})
+      return json(res, 200, sigView())
     }
     if (sub === 'transitions') {
       const mv = moves[b.action]

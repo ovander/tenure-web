@@ -180,3 +180,34 @@ export class PhotoQueue {
     }
   }
 }
+
+// Signatures (RENT-INV-001 §5, S15c; tenure-api Q-112).
+export type Signatures = Schemas['inventory.SignaturesView']
+export type SignInput = Schemas['inventory.SignInput']
+export type SignerInput = Schemas['inventory.SignerInput']
+
+export async function getSignatures(id: string): Promise<Signatures> {
+  return (await api.get<Signatures>(`/inventories/${id}/signatures`)).data
+}
+export async function sign(id: string, input: SignInput): Promise<Signatures> {
+  return (await api.post<Signatures>(`/inventories/${id}/signatures`, input)).data
+}
+export async function refreshSignatures(id: string): Promise<Signatures> {
+  return (await api.post<Signatures>(`/inventories/${id}/signatures/refresh`)).data
+}
+export async function cancelSignatures(id: string): Promise<Signatures> {
+  return (await api.post<Signatures>(`/inventories/${id}/signatures/cancel`)).data
+}
+// preview is the PDF to sign, kept in the browser as a blob: link.
+export async function preview(id: string): Promise<Blob> {
+  return api.blob(`/inventories/${id}/preview`)
+}
+
+// unsigned lists the parties still to sign.
+export function unsigned(s: Pick<Signatures, 'parties'>): NonNullable<Signatures['parties']> {
+  return (s.parties ?? []).filter((p) => !p.signed)
+}
+// partyKey names a party in a form (party and name).
+export function partyKey(p: { party?: string; name?: string; signer_name?: string }): string {
+  return `${p.party ?? ''}:${p.name ?? p.signer_name ?? ''}`
+}

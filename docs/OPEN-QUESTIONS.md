@@ -371,3 +371,28 @@ failed save looks. Provisional:
 - **Not yet.** True offline capture (INV-OD-02), the review and signature screen S15c
   (slice 6), the windows and deadlines on the tab (slice 7), and the exit capture (slice 8).
 
+**Q-W27 Review and sign, S15c — Open (#43, tenure-api Q-112).** RENT-INV-001 §8 describes S15c
+as a read-only summary with the blocking checks, a reservations field per party, and « request
+signatures ». Provisional:
+- **Route.** `/inventories/{id}/review`. It opens from the completed capture (« Relire et
+  signer ») and from the lease's inventories tab.
+- **Content.** The parties (the owner and each co-tenant) with their status, and the signatures
+  already recorded (method, date, reservations). Once issued, the EE document to download. The
+  full content stays on the capture screen, read only, so it is not repeated here.
+- **By hand.** « Préparer la copie à signer » fetches the PDF (`GET …/preview`) and offers it as
+  a `blob:` link to download and print. The signed copy is uploaded like any lease document
+  (class inventory, scanned). The owner then ticks the parties who signed it and records their
+  reservations. Several copies may each be signed by some of the parties.
+- **Electronic** (only when the API says the provider is configured):
+  - an e-mail per party, required by the provider, then « Lancer la signature »;
+  - each party has a « Signer maintenant » button, which opens their link in a new tab
+    (INV-OD-03); « Actualiser » reads where the request stands;
+  - a pending request can be cancelled, after which the parties can sign by hand;
+  - a cancelled or refused request is said so.
+
+  The links are shown to the owner only, as the API sends them.
+- **Issue.** The last signature issues the document: the screen shows it as « Émis » with the
+  download.
+- **Roles.** The co-owner reads the parties and signatures, with no links and no actions. The
+  accountant gets the API's 403.
+
