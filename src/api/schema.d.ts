@@ -2983,6 +2983,1045 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/inventories/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * An inventory as captured
+         * @description Header, rooms and items, meters, keys, the parties who sign and the open checks. The ETag is the inventory's version. Not for an accountant.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description inventory id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["inventory.CaptureView"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        /**
+         * Replace an inventory's header
+         * @description The date it is done (never in the future), the appointment, the place and the general observations, with If-Match on the inventory's version. Until the inventory is completed.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description inventory version, W/\ */
+                    "If-Match": string;
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description inventory id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description header */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["inventory.HeaderInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["inventory.CaptureView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Failed */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Required */
+                428: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inventories/{id}/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add an item found on site
+         * @description In a room of the inventory (room_id or its label) or a new room. In a draft or on site.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description inventory id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description item */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["inventory.NewItemInput"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["inventory.ItemView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inventories/{id}/items/{itemId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Record an item as found
+         * @description Condition on the scale, works, quantity and comment, with If-Match on the item's version; clears « to check ». In a draft or on site.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description item version, W/\ */
+                    "If-Match": string;
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description inventory id */
+                    id: string;
+                    /** @description item id */
+                    itemId: string;
+                };
+                cookie?: never;
+            };
+            /** @description item */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["inventory.ItemInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["inventory.ItemView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Failed */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Required */
+                428: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inventories/{id}/keys": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Replace an inventory's keys and access devices
+         * @description The whole list, with If-Match on the inventory's version. Until completed.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description inventory version, W/\ */
+                    "If-Match": string;
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description inventory id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description keys */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["inventory.KeysInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["inventory.CaptureView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Failed */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Required */
+                428: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inventories/{id}/meters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Replace an inventory's meter readings
+         * @description The whole list, with If-Match on the inventory's version; an id keeps a meter and its photos, and a meter with photos cannot be removed. Until completed.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description inventory version, W/\ */
+                    "If-Match": string;
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description inventory id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description meters */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["inventory.MetersInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["inventory.CaptureView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Failed */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Required */
+                428: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inventories/{id}/photos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add a photo to an inventory item or meter
+         * @description multipart/form-data: item_id or meter_id first, the file last. The upload waits in quarantine while the antivirus scans it; a JPEG or PNG is then turned upright, stripped of every metadata (EXIF, location) and re-encoded to JPEG, and the cleaned file is archived under compliance lock. 25 MB at most. Not on an issued inventory; owner only.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description inventory id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "multipart/form-data": {
+                        /**
+                         * Format: binary
+                         * @description JPEG or PNG
+                         */
+                        file: string;
+                        /** @description inventory item id */
+                        item_id?: string;
+                        /** @description inventory meter id */
+                        meter_id?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["inventory.PhotoView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Request Entity Too Large */
+                413: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inventories/{id}/photos/{photoId}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a 10-minute link to an inventory photo
+         * @description The photo is never streamed through the API; the link is shown inline and every link issued is recorded as an audit event. Not for an accountant.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description inventory id */
+                    id: string;
+                    /** @description photo id */
+                    photoId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["document.Link"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inventories/{id}/transitions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Move an inventory along its lifecycle
+         * @description schedule (with scheduled_at and place), start (the date becomes today unless set), complete (the mandatory mentions checked), reopen, issue (a signed inventory into its EE document). With dry_run the answer is a TransitionResult (allowed, checks) and nothing changes.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description inventory id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description transition */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["inventory.TransitionInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["inventory.CaptureView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/inventory-templates": {
         parameters: {
             query?: never;
@@ -7198,8 +8237,49 @@ export interface components {
             size?: number;
             total?: number;
         };
+        "inventory.CaptureRoom": {
+            items?: components["schemas"]["inventory.ItemView"][];
+            kind?: string;
+            label?: string;
+            room_id?: string;
+        };
+        "inventory.CaptureView": {
+            checks?: components["schemas"]["inventory.Checks"];
+            document_id?: string;
+            /** Format: date */
+            done_on?: string;
+            id?: string;
+            keys?: components["schemas"]["inventory.KeyView"][];
+            /** @enum {string} */
+            kind?: "entry" | "exit";
+            lease_id?: string;
+            meters?: components["schemas"]["inventory.MeterView"][];
+            /** @enum {string} */
+            mode?: "amicable" | "bailiff" | "upload";
+            observations?: string;
+            parties?: components["schemas"]["inventory.Party"][];
+            place?: string;
+            rooms?: components["schemas"]["inventory.CaptureRoom"][];
+            scheduled_at?: string;
+            /** @enum {string} */
+            state?: "draft" | "scheduled" | "in_progress" | "completed" | "signed" | "issued";
+            version?: number;
+        };
         /** @enum {string} */
         "inventory.Category": "floor" | "walls" | "ceiling" | "joinery" | "electrical" | "plumbing" | "heating" | "appliance" | "furniture" | "other";
+        "inventory.Check": {
+            code?: string;
+            item?: string;
+            party?: string;
+            room?: string;
+            stage?: components["schemas"]["inventory.Stage"];
+        };
+        "inventory.Checks": {
+            blocking?: components["schemas"]["inventory.Check"][];
+            warnings?: components["schemas"]["inventory.Check"][];
+        };
+        /** @enum {string} */
+        "inventory.Condition": "new" | "good" | "fair" | "poor" | "broken";
         "inventory.ElementInput": {
             category?: components["schemas"]["inventory.Category"];
             id?: string;
@@ -7219,6 +8299,48 @@ export interface components {
             quantity?: number;
             version?: number;
         };
+        "inventory.HeaderInput": {
+            /** Format: date */
+            done_on?: string;
+            observations?: string;
+            place?: string;
+            scheduled_at?: string;
+        };
+        "inventory.ItemInput": {
+            comment?: string;
+            /** @enum {unknown} */
+            condition?: "new" | "good" | "fair" | "poor" | "broken";
+            quantity?: number;
+            /** @enum {unknown} */
+            works?: "ok" | "ko" | "n/a";
+        };
+        "inventory.ItemView": {
+            /** @enum {unknown} */
+            category?: "floor" | "walls" | "ceiling" | "joinery" | "electrical" | "plumbing" | "heating" | "appliance" | "furniture" | "other";
+            comment?: string;
+            /** @enum {unknown} */
+            condition?: "new" | "good" | "fair" | "poor" | "broken";
+            element_id?: string;
+            id?: string;
+            label?: string;
+            photos?: string[];
+            position?: number;
+            quantity?: number;
+            to_check?: boolean;
+            version?: number;
+            /** @enum {unknown} */
+            works?: "ok" | "ko" | "n/a";
+        };
+        "inventory.KeysInput": {
+            keys?: components["schemas"]["inventory.KeyView"][];
+        };
+        "inventory.KeyView": {
+            comment?: string;
+            destination?: string;
+            /** @enum {string} */
+            kind?: "key" | "badge" | "remote" | "card" | "code";
+            quantity?: number;
+        };
         "inventory.LayoutInput": {
             rooms?: components["schemas"]["inventory.RoomInput"][];
         };
@@ -7226,6 +8348,52 @@ export interface components {
             asset_id?: string;
             rooms?: components["schemas"]["inventory.RoomView"][];
             version?: number;
+        };
+        "inventory.MeterInput": {
+            id?: string;
+            /** @enum {string} */
+            kind?: "elec_peak" | "elec_offpeak" | "elec_base" | "gas" | "water_cold" | "water_hot" | "heating_energy";
+            meter_number?: string;
+            /** @example 12345,6 */
+            reading?: string;
+            unit?: string;
+        };
+        "inventory.MetersInput": {
+            meters?: components["schemas"]["inventory.MeterInput"][];
+        };
+        "inventory.MeterView": {
+            id?: string;
+            /** @enum {string} */
+            kind?: "elec_peak" | "elec_offpeak" | "elec_base" | "gas" | "water_cold" | "water_hot" | "heating_energy";
+            meter_number?: string;
+            photos?: string[];
+            reading?: string;
+            unit?: string;
+        };
+        "inventory.NewItemInput": {
+            /** @enum {unknown} */
+            category?: "floor" | "walls" | "ceiling" | "joinery" | "electrical" | "plumbing" | "heating" | "appliance" | "furniture" | "other";
+            label?: string;
+            quantity?: number;
+            room_id?: string;
+            /** @enum {string} */
+            room_kind?: "entry" | "living" | "kitchen" | "bedroom" | "bathroom" | "wc" | "storage" | "outside" | "garage" | "box" | "other";
+            room_label?: string;
+        };
+        "inventory.Party": {
+            name?: string;
+            party?: string;
+            signed?: boolean;
+        };
+        "inventory.PhotoView": {
+            created_at?: string;
+            height?: number;
+            id?: string;
+            inventory_id?: string;
+            item_id?: string;
+            meter_id?: string;
+            sha256?: string;
+            width?: number;
         };
         "inventory.RoomInput": {
             elements?: components["schemas"]["inventory.ElementInput"][];
@@ -7251,6 +8419,8 @@ export interface components {
             };
             furnished?: boolean;
         };
+        /** @enum {string} */
+        "inventory.Stage": "complete" | "issue";
         "inventory.TemplateView": {
             /** @enum {string} */
             asset_kind?: "house" | "apartment" | "box";
@@ -7260,6 +8430,15 @@ export interface components {
             system?: boolean;
             version?: number;
         };
+        "inventory.TransitionInput": {
+            /** @enum {string} */
+            action?: "schedule" | "start" | "complete" | "reopen" | "issue";
+            dry_run?: boolean;
+            place?: string;
+            scheduled_at?: string;
+        };
+        /** @enum {string} */
+        "inventory.Works": "ok" | "ko" | "n/a";
         "jobs.Run": {
             dry_run?: boolean;
             finished_at?: string;
@@ -7407,7 +8586,10 @@ export interface components {
         "lease.InventoryInput": {
             /** @description DocumentID is the uploaded état des lieux (class inventory, this lease). */
             document_id?: string;
-            /** Format: date */
+            /**
+             * Format: date
+             * @description DoneOn and DocumentID are those of an upload, absent for a capture.
+             */
             done_on?: string;
             /**
              * @description Items is retired (RENT-INV-001 §9): a non-empty value is refused with
@@ -7417,6 +8599,13 @@ export interface components {
             items?: Record<string, never>[];
             /** @enum {string} */
             kind?: "entry" | "exit";
+            /**
+             * @description Mode is upload (the default: a signed PDF already archived) or amicable
+             *     (an entry captured in Tenure, created as a draft from the layouts of
+             *     the lease's assets, RENT-INV-001 §5).
+             * @enum {string}
+             */
+            mode?: "upload" | "amicable";
         };
         "lease.InventoryView": {
             created_at?: string;

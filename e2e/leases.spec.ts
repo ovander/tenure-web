@@ -121,6 +121,8 @@ test('flow 1: from a draft to an active lease, then to its close', async ({ page
   await expect(page.getByTestId('blockers-activation')).toContainText('état des lieux d’entrée')
   await page.getByTestId('tab-inventories').click()
   await page.getByTestId('add-inventory').click()
+  await page.locator('#inv_mode').click()
+  await page.getByRole('option', { name: 'Déposer le PDF signé' }).click()
   await page.locator('#inv_done').fill('01/12/2026')
   await page.locator('#inv_done').press('Tab')
   await page.getByTestId('file-inventory').setInputFiles({ ...pdf, name: 'edl-entree.pdf' })

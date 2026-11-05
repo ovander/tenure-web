@@ -2707,6 +2707,896 @@
                 }
             }
         },
+        "/inventories/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Header, rooms and items, meters, keys, the parties who sign and the open checks. The ETag is the inventory's version. Not for an accountant.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "An inventory as captured",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "inventory id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/inventory.CaptureView"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The date it is done (never in the future), the appointment, the place and the general observations, with If-Match on the inventory's version. Until the inventory is completed.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Replace an inventory's header",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "inventory id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "inventory version, W/\\",
+                        "name": "If-Match",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "header",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/inventory.HeaderInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/inventory.CaptureView"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "412": {
+                        "description": "Precondition Failed",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "428": {
+                        "description": "Precondition Required",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/inventories/{id}/items": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "In a room of the inventory (room_id or its label) or a new room. In a draft or on site.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Add an item found on site",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "inventory id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "item",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/inventory.NewItemInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/inventory.ItemView"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/inventories/{id}/items/{itemId}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Condition on the scale, works, quantity and comment, with If-Match on the item's version; clears « to check ». In a draft or on site.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Record an item as found",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "inventory id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "item id",
+                        "name": "itemId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "item version, W/\\",
+                        "name": "If-Match",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "item",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/inventory.ItemInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/inventory.ItemView"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "412": {
+                        "description": "Precondition Failed",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "428": {
+                        "description": "Precondition Required",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/inventories/{id}/keys": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The whole list, with If-Match on the inventory's version. Until completed.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Replace an inventory's keys and access devices",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "inventory id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "inventory version, W/\\",
+                        "name": "If-Match",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "keys",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/inventory.KeysInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/inventory.CaptureView"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "412": {
+                        "description": "Precondition Failed",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "428": {
+                        "description": "Precondition Required",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/inventories/{id}/meters": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The whole list, with If-Match on the inventory's version; an id keeps a meter and its photos, and a meter with photos cannot be removed. Until completed.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Replace an inventory's meter readings",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "inventory id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "inventory version, W/\\",
+                        "name": "If-Match",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "meters",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/inventory.MetersInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/inventory.CaptureView"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "412": {
+                        "description": "Precondition Failed",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "428": {
+                        "description": "Precondition Required",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/inventories/{id}/photos": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "multipart/form-data: item_id or meter_id first, the file last. The upload waits in quarantine while the antivirus scans it; a JPEG or PNG is then turned upright, stripped of every metadata (EXIF, location) and re-encoded to JPEG, and the cleaned file is archived under compliance lock. 25 MB at most. Not on an issued inventory; owner only.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Add a photo to an inventory item or meter",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "inventory id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "inventory item id",
+                        "name": "item_id",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "inventory meter id",
+                        "name": "meter_id",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "JPEG or PNG",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/inventory.PhotoView"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "413": {
+                        "description": "Request Entity Too Large",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/inventories/{id}/photos/{photoId}/content": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The photo is never streamed through the API; the link is shown inline and every link issued is recorded as an audit event. Not for an accountant.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Get a 10-minute link to an inventory photo",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "inventory id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "photo id",
+                        "name": "photoId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/document.Link"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/inventories/{id}/transitions": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "schedule (with scheduled_at and place), start (the date becomes today unless set), complete (the mandatory mentions checked), reopen, issue (a signed inventory into its EE document). With dry_run the answer is a TransitionResult (allowed, checks) and nothing changes.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Move an inventory along its lifecycle",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "inventory id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "transition",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/inventory.TransitionInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/inventory.CaptureView"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
         "/inventory-templates": {
             "get": {
                 "security": [
@@ -7416,6 +8306,109 @@
                 }
             }
         },
+        "inventory.CaptureRoom": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.ItemView"
+                    }
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "room_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "inventory.CaptureView": {
+            "type": "object",
+            "properties": {
+                "checks": {
+                    "$ref": "#/definitions/inventory.Checks"
+                },
+                "document_id": {
+                    "type": "string"
+                },
+                "done_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "keys": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.KeyView"
+                    }
+                },
+                "kind": {
+                    "type": "string",
+                    "enum": [
+                        "entry",
+                        "exit"
+                    ]
+                },
+                "lease_id": {
+                    "type": "string"
+                },
+                "meters": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.MeterView"
+                    }
+                },
+                "mode": {
+                    "type": "string",
+                    "enum": [
+                        "amicable",
+                        "bailiff",
+                        "upload"
+                    ]
+                },
+                "observations": {
+                    "type": "string"
+                },
+                "parties": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.Party"
+                    }
+                },
+                "place": {
+                    "type": "string"
+                },
+                "rooms": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.CaptureRoom"
+                    }
+                },
+                "scheduled_at": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string",
+                    "enum": [
+                        "draft",
+                        "scheduled",
+                        "in_progress",
+                        "completed",
+                        "signed",
+                        "issued"
+                    ]
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
         "inventory.Category": {
             "type": "string",
             "enum": [
@@ -7441,6 +8434,60 @@
                 "Appliance",
                 "Furniture",
                 "Other"
+            ]
+        },
+        "inventory.Check": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "item": {
+                    "type": "string"
+                },
+                "party": {
+                    "type": "string"
+                },
+                "room": {
+                    "type": "string"
+                },
+                "stage": {
+                    "$ref": "#/definitions/inventory.Stage"
+                }
+            }
+        },
+        "inventory.Checks": {
+            "type": "object",
+            "properties": {
+                "blocking": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.Check"
+                    }
+                },
+                "warnings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.Check"
+                    }
+                }
+            }
+        },
+        "inventory.Condition": {
+            "type": "string",
+            "enum": [
+                "new",
+                "good",
+                "fair",
+                "poor",
+                "broken"
+            ],
+            "x-enum-varnames": [
+                "New",
+                "Good",
+                "Fair",
+                "Poor",
+                "Broken"
             ]
         },
         "inventory.ElementInput": {
@@ -7507,6 +8554,176 @@
                 }
             }
         },
+        "inventory.HeaderInput": {
+            "type": "object",
+            "properties": {
+                "done_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "observations": {
+                    "type": "string"
+                },
+                "place": {
+                    "type": "string"
+                },
+                "scheduled_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "inventory.ItemInput": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "condition": {
+                    "enum": [
+                        "new",
+                        "good",
+                        "fair",
+                        "poor",
+                        "broken"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/inventory.Condition"
+                        }
+                    ]
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "works": {
+                    "enum": [
+                        "ok",
+                        "ko",
+                        "n/a"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/inventory.Works"
+                        }
+                    ]
+                }
+            }
+        },
+        "inventory.ItemView": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "enum": [
+                        "floor",
+                        "walls",
+                        "ceiling",
+                        "joinery",
+                        "electrical",
+                        "plumbing",
+                        "heating",
+                        "appliance",
+                        "furniture",
+                        "other"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/inventory.Category"
+                        }
+                    ]
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "condition": {
+                    "enum": [
+                        "new",
+                        "good",
+                        "fair",
+                        "poor",
+                        "broken"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/inventory.Condition"
+                        }
+                    ]
+                },
+                "element_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "photos": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "position": {
+                    "type": "integer"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "to_check": {
+                    "type": "boolean"
+                },
+                "version": {
+                    "type": "integer"
+                },
+                "works": {
+                    "enum": [
+                        "ok",
+                        "ko",
+                        "n/a"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/inventory.Works"
+                        }
+                    ]
+                }
+            }
+        },
+        "inventory.KeyView": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "destination": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string",
+                    "enum": [
+                        "key",
+                        "badge",
+                        "remote",
+                        "card",
+                        "code"
+                    ]
+                },
+                "quantity": {
+                    "type": "integer"
+                }
+            }
+        },
+        "inventory.KeysInput": {
+            "type": "object",
+            "properties": {
+                "keys": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.KeyView"
+                    }
+                }
+            }
+        },
         "inventory.LayoutInput": {
             "type": "object",
             "properties": {
@@ -7531,6 +8748,177 @@
                     }
                 },
                 "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "inventory.MeterInput": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string",
+                    "enum": [
+                        "elec_peak",
+                        "elec_offpeak",
+                        "elec_base",
+                        "gas",
+                        "water_cold",
+                        "water_hot",
+                        "heating_energy"
+                    ]
+                },
+                "meter_number": {
+                    "type": "string"
+                },
+                "reading": {
+                    "type": "string",
+                    "example": "12345,6"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "inventory.MeterView": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string",
+                    "enum": [
+                        "elec_peak",
+                        "elec_offpeak",
+                        "elec_base",
+                        "gas",
+                        "water_cold",
+                        "water_hot",
+                        "heating_energy"
+                    ]
+                },
+                "meter_number": {
+                    "type": "string"
+                },
+                "photos": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "reading": {
+                    "type": "string"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "inventory.MetersInput": {
+            "type": "object",
+            "properties": {
+                "meters": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.MeterInput"
+                    }
+                }
+            }
+        },
+        "inventory.NewItemInput": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "enum": [
+                        "floor",
+                        "walls",
+                        "ceiling",
+                        "joinery",
+                        "electrical",
+                        "plumbing",
+                        "heating",
+                        "appliance",
+                        "furniture",
+                        "other"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/inventory.Category"
+                        }
+                    ]
+                },
+                "label": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "room_id": {
+                    "type": "string"
+                },
+                "room_kind": {
+                    "type": "string",
+                    "enum": [
+                        "entry",
+                        "living",
+                        "kitchen",
+                        "bedroom",
+                        "bathroom",
+                        "wc",
+                        "storage",
+                        "outside",
+                        "garage",
+                        "box",
+                        "other"
+                    ]
+                },
+                "room_label": {
+                    "type": "string"
+                }
+            }
+        },
+        "inventory.Party": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "party": {
+                    "type": "string"
+                },
+                "signed": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "inventory.PhotoView": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "height": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "inventory_id": {
+                    "type": "string"
+                },
+                "item_id": {
+                    "type": "string"
+                },
+                "meter_id": {
+                    "type": "string"
+                },
+                "sha256": {
+                    "type": "string"
+                },
+                "width": {
                     "type": "integer"
                 }
             }
@@ -7617,6 +9005,17 @@
                 }
             }
         },
+        "inventory.Stage": {
+            "type": "string",
+            "enum": [
+                "complete",
+                "issue"
+            ],
+            "x-enum-varnames": [
+                "StageComplete",
+                "StageIssue"
+            ]
+        },
         "inventory.TemplateView": {
             "type": "object",
             "properties": {
@@ -7644,6 +9043,43 @@
                     "type": "integer"
                 }
             }
+        },
+        "inventory.TransitionInput": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string",
+                    "enum": [
+                        "schedule",
+                        "start",
+                        "complete",
+                        "reopen",
+                        "issue"
+                    ]
+                },
+                "dry_run": {
+                    "type": "boolean"
+                },
+                "place": {
+                    "type": "string"
+                },
+                "scheduled_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "inventory.Works": {
+            "type": "string",
+            "enum": [
+                "ok",
+                "ko",
+                "n/a"
+            ],
+            "x-enum-varnames": [
+                "WorksOK",
+                "WorksKO",
+                "WorksNA"
+            ]
         },
         "jobs.Run": {
             "type": "object",
@@ -8127,6 +9563,7 @@
                     "type": "string"
                 },
                 "done_on": {
+                    "description": "DoneOn and DocumentID are those of an upload, absent for a capture.",
                     "type": "string",
                     "format": "date"
                 },
@@ -8142,6 +9579,14 @@
                     "enum": [
                         "entry",
                         "exit"
+                    ]
+                },
+                "mode": {
+                    "description": "Mode is upload (the default: a signed PDF already archived) or amicable\n(an entry captured in Tenure, created as a draft from the layouts of\nthe lease's assets, RENT-INV-001 §5).",
+                    "type": "string",
+                    "enum": [
+                        "upload",
+                        "amicable"
                     ]
                 }
             }

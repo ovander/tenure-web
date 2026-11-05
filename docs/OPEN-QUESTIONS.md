@@ -325,3 +325,49 @@ element. Provisional:
 - **Roles.** The co-owner reads without any write control. The accountant gets the API's 403,
   shown as « not available to your role ».
 
+**Q-W26 Entry inventory capture, S15b — Open (#41, tenure-api Q-111).** RENT-INV-001 §8 describes
+the capture screen: rooms with their progress on the left, one card per item on the right, and
+a camera button. It does not say how the inventory is created, what each state shows, or how a
+failed save looks. Provisional:
+- **Creation.** On the lease's inventories tab, an entry inventory is « saisi dans Tenure »
+  (`mode: amicable`, proposed first) or recorded from its signed PDF. The exit is recorded from
+  its PDF only until RENT-INV-001 slice 8. Creating a captured entry opens
+  `/inventories/{id}/capture`. An asset without a layout is refused with the API's message,
+  and the owner seeds it from S15a. The tab shows each inventory's state, with a link to its
+  capture.
+- **Next step.** A panel above the rooms offers the owner the one step the state allows:
+  - schedule, with the date, time and place;
+  - start on site;
+  - complete, disabled while a blocking check of the complete stage remains (the list is
+    shown, at most 8 lines) or a photo is still sending;
+  - reopen;
+  - issue once signed.
+
+  Signing comes with slice 6, so a completed inventory says so.
+- **Items.** The 5-level condition is a SelectButton, and the chosen state is repeated as a
+  coloured tag. « Fonctionne » is asked for appliance, electrical and plumbing items only.
+  - The condition and works are saved on change; the quantity and comment when left. Each
+    item is its own PUT with If-Match on its version.
+  - A failed save keeps the edit, marks the item, and shows a « N modification(s) non
+    enregistrée(s) » banner with a retry button. A 412 reloads the inventory. Starting a
+    transition retries the unsaved saves first.
+  - The blocking checks are read again from the server after each burst of saves.
+  - Items are edited in a draft and on site, and read only otherwise. An item found on site
+    is added to the current room.
+- **Photos.**
+  - `<input type="file" accept="image/*" capture="environment">`, resized on the device to
+    2 048 px on the long side (JPEG 0.8, with the EXIF orientation applied by
+    `createImageBitmap`).
+  - Uploaded one at a time in the background. The preview comes from `blob:`; a failure stays
+    on the card with its message and a retry.
+  - An archived photo is shown through its signed link, fetched once per photo.
+  - Meters take a photo once saved, since a photo needs the meter's id.
+- **Meters, keys, header.** Each is a section of its own, saved as a whole with If-Match on the
+  inventory's version.
+- **CSP.** The e2e server now mirrors tenure's `img-src 'self' data: blob: <archive origin>`,
+  with the photos served from a second port. A thumbnail blocked by the CSP fails the tests.
+- **Roles.** The co-owner reads with no write control and no next-step panel. The accountant
+  gets the API's 403, shown as « not available to your role ».
+- **Not yet.** True offline capture (INV-OD-02), the review and signature screen S15c
+  (slice 6), the windows and deadlines on the tab (slice 7), and the exit capture (slice 8).
+
