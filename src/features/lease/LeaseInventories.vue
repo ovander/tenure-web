@@ -31,10 +31,12 @@ const adding = ref(false)
 const kind = ref<'entry' | 'exit'>('entry')
 const mode = ref<'amicable' | 'upload'>('amicable')
 const router = useRouter()
-// Only the entry is captured in Tenure for now (tenure-api Q-111).
-const modes = computed(() => (kind.value === 'entry' ? (['amicable', 'upload'] as const) : (['upload'] as const))
+// The exit is captured in Tenure from the issued entry (tenure-api Q-113);
+// without one it is recorded from its PDF.
+const entryIssued = computed(() => rows.value.some((r) => r.kind === 'entry' && r.state === 'issued'))
+const modes = computed(() => (kind.value === 'entry' || entryIssued.value ? (['amicable', 'upload'] as const) : (['upload'] as const))
   .map((m) => ({ value: m, label: t(`inventory.mode.${m}` as Key) })))
-const capturing = computed(() => kind.value === 'entry' && mode.value === 'amicable')
+const capturing = computed(() => mode.value === 'amicable' && modes.value.some((m) => m.value === 'amicable'))
 const doneOn = ref<string | null>(null)
 const file = ref<File | null>(null)
 const busy = ref(false)
@@ -51,8 +53,8 @@ function proposeDay(): void {
   doneOn.value = proposedDay
 }
 watch([kind, adding], proposeDay)
-watch(kind, () => {
-  if (kind.value === 'exit') mode.value = 'upload'
+watch([kind, entryIssued], () => {
+  mode.value = modes.value[0]?.value ?? 'upload'
 })
 const kinds = computed(() => (['entry', 'exit'] as const).filter((k) => !rows.value.some((r) => r.kind === k)).map((k) => ({ value: k, label: t(`inventory.kind.${k}` as Key) })))
 
@@ -68,7 +70,7 @@ async function save(): Promise<void> {
   error.value = ''
   try {
     if (capturing.value) {
-      const inv = await store.recordInventory(props.lease.id, { kind: 'entry', mode: 'amicable' })
+      const inv = await store.recordInventory(props.lease.id, { kind: kind.value, mode: 'amicable' })
       emit('changed')
       await router.push(`/inventories/${inv.id}/capture`)
       return
@@ -118,6 +120,7 @@ async function save(): Promise<void> {
       <Column class="w-1">
         <template #body="{ data }">
           <div class="flex justify-end gap-1 whitespace-nowrap">
+            <Button v-if="data.kind === 'exit' && data.mode !== 'upload'" :label="t('compare.open')" icon="pi pi-arrows-h" text size="small" data-test="open-compare" @click="router.push(`/inventories/${data.id}/compare`)" />
             <Button v-if="data.mode !== 'upload' && data.state === 'completed'" :label="t('inventory.signAction')" icon="pi pi-pen-to-square" text size="small" data-test="open-review" @click="router.push(`/inventories/${data.id}/review`)" />
             <Button v-if="data.mode !== 'upload'" :label="data.state === 'issued' ? t('inventory.open') : t('inventory.capture')" icon="pi pi-pencil" text size="small" data-test="open-capture" @click="router.push(`/inventories/${data.id}/capture`)" />
             <Button v-if="data.document_id" icon="pi pi-download" text size="small" :aria-label="t('doc.download')" @click="download(data.document_id)" />

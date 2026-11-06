@@ -396,3 +396,19 @@ signatures ». Provisional:
 - **Roles.** The co-owner reads the parties and signatures, with no links and no actions. The
   accountant gets the API's 403.
 
+**Q-W28 Exit capture and comparison, S15d — Open (#45, tenure-api Q-113).** RENT-INV-001 §6 and
+§8 describe the exit as captured from the entry and compared with it. Provisional:
+- **Creation.** From the lease's inventories tab, an exit can be captured in Tenure only once the
+  entry is issued; otherwise the only mode offered is « Déposer le PDF signé » (the API refuses
+  409 `inventory/exit-without-entry`).
+- **Capture.** The same screen as S15b. Each item shows « À l’entrée : … » and « À vérifier »
+  until it is saved; « Conforme à l’entrée » saves it unchanged in one tap, since a second tap on
+  the pre-filled condition clears it. The « Date et observations » section adds the return of
+  the keys (not in the future) and the tenant's new address, both required to complete.
+- **Comparison.** `/inventories/{id}/compare`, opened from the exit capture (« Comparer avec
+  l’entrée ») and the lease tab. One row per exit item with the entry state, the exit state and
+  a result tag (identique, mieux, dégradé, manquant, nouveau); « Écarts seulement » is ticked
+  by default. The keys follow, then the count of worse or missing results that the deposit
+  settlement (slice 9) will qualify. Read only.
+- **Roles.** The co-owner reads the comparison; the accountant gets the API's 403.
+

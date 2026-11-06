@@ -8,7 +8,7 @@
 //   revision            state.revisions[lease id], as set by the test; none ⇒ 409
 const transitions = { draft: { activate: 'active' }, active: { notice: 'notice' }, notice: { end: 'ended' }, ended: { close: 'closed' } }
 
-import { draftCapture } from './mock-inventory.mjs'
+import { draftCapture, draftExit } from './mock-inventory.mjs'
 export function leaseRoutes(ctx) {
   const { state, json, invalid, uuid, record } = ctx
 
@@ -107,6 +107,15 @@ export function leaseRoutes(ctx) {
           }
         case 'inventories':
           if (req.method === 'GET') return json(res, 200, state.inventories.filter((i) => i.lease_id === l.id))
+          if (b.mode === 'amicable' && b.kind === 'exit') {
+            if (state.inventories.some((i) => i.lease_id === l.id && i.kind === 'exit')) return json(res, 409, { type: 'inventory/already-recorded', status: 409, title: 'Cet état des lieux est déjà enregistré.' })
+            const entry = state.inventories.find((i) => i.lease_id === l.id && i.kind === 'entry' && i.state === 'issued')
+            if (!entry) return json(res, 409, { type: 'inventory/exit-without-entry', status: 409, title: 'L’état des lieux de sortie part de celui d’entrée : il faut d’abord un état des lieux d’entrée émis.' })
+            const i = { id: uuid(), lease_id: l.id, kind: 'exit', mode: 'amicable', state: 'draft' }
+            draftExit(state, i, entry, uuid)
+            state.inventories.push(i)
+            return json(res, 201, i)
+          }
           if (b.mode === 'amicable') {
             if (state.inventories.some((i) => i.lease_id === l.id && i.kind === 'entry')) return json(res, 409, { type: 'inventory/already-recorded', status: 409, title: 'Cet état des lieux est déjà enregistré.' })
             const i = { id: uuid(), lease_id: l.id, kind: 'entry', mode: 'amicable', state: 'draft' }

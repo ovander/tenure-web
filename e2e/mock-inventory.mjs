@@ -23,6 +23,40 @@ export function draftCapture(state, inv, lease, uuid) {
   return state.captures[inv.id]
 }
 
+// draftExit pre-fills an exit from the issued entry's capture (Q-113): each
+// item at its entry state, linked and to check; the keys as handed over.
+export function draftExit(state, inv, entryInv, uuid) {
+  const e = state.captures[entryInv.id]
+  state.captures[inv.id] = { id: inv.id, lease_id: inv.lease_id, kind: 'exit', mode: 'amicable', state: 'draft', place: '', observations: '',
+    version: 1, entry_inventory_id: entryInv.id, entry_done_on: e.done_on, keys_returned_on: undefined, tenant_new_address: '',
+    rooms: e.rooms.map((r) => ({ ...r, items: r.items.map((it) => ({ ...it, id: uuid(), entry_item_id: it.id, photos: [], version: 1, to_check: true })) })),
+    meters: e.meters.map((m) => ({ ...m, id: uuid(), reading: '', photos: [] })), keys: e.keys.map((k) => ({ ...k })),
+    signatures: [], requests: [], parties: e.parties.map((p) => ({ ...p, signed: false })) }
+  return state.captures[inv.id]
+}
+
+// compare is a small model of Compare: the scale, keys, flagged.
+const rank = { new: 5, good: 4, fair: 3, poor: 2, broken: 1 }
+function compare(state, c) {
+  const e = state.captures[c.entry_inventory_id]
+  const byID = Object.fromEntries(e.rooms.flatMap((r) => r.items).map((it) => [it.id, it]))
+  const items = []
+  for (const r of c.rooms) for (const x of r.items) {
+    const en = byID[x.entry_item_id]
+    const st = (it) => ({ condition: it.condition, works: it.works, quantity: it.quantity, comment: it.comment })
+    let result = 'new'
+    if (en) result = (rank[x.condition] ?? 0) < (rank[en.condition] ?? 0) ? 'worse' : (rank[x.condition] ?? 0) > (rank[en.condition] ?? 0) ? 'better' : 'same'
+    items.push({ exit_item_id: x.id, entry_item_id: x.entry_item_id, room: r.label, label: x.label, category: x.category, result, entry: en && st(en), exit: st(x) })
+  }
+  const keys = e.keys.map((k) => {
+    const x = c.keys.find((y) => y.kind === k.kind && y.destination === k.destination)
+    const n = x?.quantity ?? 0
+    return { kind: k.kind, destination: k.destination, entry: k.quantity, exit: n, result: n < k.quantity ? 'missing' : 'same' }
+  })
+  return { items, keys, flagged: [...items, ...keys].filter((x) => x.result === 'worse' || x.result === 'missing').length,
+    inventory_id: c.id, entry_inventory_id: e.id, entry_done_on: e.done_on, exit_done_on: c.done_on, state: c.state }
+}
+
 // checks is a small model of Validate's complete stage: every item assessed,
 // a poor or broken item explained, a key line.
 function checks(c) {
@@ -33,6 +67,11 @@ function checks(c) {
     else if ((it.condition === 'poor' || it.condition === 'broken') && !it.comment && !it.photos.length) blocking.push({ code: 'damage-unexplained', stage: 'complete', room: r.label, item: it.label })
   }
   if (!c.keys.some((k) => k.quantity > 0)) blocking.push({ code: 'no-key-line', stage: 'complete' })
+  if (c.kind === 'exit') {
+    for (const r of c.rooms) for (const it of r.items) if (it.to_check) blocking.push({ code: 'exit-item-to-check', stage: 'complete', room: r.label, item: it.label })
+    if (!c.tenant_new_address) blocking.push({ code: 'exit-new-address-missing', stage: 'complete' })
+    if (!c.keys_returned_on) blocking.push({ code: 'exit-keys-returned-missing', stage: 'complete' })
+  }
   blocking.push({ code: 'party-not-signed', stage: 'issue', party: c.parties[0]?.name })
   return { blocking, warnings: [] }
 }
@@ -65,13 +104,17 @@ export function inventoryRoutes(ctx) {
 
   const stale = (res) => json(res, 412, { type: 'http/stale', status: 412, title: 'Version périmée.' })
   const notEditable = (res) => json(res, 409, { type: 'inventory/not-editable', status: 409, title: 'Cet état des lieux ne se modifie pas à cette étape.' })
-  const view = (c) => ({ ...c, checks: checks(c) })
+  const view = (c) => {
+    if (c.kind !== 'exit') return { ...c, checks: checks(c) }
+    const byExit = Object.fromEntries(compare(state, c).items.map((r) => [r.exit_item_id, r.entry]))
+    return { ...c, checks: checks(c), rooms: c.rooms.map((r) => ({ ...r, items: r.items.map((it) => ({ ...it, entry: byExit[it.id] })) })) }
+  }
   const moves = { schedule: ['draft', 'scheduled'], start: ['scheduled', 'in_progress'], complete: ['in_progress', 'completed'], reopen: ['completed', 'in_progress'], issue: ['signed', 'issued'] }
 
   // The capture routes of tenure-api (Q-111), and the photo pipeline (Q-110)
   // with its signed links on the archive origin.
   function capture(req, res, path, entry) {
-    const m = /^\/inventories\/([^/]+)(?:\/(items|meters|keys|transitions|photos|preview|signatures)(?:\/([^/]+))?(\/content)?)?$/.exec(path)
+    const m = /^\/inventories\/([^/]+)(?:\/(items|meters|keys|transitions|photos|preview|signatures|comparison)(?:\/([^/]+))?(\/content)?)?$/.exec(path)
     if (!m) return false
     if (state.role === 'accountant') return forbidden(res)
     const c = state.captures[m[1]]
@@ -104,6 +147,10 @@ export function inventoryRoutes(ctx) {
       return true
     }
     if (sub === 'signatures' && req.method === 'GET' && !m[3]) return json(res, 200, sigView())
+    if (sub === 'comparison' && req.method === 'GET') {
+      if (c.kind !== 'exit') return json(res, 409, { type: 'inventory/comparison-unavailable', status: 409, title: 'La comparaison porte sur un état des lieux de sortie saisi à partir de l’entrée.' })
+      return json(res, 200, compare(state, c))
+    }
     if (req.method === 'GET' && sub === 'photos' && m[4]) return json(res, 200, { url: `${state.archive}/photo/${m[3]}`, expires_at: new Date(Date.now() + 600000).toISOString() })
     if (state.role !== 'owner') return forbidden(res)
     const b = entry.body ?? {}
@@ -112,7 +159,9 @@ export function inventoryRoutes(ctx) {
     if (!sub && req.method === 'PUT') {
       if (!header) return notEditable(res)
       if (entry.ifMatch !== `W/"${c.version}"`) return stale(res)
+      if (b.keys_returned_on && b.keys_returned_on > new Date().toISOString().slice(0, 10)) return invalid(res, [{ field: 'keys_returned_on', message: 'La remise des clés ne peut pas être dans le futur.' }])
       Object.assign(c, { done_on: b.done_on, scheduled_at: b.scheduled_at, place: b.place ?? '', observations: b.observations ?? '' })
+      if (c.kind === 'exit') Object.assign(c, { keys_returned_on: b.keys_returned_on, tenant_new_address: b.tenant_new_address ?? '' })
       c.version++
       record('inventory.update', 'inventory', c.id, null, c)
       return json(res, 200, view(c), { ETag: `W/"${c.version}"` })

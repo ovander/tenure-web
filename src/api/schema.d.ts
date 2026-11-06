@@ -3172,6 +3172,87 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/inventories/{id}/comparison": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * An exit compared with its entry
+         * @description Each exit item against its entry item (same, better, worse, missing, new), the keys, and the number of worse or missing results to qualify before the deposit settlement. The entry is corrected by its accepted completion lines. Not for an accountant.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description exit inventory id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["inventory.ComparisonView"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/inventories/{id}/items": {
         parameters: {
             query?: never;
@@ -8696,8 +8777,12 @@ export interface components {
             document_id?: string;
             /** Format: date */
             done_on?: string;
+            /** @description An exit's entry, the return of the keys and the tenant's new address. */
+            entry_inventory_id?: string;
             id?: string;
             keys?: components["schemas"]["inventory.KeyView"][];
+            /** Format: date */
+            keys_returned_on?: string;
             /** @enum {string} */
             kind?: "entry" | "exit";
             lease_id?: string;
@@ -8711,6 +8796,7 @@ export interface components {
             scheduled_at?: string;
             /** @enum {string} */
             state?: "draft" | "scheduled" | "in_progress" | "completed" | "signed" | "issued";
+            tenant_new_address?: string;
             version?: number;
         };
         /** @enum {string} */
@@ -8725,6 +8811,23 @@ export interface components {
         "inventory.Checks": {
             blocking?: components["schemas"]["inventory.Check"][];
             warnings?: components["schemas"]["inventory.Check"][];
+        };
+        "inventory.ComparisonView": {
+            /** Format: date */
+            entry_done_on?: string;
+            entry_inventory_id?: string;
+            /** Format: date */
+            exit_done_on?: string;
+            /**
+             * @description Flagged counts the worse and missing results: what the owner must
+             *     qualify before the settlement.
+             */
+            flagged?: number;
+            inventory_id?: string;
+            items?: components["schemas"]["inventory.ItemResult"][];
+            keys?: components["schemas"]["inventory.KeyResult"][];
+            /** @enum {string} */
+            state?: "draft" | "scheduled" | "in_progress" | "completed" | "signed" | "issued";
         };
         /** @enum {string} */
         "inventory.Condition": "new" | "good" | "fair" | "poor" | "broken";
@@ -8750,9 +8853,12 @@ export interface components {
         "inventory.HeaderInput": {
             /** Format: date */
             done_on?: string;
+            /** Format: date */
+            keys_returned_on?: string;
             observations?: string;
             place?: string;
             scheduled_at?: string;
+            tenant_new_address?: string;
         };
         "inventory.ItemInput": {
             comment?: string;
@@ -8762,6 +8868,17 @@ export interface components {
             /** @enum {unknown} */
             works?: "ok" | "ko" | "n/a";
         };
+        "inventory.ItemResult": {
+            category?: components["schemas"]["inventory.Category"];
+            entry?: components["schemas"]["inventory.State"];
+            entry_item_id?: string;
+            exit?: components["schemas"]["inventory.State"];
+            exit_item_id?: string;
+            label?: string;
+            result?: components["schemas"]["inventory.Result"];
+            room?: string;
+            steps?: number;
+        };
         "inventory.ItemView": {
             /** @enum {unknown} */
             category?: "floor" | "walls" | "ceiling" | "joinery" | "electrical" | "plumbing" | "heating" | "appliance" | "furniture" | "other";
@@ -8769,6 +8886,11 @@ export interface components {
             /** @enum {unknown} */
             condition?: "new" | "good" | "fair" | "poor" | "broken";
             element_id?: string;
+            /**
+             * @description Entry is the item's state at entry, corrected by the accepted
+             *     completion lines, for an exit item linked to its entry item.
+             */
+            entry?: components["schemas"]["inventory.State"];
             id?: string;
             label?: string;
             photos?: string[];
@@ -8778,6 +8900,13 @@ export interface components {
             version?: number;
             /** @enum {unknown} */
             works?: "ok" | "ko" | "n/a";
+        };
+        "inventory.KeyResult": {
+            destination?: string;
+            entry?: number;
+            exit?: number;
+            kind?: string;
+            result?: components["schemas"]["inventory.Result"];
         };
         "inventory.KeysInput": {
             keys?: components["schemas"]["inventory.KeyView"][];
@@ -8857,6 +8986,8 @@ export interface components {
             /** @enum {string} */
             state?: "pending" | "done" | "cancelled" | "refused";
         };
+        /** @enum {string} */
+        "inventory.Result": "same" | "better" | "worse" | "missing" | "new";
         "inventory.RoomInput": {
             elements?: components["schemas"]["inventory.ElementInput"][];
             id?: string;
@@ -8914,6 +9045,12 @@ export interface components {
         };
         /** @enum {string} */
         "inventory.Stage": "complete" | "issue";
+        "inventory.State": {
+            comment?: string;
+            condition?: components["schemas"]["inventory.Condition"];
+            quantity?: number;
+            works?: components["schemas"]["inventory.Works"];
+        };
         "inventory.TemplateView": {
             /** @enum {string} */
             asset_kind?: "house" | "apartment" | "box";
