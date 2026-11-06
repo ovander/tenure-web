@@ -2876,6 +2876,70 @@
                 }
             }
         },
+        "/inventories/{id}/comparison": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Each exit item against its entry item (same, better, worse, missing, new), the keys, and the number of worse or missing results to qualify before the deposit settlement. The entry is corrected by its accepted completion lines. Not for an accountant.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "An exit compared with its entry",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "exit inventory id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/inventory.ComparisonView"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
         "/inventories/{id}/items": {
             "post": {
                 "security": [
@@ -8705,6 +8769,10 @@
                     "type": "string",
                     "format": "date"
                 },
+                "entry_inventory_id": {
+                    "description": "An exit's entry, the return of the keys and the tenant's new address.",
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -8713,6 +8781,10 @@
                     "items": {
                         "$ref": "#/definitions/inventory.KeyView"
                     }
+                },
+                "keys_returned_on": {
+                    "type": "string",
+                    "format": "date"
                 },
                 "kind": {
                     "type": "string",
@@ -8769,6 +8841,9 @@
                         "signed",
                         "issued"
                     ]
+                },
+                "tenant_new_address": {
+                    "type": "string"
                 },
                 "version": {
                     "type": "integer"
@@ -8836,6 +8911,52 @@
                     "items": {
                         "$ref": "#/definitions/inventory.Check"
                     }
+                }
+            }
+        },
+        "inventory.ComparisonView": {
+            "type": "object",
+            "properties": {
+                "entry_done_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "entry_inventory_id": {
+                    "type": "string"
+                },
+                "exit_done_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "flagged": {
+                    "description": "Flagged counts the worse and missing results: what the owner must\nqualify before the settlement.",
+                    "type": "integer"
+                },
+                "inventory_id": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.ItemResult"
+                    }
+                },
+                "keys": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.KeyResult"
+                    }
+                },
+                "state": {
+                    "type": "string",
+                    "enum": [
+                        "draft",
+                        "scheduled",
+                        "in_progress",
+                        "completed",
+                        "signed",
+                        "issued"
+                    ]
                 }
             }
         },
@@ -8927,6 +9048,10 @@
                     "type": "string",
                     "format": "date"
                 },
+                "keys_returned_on": {
+                    "type": "string",
+                    "format": "date"
+                },
                 "observations": {
                     "type": "string"
                 },
@@ -8934,6 +9059,9 @@
                     "type": "string"
                 },
                 "scheduled_at": {
+                    "type": "string"
+                },
+                "tenant_new_address": {
                     "type": "string"
                 }
             }
@@ -8972,6 +9100,38 @@
                             "$ref": "#/definitions/inventory.Works"
                         }
                     ]
+                }
+            }
+        },
+        "inventory.ItemResult": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "$ref": "#/definitions/inventory.Category"
+                },
+                "entry": {
+                    "$ref": "#/definitions/inventory.State"
+                },
+                "entry_item_id": {
+                    "type": "string"
+                },
+                "exit": {
+                    "$ref": "#/definitions/inventory.State"
+                },
+                "exit_item_id": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "result": {
+                    "$ref": "#/definitions/inventory.Result"
+                },
+                "room": {
+                    "type": "string"
+                },
+                "steps": {
+                    "type": "integer"
                 }
             }
         },
@@ -9017,6 +9177,14 @@
                 "element_id": {
                     "type": "string"
                 },
+                "entry": {
+                    "description": "Entry is the item's state at entry, corrected by the accepted\ncompletion lines, for an exit item linked to its entry item.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/inventory.State"
+                        }
+                    ]
+                },
                 "id": {
                     "type": "string"
                 },
@@ -9052,6 +9220,26 @@
                             "$ref": "#/definitions/inventory.Works"
                         }
                     ]
+                }
+            }
+        },
+        "inventory.KeyResult": {
+            "type": "object",
+            "properties": {
+                "destination": {
+                    "type": "string"
+                },
+                "entry": {
+                    "type": "integer"
+                },
+                "exit": {
+                    "type": "integer"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "result": {
+                    "$ref": "#/definitions/inventory.Result"
                 }
             }
         },
@@ -9335,6 +9523,23 @@
                 }
             }
         },
+        "inventory.Result": {
+            "type": "string",
+            "enum": [
+                "same",
+                "better",
+                "worse",
+                "missing",
+                "new"
+            ],
+            "x-enum-varnames": [
+                "Same",
+                "Better",
+                "Worse",
+                "Missing",
+                "NewItem"
+            ]
+        },
         "inventory.RoomInput": {
             "type": "object",
             "properties": {
@@ -9533,6 +9738,23 @@
                 "StageComplete",
                 "StageIssue"
             ]
+        },
+        "inventory.State": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "condition": {
+                    "$ref": "#/definitions/inventory.Condition"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "works": {
+                    "$ref": "#/definitions/inventory.Works"
+                }
+            }
         },
         "inventory.TemplateView": {
             "type": "object",
