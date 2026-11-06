@@ -1902,6 +1902,148 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/completions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Decide a completion request
+         * @description Every line accepted or refused, with If-Match on the request's version; issues the EC document. The issued entry is not edited: the accepted lines complete it in the exit pre-fill and the comparison. A decided request no longer changes.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description request version, W/\ */
+                    "If-Match": string;
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description completion request id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description decision */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["inventory.DecisionInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["inventory.CompletionView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Failed */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Required */
+                428: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/diagnostics/{id}": {
         parameters: {
             query?: never;
@@ -3247,6 +3389,184 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inventories/{id}/completions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * An entry's completion windows and requests
+         * @description The windows (loi 89-462 art. 3-2): ten days after the entry, and the first month of the heating season when the entry was done outside it; which are open today; every request with its lines and, once decided, its EC document. Not for an accountant.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description entry inventory id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["inventory.CompletionsView"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Record a tenant's request to complete an issued entry
+         * @description The reason (ten_day or heating), the day the request was made, within its window, the tenant's letter when uploaded (POST /documents, class inventory, this lease), and one line per entry item with the state asked for. A heating request covers heating items only. It waits for the owner's decision.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description entry inventory id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description request */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["inventory.CompletionInput"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["inventory.CompletionView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -8829,8 +9149,67 @@ export interface components {
             /** @enum {string} */
             state?: "draft" | "scheduled" | "in_progress" | "completed" | "signed" | "issued";
         };
+        "inventory.CompletionInput": {
+            lines?: components["schemas"]["inventory.CompletionLineInput"][];
+            /** @enum {string} */
+            reason?: "ten_day" | "heating";
+            request_document_id?: string;
+            /** Format: date */
+            requested_on?: string;
+        };
+        "inventory.CompletionLineInput": {
+            comment?: string;
+            /** @enum {unknown} */
+            condition?: "new" | "good" | "fair" | "poor" | "broken";
+            entry_item_id?: string;
+            /** @enum {unknown} */
+            works?: "ok" | "ko" | "n/a";
+        };
+        "inventory.CompletionLineView": {
+            /** @description Accepted is set once the request is decided. */
+            accepted?: boolean;
+            category?: components["schemas"]["inventory.Category"];
+            entry?: components["schemas"]["inventory.State"];
+            entry_item_id?: string;
+            label?: string;
+            requested?: components["schemas"]["inventory.State"];
+            room?: string;
+        };
+        "inventory.CompletionsView": {
+            completions?: components["schemas"]["inventory.CompletionView"][];
+            /** Format: date */
+            done_on?: string;
+            inventory_id?: string;
+            open?: ("ten_day" | "heating")[];
+            windows?: components["schemas"]["inventory.Windows"];
+        };
+        "inventory.CompletionView": {
+            /** Format: date */
+            decided_on?: string;
+            /** @enum {string} */
+            decision?: "pending" | "accepted" | "refused" | "partial";
+            document_id?: string;
+            id?: string;
+            inventory_id?: string;
+            lines?: components["schemas"]["inventory.CompletionLineView"][];
+            /** @enum {string} */
+            reason?: "ten_day" | "heating";
+            request_document_id?: string;
+            /** Format: date */
+            requested_on?: string;
+            version?: number;
+        };
         /** @enum {string} */
         "inventory.Condition": "new" | "good" | "fair" | "poor" | "broken";
+        "inventory.DecisionInput": {
+            /** Format: date */
+            decided_on?: string;
+            lines?: components["schemas"]["inventory.DecisionLineInput"][];
+        };
+        "inventory.DecisionLineInput": {
+            accepted?: boolean;
+            entry_item_id?: string;
+        };
         "inventory.ElementInput": {
             category?: components["schemas"]["inventory.Category"];
             id?: string;
@@ -9066,6 +9445,14 @@ export interface components {
             dry_run?: boolean;
             place?: string;
             scheduled_at?: string;
+        };
+        "inventory.Windows": {
+            /** Format: date */
+            heating_ends_on?: string;
+            /** Format: date */
+            heating_starts_on?: string;
+            /** Format: date */
+            ten_day_ends_on?: string;
         };
         /** @enum {string} */
         "inventory.Works": "ok" | "ko" | "n/a";

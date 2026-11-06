@@ -412,3 +412,25 @@ signatures ». Provisional:
   settlement (slice 9) will qualify. Read only.
 - **Roles.** The co-owner reads the comparison; the accountant gets the API's 403.
 
+**Q-W29 Entry completions — Open (#47, tenure-api Q-114).** RENT-INV-001 §5 step 5 and §8 say
+the windows show on the inventories tab and that a request is decided line by line. They say
+nothing of the screen. Provisional:
+- **Tab.** For the lease's issued entry captured in Tenure, the inventories tab shows:
+  - the end of the ten-day window;
+  - the heating window, when there is one;
+  - the requests still to decide;
+  - « Compléments », which opens `/inventories/{id}/completions`.
+- **Screen.** The windows, each open or closed today. The owner records a tenant's request as
+  received:
+  - the reason and the date;
+  - the letter, optional, uploaded like any lease document;
+  - one line per entry item, with the condition, works or comment asked for. A heating
+    request offers heating items only.
+
+  Each request lists its lines: the state at entry next to the state asked for. While
+  pending, the owner accepts or refuses every line, then saves (If-Match). The decision issues
+  the EC document, offered for download with the letter.
+- **Home.** The API's warning `inventory/completion-pending` is a to-do linking to the
+  inventories tab.
+- **Roles.** The co-owner reads, with no actions; the accountant gets the API's 403.
+
