@@ -1750,6 +1750,125 @@
                 }
             }
         },
+        "/completions/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Every line accepted or refused, with If-Match on the request's version; issues the EC document. The issued entry is not edited: the accepted lines complete it in the exit pre-fill and the comparison. A decided request no longer changes.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Decide a completion request",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "completion request id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "request version, W/\\",
+                        "name": "If-Match",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "decision",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/inventory.DecisionInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/inventory.CompletionView"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "412": {
+                        "description": "Precondition Failed",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "428": {
+                        "description": "Precondition Required",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
         "/diagnostics/{id}": {
             "put": {
                 "security": [
@@ -2933,6 +3052,162 @@
                     },
                     "409": {
                         "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/inventories/{id}/completions": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The windows (loi 89-462 art. 3-2): ten days after the entry, and the first month of the heating season when the entry was done outside it; which are open today; every request with its lines and, once decided, its EC document. Not for an accountant.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "An entry's completion windows and requests",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "entry inventory id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/inventory.CompletionsView"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The reason (ten_day or heating), the day the request was made, within its window, the tenant's letter when uploaded (POST /documents, class inventory, this lease), and one line per entry item with the state asked for. A heating request covers heating items only. It waits for the owner's decision.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Record a tenant's request to complete an issued entry",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "entry inventory id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/inventory.CompletionInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/inventory.CompletionView"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
                         "schema": {
                             "$ref": "#/definitions/problem.Body"
                         }
@@ -8960,6 +9235,176 @@
                 }
             }
         },
+        "inventory.CompletionInput": {
+            "type": "object",
+            "properties": {
+                "lines": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.CompletionLineInput"
+                    }
+                },
+                "reason": {
+                    "type": "string",
+                    "enum": [
+                        "ten_day",
+                        "heating"
+                    ]
+                },
+                "request_document_id": {
+                    "type": "string"
+                },
+                "requested_on": {
+                    "type": "string",
+                    "format": "date"
+                }
+            }
+        },
+        "inventory.CompletionLineInput": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "condition": {
+                    "enum": [
+                        "new",
+                        "good",
+                        "fair",
+                        "poor",
+                        "broken"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/inventory.Condition"
+                        }
+                    ]
+                },
+                "entry_item_id": {
+                    "type": "string"
+                },
+                "works": {
+                    "enum": [
+                        "ok",
+                        "ko",
+                        "n/a"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/inventory.Works"
+                        }
+                    ]
+                }
+            }
+        },
+        "inventory.CompletionLineView": {
+            "type": "object",
+            "properties": {
+                "accepted": {
+                    "description": "Accepted is set once the request is decided.",
+                    "type": "boolean"
+                },
+                "category": {
+                    "$ref": "#/definitions/inventory.Category"
+                },
+                "entry": {
+                    "$ref": "#/definitions/inventory.State"
+                },
+                "entry_item_id": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "requested": {
+                    "$ref": "#/definitions/inventory.State"
+                },
+                "room": {
+                    "type": "string"
+                }
+            }
+        },
+        "inventory.CompletionView": {
+            "type": "object",
+            "properties": {
+                "decided_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "decision": {
+                    "type": "string",
+                    "enum": [
+                        "pending",
+                        "accepted",
+                        "refused",
+                        "partial"
+                    ]
+                },
+                "document_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "inventory_id": {
+                    "type": "string"
+                },
+                "lines": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.CompletionLineView"
+                    }
+                },
+                "reason": {
+                    "type": "string",
+                    "enum": [
+                        "ten_day",
+                        "heating"
+                    ]
+                },
+                "request_document_id": {
+                    "type": "string"
+                },
+                "requested_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "inventory.CompletionsView": {
+            "type": "object",
+            "properties": {
+                "completions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.CompletionView"
+                    }
+                },
+                "done_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "inventory_id": {
+                    "type": "string"
+                },
+                "open": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "ten_day",
+                            "heating"
+                        ]
+                    }
+                },
+                "windows": {
+                    "$ref": "#/definitions/inventory.Windows"
+                }
+            }
+        },
         "inventory.Condition": {
             "type": "string",
             "enum": [
@@ -8976,6 +9421,32 @@
                 "Poor",
                 "Broken"
             ]
+        },
+        "inventory.DecisionInput": {
+            "type": "object",
+            "properties": {
+                "decided_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "lines": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.DecisionLineInput"
+                    }
+                }
+            }
+        },
+        "inventory.DecisionLineInput": {
+            "type": "object",
+            "properties": {
+                "accepted": {
+                    "type": "boolean"
+                },
+                "entry_item_id": {
+                    "type": "string"
+                }
+            }
         },
         "inventory.ElementInput": {
             "type": "object",
@@ -9805,6 +10276,23 @@
                 },
                 "scheduled_at": {
                     "type": "string"
+                }
+            }
+        },
+        "inventory.Windows": {
+            "type": "object",
+            "properties": {
+                "heating_ends_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "heating_starts_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "ten_day_ends_on": {
+                    "type": "string",
+                    "format": "date"
                 }
             }
         },
