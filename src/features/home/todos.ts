@@ -63,7 +63,8 @@ export function todos(x: TodoInput): Todo[] {
       out.push({ id: `blocked-${id}`, severity: 'warn', key: 'todo.blocked', leaseId: id, to: `/leases/${id}/contract`,
         params: { lease: x.label(l), n: blocking.length, first: blocking[0] ? (x.named?.(blocking[0]) ?? blocking[0].title ?? '') : '' } })
     for (const [i, w] of (b.warnings ?? []).entries())
-      out.push({ id: `warning-${id}-${i}`, severity: 'warn', key: 'todo.warning', leaseId: id, to: `/leases/${id}/overview`,
+      out.push({ id: `warning-${id}-${i}`, severity: 'warn', key: 'todo.warning', leaseId: id,
+        to: w.type === 'inventory/completion-pending' ? `/leases/${id}/inventories` : `/leases/${id}/overview`,
         params: { lease: x.label(l), title: x.named?.(w) ?? w.title ?? '' } })
   }
   const open = x.unmatched.filter((p) => (p.unmatched_cents ?? 0) > 0)

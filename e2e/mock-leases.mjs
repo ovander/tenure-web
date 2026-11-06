@@ -26,7 +26,9 @@ export function leaseRoutes(ctx) {
       activation.push({ type: 'lease/contract-not-signed', title: 'L’exemplaire signé du contrat n’a pas été déposé.' })
     if (!state.inventories.some((i) => i.lease_id === l.id && i.kind === 'entry'))
       activation.push({ type: 'lease/entry-inventory-missing', title: 'L’état des lieux d’entrée manque.' })
-    const warnings = state.leaseWarnings?.[l.id] ?? []
+    const warnings = [...(state.leaseWarnings?.[l.id] ?? [])]
+    if (Object.values(state.captures ?? {}).some((c) => c.lease_id === l.id && (c.completions ?? []).some((x) => x.decision === 'pending')))
+      warnings.push({ type: 'inventory/completion-pending', title: 'Une demande de complément de l’état des lieux d’entrée attend votre décision.' })
     return l.state === 'draft' ? { generation, activation, warnings } : { generation: [], activation: [], warnings }
   }
   const stale = (res) => json(res, 412, { type: 'http/stale', status: 412, title: 'Version périmée.' })
