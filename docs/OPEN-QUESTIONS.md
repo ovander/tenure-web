@@ -434,3 +434,24 @@ nothing of the screen. Provisional:
   inventories tab.
 - **Roles.** The co-owner reads, with no actions; the accountant gets the API's 403.
 
+**Q-W30 Deposit restitution — Open (#49, tenure-api Q-115).** RENT-INV-001 §6 and §8 describe
+the settlement wizard and the RD statement, not the screen. Provisional:
+- **Tab.** A « Dépôt de garantie » tab on the lease hub (`/leases/{id}/deposit`). It shows the
+  deposit held, whether the building is collective, and a link to the entry / exit comparison.
+- **Grid.** The annexed grid is shown, can be picked from the scope's grids, or removed. « Nouvelle
+  grille » records one and annexes it: name, source, and per category the lifetime, franchise,
+  yearly reduction and residual value. Rates are typed as percentages and kept in basis
+  points.
+- **Deductions.** The exit's worse or missing items and missing keys are listed. « Retenir » takes
+  a description (the item by default), the cost, quote or invoice, and the document, uploaded
+  as `supporting`. The API computes the tenant's share. Each deduction can be removed until a
+  statement is issued, and an item already retained says so.
+- **Statement.**
+  - The preview shows each figure, the deadline and the penalty.
+  - In a collective building, and for the release, it also takes the accounts approval date,
+    a regularisation and its document. « Recalculer » runs a dry run.
+  - « Émettre le relevé » asks for confirmation, then lists the statement with its download.
+  - After the release, the deposit is shown as settled.
+- **Asset form.** The « Immeuble en copropriété » toggle (`collective_building`).
+- **Roles.** The co-owner reads, with no actions; the accountant gets the API's 403.
+

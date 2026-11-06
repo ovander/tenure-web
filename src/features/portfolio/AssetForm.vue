@@ -29,7 +29,7 @@ const id = computed(() => route.params.id as string | undefined)
 const existing = ref<Asset | null>(null)
 const dwellings = ref<Asset[]>([])
 const badNumber = reactive({ surface: false, acquisition: false })
-const form = reactive<AssetInput>({ kind: 'apartment', address: '', lot: '', furnished: false, tense_zone: false, controlled_zone: false, rent_control_zone: '', rent_control_category: '' })
+const form = reactive<AssetInput>({ kind: 'apartment', address: '', lot: '', furnished: false, tense_zone: false, controlled_zone: false, collective_building: false, rent_control_zone: '', rent_control_category: '' })
 
 async function reload(): Promise<void> {
   if (!id.value) return
@@ -111,6 +111,11 @@ async function save(): Promise<void> {
           <ToggleSwitch v-model="tense" input-id="tense_zone" :disabled="!!form.controlled_zone" />
           <label for="tense_zone" class="text-sm font-medium">{{ t('form.tenseZone') }}</label>
           <HelpTip id="tense_zone" :text="t('help.asset.tenseZone')" />
+        </div>
+        <div class="flex items-center gap-3">
+          <ToggleSwitch v-model="form.collective_building" input-id="collective_building" data-test="collective-building" />
+          <label for="collective_building" class="text-sm font-medium">{{ t('form.collectiveBuilding') }}</label>
+          <HelpTip id="collective_building" :text="t('help.asset.collectiveBuilding')" />
         </div>
         <div class="flex items-center gap-3">
           <ToggleSwitch v-model="form.controlled_zone" input-id="controlled_zone" />

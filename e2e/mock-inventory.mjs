@@ -49,7 +49,7 @@ export function draftExit(state, inv, entryInv, uuid) {
 
 // compare is a small model of Compare: the scale, keys, flagged.
 const rank = { new: 5, good: 4, fair: 3, poor: 2, broken: 1 }
-function compare(state, c) {
+export function compare(state, c) {
   const e = state.captures[c.entry_inventory_id]
   const byID = Object.fromEntries(e.rooms.flatMap((r) => r.items).map((it) => [it.id, corrected(e, it)]))
   const items = []
