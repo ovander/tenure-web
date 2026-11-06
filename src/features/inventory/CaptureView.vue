@@ -52,6 +52,8 @@ async function reload(): Promise<void> {
   header.scheduled_at = localDateTime(inv.value.scheduled_at)
   header.place = inv.value.place ?? ''
   header.observations = inv.value.observations ?? ''
+  header.keys_returned_on = inv.value.keys_returned_on ?? null
+  header.tenant_new_address = inv.value.tenant_new_address ?? ''
 }
 const { errors, summary, busy, submit } = useProblemForm(reload)
 
@@ -219,7 +221,15 @@ async function addFound(): Promise<void> {
 // Meters, keys and the header are saved as a whole, with If-Match.
 const meters = ref<MeterInput[]>([])
 const keys = ref<KeyLine[]>([])
-const header = reactive({ done_on: null as string | null, scheduled_at: '', place: '', observations: '' })
+const header = reactive({ done_on: null as string | null, scheduled_at: '', place: '', observations: '', keys_returned_on: null as string | null, tenant_new_address: '' })
+const isExit = computed(() => inv.value?.kind === 'exit')
+// entryLabel is an exit item's state at entry, in words.
+function entryLabel(it: Item): string {
+  const e = it.entry
+  if (!e) return ''
+  return [e.condition ? t(`inventory.condition.${e.condition}` as Key) : t('inventory.notAssessed'),
+    e.works ? t(`inventory.works.${e.works === 'n/a' ? 'na' : e.works}` as Key) : '', e.comment ?? ''].filter(Boolean).join(' · ')
+}
 function localDateTime(iso: string | undefined): string {
   if (!iso) return ''
   const d = new Date(iso)
@@ -245,6 +255,7 @@ async function saveHead(): Promise<void> {
   const ok = await submit(async () => {
     inv.value = await saveHeader(id.value, inv.value?.version ?? 0, {
       done_on: header.done_on ?? undefined, scheduled_at: isoOf(header.scheduled_at), place: header.place, observations: header.observations,
+      ...(isExit.value ? { keys_returned_on: header.keys_returned_on ?? undefined, tenant_new_address: header.tenant_new_address } : {}),
     })
   })
   if (ok) toast.add({ severity: 'success', summary: t('common.saved'), life: 3000 })
@@ -283,6 +294,7 @@ const stateSeverity: Record<string, string> = { draft: 'secondary', scheduled: '
         </h1>
         <Tag :value="t(`inventory.state.${inv.state}` as Key)" :severity="stateSeverity[inv.state ?? 'draft']" data-test="capture-state" />
         <span v-if="inv.done_on" class="text-sm text-slate-500">{{ t('inventory.doneOn') }} {{ date(inv.done_on) }}</span>
+        <RouterLink v-if="isExit" :to="`/inventories/${id}/compare`" class="text-sm text-emerald-800 underline" data-test="to-compare">{{ t('compare.open') }}</RouterLink>
         <span class="text-sm text-slate-500" data-test="capture-progress">{{ t('inventory.progress', { done: totals.done, total: totals.total }) }}</span>
       </header>
 
@@ -353,8 +365,12 @@ const stateSeverity: Record<string, string> = { draft: 'secondary', scheduled: '
                 <Tag v-if="it.condition" :value="t(`inventory.condition.${it.condition}` as Key)" :severity="conditionSeverity[it.condition]" data-test="item-condition" />
                 <span v-if="saving[it.id ?? '']" class="text-xs text-slate-500">{{ t('inventory.saving') }}</span>
                 <span v-else-if="unsaved[it.id ?? '']" class="text-xs text-amber-700" data-test="item-unsaved">{{ unsaved[it.id ?? ''] }}</span>
-                <span v-else-if="it.to_check" class="text-xs text-sky-700">{{ t('inventory.toCheck') }}</span>
+                <span v-else-if="it.to_check" class="text-xs text-sky-700" data-test="to-check">{{ t('inventory.toCheck') }}</span>
               </div>
+              <p v-if="it.entry" class="flex flex-wrap items-center gap-2 text-sm text-slate-500" data-test="item-entry-row">
+                <span data-test="item-entry">{{ t('inventory.atEntry') }} : {{ entryLabel(it) }}</span>
+                <Button v-if="it.to_check && canEditItems" :label="t('inventory.sameAsEntry')" icon="pi pi-check" size="small" text data-test="same-as-entry" @click="save(it.id ?? '')" />
+              </p>
               <template v-if="canEditItems">
                 <SelectButton
                   v-model="draft(it).condition" :options="conditionOptions" option-label="label" option-value="value" :allow-empty="true"
@@ -453,6 +469,14 @@ const stateSeverity: Record<string, string> = { draft: 'secondary', scheduled: '
               </FormField>
               <FormField id="head_place" :label="t('inventory.place')" :error="errors.place">
                 <InputText id="head_place" v-model="header.place" :disabled="!canEditHeader" />
+              </FormField>
+            </div>
+            <div v-if="isExit" class="grid gap-3 md:grid-cols-[14rem_1fr]" data-test="exit-header">
+              <FormField id="head_keys" :help="t('help.capture.keysReturnedOn')" :label="t('inventory.keysReturnedOn')" :error="errors.keys_returned_on">
+                <DayInput id="head_keys" v-model="header.keys_returned_on" :disabled="!canEditHeader" />
+              </FormField>
+              <FormField id="head_address" :label="t('inventory.tenantNewAddress')" :error="errors.tenant_new_address">
+                <InputText id="head_address" v-model="header.tenant_new_address" :disabled="!canEditHeader" data-test="new-address" />
               </FormField>
             </div>
             <Textarea v-model="header.observations" :aria-label="t('inventory.section.observations')" auto-resize rows="4" class="w-full" :disabled="!canEditHeader" data-test="observations-text" />

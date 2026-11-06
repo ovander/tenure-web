@@ -211,3 +211,15 @@ export function unsigned(s: Pick<Signatures, 'parties'>): NonNullable<Signatures
 export function partyKey(p: { party?: string; name?: string; signer_name?: string }): string {
   return `${p.party ?? ''}:${p.name ?? p.signer_name ?? ''}`
 }
+
+// The comparison of an exit with its entry (S15d; tenure-api Q-113).
+export type Comparison = Schemas['inventory.ComparisonView']
+export type ItemState = Schemas['inventory.State']
+export async function comparison(id: string): Promise<Comparison> {
+  return (await api.get<Comparison>(`/inventories/${id}/comparison`)).data
+}
+// changed reports whether a result is one the owner looks at: anything but
+// the same.
+export function changed(result: string | undefined): boolean {
+  return !!result && result !== 'same'
+}

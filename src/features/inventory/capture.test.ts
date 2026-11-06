@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { PhotoQueue, blocking, conditions, fitSize, hasWorks, headerEditable, itemsEditable, progress, type Photo } from './capture'
+import { PhotoQueue, blocking, changed, conditions, fitSize, hasWorks, headerEditable, itemsEditable, progress, type Photo } from './capture'
 
 describe('capture', () => {
+  it('counts every comparison result but « same » as a change', () => {
+    expect(['same', 'better', 'worse', 'missing', 'new', undefined].map(changed)).toEqual([false, true, true, true, true, false])
+  })
   it('counts the items assessed in a room', () => {
     expect(progress({ items: [{ condition: 'good' }, {}, { condition: 'poor' }] })).toEqual({ done: 2, total: 3 })
     expect(progress({})).toEqual({ done: 0, total: 0 })
