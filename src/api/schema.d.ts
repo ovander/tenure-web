@@ -2044,6 +2044,85 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/deposit-deductions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove a deduction
+         * @description Until the deposit is settled.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description deduction id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/diagnostics/{id}": {
         parameters: {
             query?: never;
@@ -5804,6 +5883,375 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/leases/{id}/deposit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Where a lease's deposit stands
+         * @description The grid, the exit items worse or missing and the missing keys, the deductions, the next statement (wait_exit, initial, release, done) previewed as of today, and the statements issued. Not for an accountant, who reads the RD documents.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description lease id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["inventory.DepositView"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/leases/{id}/deposit-deductions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A lease's deposit deductions */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description lease id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["inventory.DeductionView"][];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Retain a deduction from the deposit
+         * @description On an exit item worse or missing at exit (exit_item_id), or a missing key line (key), qualified by the owner as the tenant's; the cost from a quote or invoice uploaded through POST /documents (class supporting, this lease). The tenant's share comes from the lease's wear grid for the item's category and age; without a grid, the whole cost.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description lease id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description deduction */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["inventory.DeductionCreate"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["inventory.DeductionView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/leases/{id}/deposit-settlement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Issue the deposit restitution statement
+         * @description The first statement (RD) deducts the deductions and the unpaid rent calls, holds back a share in a collective building whose accounts are not approved (accounts_approved_on absent), adds the late penalty owed, and is due from the return of the keys; release: true issues the second, releasing the holdback net of the regularisation backed by its document, due from the approval. dry_run computes it only. The deductions no longer change once the first is issued.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description lease id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description settlement */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["inventory.SettleInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["inventory.Statement"];
+                    };
+                };
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["inventory.Statement"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/leases/{id}/documents": {
         parameters: {
             query?: never;
@@ -6426,6 +6874,119 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/leases/{id}/vetuste-grid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Annex a wear grid to a lease
+         * @description Or remove it (null), until the deposit is settled.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description lease id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description grid */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["inventory.GridInputLease"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["inventory.DepositView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -8577,6 +9138,256 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/vetuste-grids": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The scope's wear grids
+         * @description Grids entered by the owner from a collective agreement or agreed by the parties (INV-OD-08: none is shipped). Not for an accountant.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["inventory.GridView"][];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Record a wear grid
+         * @description Per category: theoretical lifetime, franchise, yearly flat reduction and floor, rates in basis points (décret 2016-382 art. 4).
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: components["requestBodies"]["inventory.GridInput"];
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["inventory.GridView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/vetuste-grids/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Replace a wear grid
+         * @description With If-Match on its version. A statement already issued keeps the grid as it was (snapshot).
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description grid version, W/\ */
+                    "If-Match": string;
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description grid id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: components["requestBodies"]["inventory.GridInput"];
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["inventory.GridView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Failed */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Required */
+                428: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -8939,7 +9750,7 @@ export interface components {
             version?: number;
         };
         /** @enum {string} */
-        "document.Class": "rent_call" | "receipt" | "regularisation" | "revision_notice" | "contract" | "amendment" | "deposit" | "tax_summary" | "inventory" | "supporting" | "other" | "surety" | "cancellation";
+        "document.Class": "rent_call" | "receipt" | "regularisation" | "revision_notice" | "contract" | "amendment" | "deposit" | "tax_summary" | "inventory" | "supporting" | "other" | "surety" | "restitution" | "cancellation";
         "document.ExportInput": {
             asset_id?: string;
             year?: number;
@@ -9210,6 +10021,41 @@ export interface components {
             accepted?: boolean;
             entry_item_id?: string;
         };
+        "inventory.DeductionCreate": {
+            /** @enum {string} */
+            basis?: "quote" | "invoice";
+            cost_cents?: number;
+            description?: string;
+            document_id?: string;
+            exit_item_id?: string;
+            key?: components["schemas"]["inventory.KeyRef"];
+        };
+        "inventory.DeductionView": {
+            amount_cents?: number;
+            /** @enum {string} */
+            basis?: "quote" | "invoice";
+            cost_cents?: number;
+            description?: string;
+            document_id?: string;
+            exit_item_id?: string;
+            id?: string;
+            tenant_share_bp?: number;
+        };
+        "inventory.DepositView": {
+            collective_building?: boolean;
+            deductions?: components["schemas"]["inventory.DeductionView"][];
+            deposit_cents?: number;
+            exit_inventory_id?: string;
+            flagged?: components["schemas"]["inventory.ItemResult"][];
+            grid?: components["schemas"]["inventory.GridView"];
+            lease_id?: string;
+            missing_keys?: components["schemas"]["inventory.KeyResult"][];
+            /** @enum {string} */
+            next?: "wait_exit" | "initial" | "release" | "done";
+            preview?: components["schemas"]["inventory.Statement"];
+            rent_cents?: number;
+            statements?: components["schemas"]["inventory.Statement"][];
+        };
         "inventory.ElementInput": {
             category?: components["schemas"]["inventory.Category"];
             id?: string;
@@ -9227,6 +10073,28 @@ export interface components {
             label?: string;
             position?: number;
             quantity?: number;
+            version?: number;
+        };
+        "inventory.GridInput": {
+            lines?: components["schemas"]["inventory.GridLine"][];
+            name?: string;
+            source?: string;
+        };
+        "inventory.GridInputLease": {
+            vetuste_grid_id?: string;
+        };
+        "inventory.GridLine": {
+            category?: components["schemas"]["inventory.Category"];
+            floor_bp?: number;
+            franchise_years?: number;
+            lifetime_years?: number;
+            yearly_rate_bp?: number;
+        };
+        "inventory.GridView": {
+            id?: string;
+            lines?: components["schemas"]["inventory.GridLine"][];
+            name?: string;
+            source?: string;
             version?: number;
         };
         "inventory.HeaderInput": {
@@ -9279,6 +10147,10 @@ export interface components {
             version?: number;
             /** @enum {unknown} */
             works?: "ok" | "ko" | "n/a";
+        };
+        "inventory.KeyRef": {
+            destination?: string;
+            kind?: string;
         };
         "inventory.KeyResult": {
             destination?: string;
@@ -9391,6 +10263,15 @@ export interface components {
             };
             furnished?: boolean;
         };
+        "inventory.SettleInput": {
+            /** Format: date */
+            accounts_approved_on?: string;
+            /** @description DryRun computes the statement without issuing it. */
+            dry_run?: boolean;
+            regularisation_cents?: number;
+            regularisation_document_id?: string;
+            release?: boolean;
+        };
         "inventory.SignaturesView": {
             document_id?: string;
             esign_available?: boolean;
@@ -9429,6 +10310,50 @@ export interface components {
             condition?: components["schemas"]["inventory.Condition"];
             quantity?: number;
             works?: components["schemas"]["inventory.Works"];
+        };
+        "inventory.Statement": {
+            arrears_cents?: number;
+            balance_cents?: number;
+            /** Format: date */
+            deadline?: string;
+            deductions_cents?: number;
+            deposit_cents?: number;
+            document_id?: string;
+            holdback_cents?: number;
+            /** Format: date */
+            keys_returned_on?: string;
+            /** @enum {string} */
+            kind?: "initial" | "release";
+            lines?: components["schemas"]["inventory.StatementLine"][];
+            new_address_given?: boolean;
+            penalty_cents?: number;
+            penalty_months?: number;
+            regularisation_cents?: number;
+            regularisation_document_id?: string;
+            /** Format: date */
+            settled_on?: string;
+            /**
+             * @description TotalCents is the balance plus the late penalty: what is paid back to
+             *     the tenant (negative: what the tenant still owes).
+             */
+            total_cents?: number;
+        };
+        "inventory.StatementLine": {
+            amount_cents?: number;
+            /** @enum {string} */
+            basis?: "quote" | "invoice";
+            cost_cents?: number;
+            description?: string;
+            document_id?: string;
+            document_sha256?: string;
+            entry?: components["schemas"]["inventory.State"];
+            exit?: components["schemas"]["inventory.State"];
+            exit_item_id?: string;
+            grid?: string;
+            id?: string;
+            label?: string;
+            room?: string;
+            tenant_share_bp?: number;
         };
         "inventory.TemplateView": {
             /** @enum {string} */
@@ -9780,6 +10705,11 @@ export interface components {
             acquired_on?: string;
             acquisition_cents?: number;
             address?: string;
+            /**
+             * @description CollectiveBuilding is an asset in a building under a syndic: its
+             *     annual accounts gate the deposit holdback (RENT-INV-001 §6).
+             */
+            collective_building?: boolean;
             controlled_zone?: boolean;
             dpe_class?: string;
             furnished?: boolean;
@@ -9805,6 +10735,11 @@ export interface components {
             acquired_on?: string;
             acquisition_cents?: number;
             address?: string;
+            /**
+             * @description CollectiveBuilding is an asset in a building under a syndic: its
+             *     annual accounts gate the deposit holdback (RENT-INV-001 §6).
+             */
+            collective_building?: boolean;
             controlled_zone?: boolean;
             created_at?: string;
             dpe_class?: string;
@@ -10061,6 +10996,12 @@ export interface components {
         "charge.Input": {
             content: {
                 "application/json": components["schemas"]["charge.Input"];
+            };
+        };
+        /** @description grid */
+        "inventory.GridInput": {
+            content: {
+                "application/json": components["schemas"]["inventory.GridInput"];
             };
         };
         /** @description guarantee */

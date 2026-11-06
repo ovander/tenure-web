@@ -1869,6 +1869,64 @@
                 }
             }
         },
+        "/deposit-deductions/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Until the deposit is settled.",
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Remove a deduction",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "deduction id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
         "/diagnostics/{id}": {
             "put": {
                 "security": [
@@ -5112,6 +5170,322 @@
                 }
             }
         },
+        "/leases/{id}/deposit": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The grid, the exit items worse or missing and the missing keys, the deductions, the next statement (wait_exit, initial, release, done) previewed as of today, and the statements issued. Not for an accountant, who reads the RD documents.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Where a lease's deposit stands",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "lease id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/inventory.DepositView"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/leases/{id}/deposit-deductions": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "A lease's deposit deductions",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "lease id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/inventory.DeductionView"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "On an exit item worse or missing at exit (exit_item_id), or a missing key line (key), qualified by the owner as the tenant's; the cost from a quote or invoice uploaded through POST /documents (class supporting, this lease). The tenant's share comes from the lease's wear grid for the item's category and age; without a grid, the whole cost.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Retain a deduction from the deposit",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "lease id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "deduction",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/inventory.DeductionCreate"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/inventory.DeductionView"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/leases/{id}/deposit-settlement": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The first statement (RD) deducts the deductions and the unpaid rent calls, holds back a share in a collective building whose accounts are not approved (accounts_approved_on absent), adds the late penalty owed, and is due from the return of the keys; release: true issues the second, releasing the holdback net of the regularisation backed by its document, due from the approval. dry_run computes it only. The deductions no longer change once the first is issued.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Issue the deposit restitution statement",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "lease id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "settlement",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/inventory.SettleInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/inventory.Statement"
+                        }
+                    },
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/inventory.Statement"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
         "/leases/{id}/documents": {
             "get": {
                 "security": [
@@ -5622,6 +5996,100 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/lease.View"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/leases/{id}/vetuste-grid": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Or remove it (null), until the deposit is settled.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Annex a wear grid to a lease",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "lease id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "grid",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/inventory.GridInputLease"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/inventory.DepositView"
                         }
                     },
                     "400": {
@@ -7551,6 +8019,234 @@
                     }
                 }
             }
+        },
+        "/vetuste-grids": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Grids entered by the owner from a collective agreement or agreed by the parties (INV-OD-08: none is shipped). Not for an accountant.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "The scope's wear grids",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/inventory.GridView"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Per category: theoretical lifetime, franchise, yearly flat reduction and floor, rates in basis points (décret 2016-382 art. 4).",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Record a wear grid",
+                "parameters": [
+                    {
+                        "description": "grid",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/inventory.GridInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/inventory.GridView"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/vetuste-grids/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "With If-Match on its version. A statement already issued keeps the grid as it was (snapshot).",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Replace a wear grid",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "grid id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "grid version, W/\\",
+                        "name": "If-Match",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "grid",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/inventory.GridInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/inventory.GridView"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "412": {
+                        "description": "Precondition Failed",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "428": {
+                        "description": "Precondition Required",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -8569,6 +9265,7 @@
                 "supporting",
                 "other",
                 "surety",
+                "restitution",
                 "cancellation"
             ],
             "x-enum-varnames": [
@@ -8584,6 +9281,7 @@
                 "ClassSupporting",
                 "ClassOther",
                 "ClassSurety",
+                "ClassRestitution",
                 "ClassCancellation"
             ]
         },
@@ -9448,6 +10146,125 @@
                 }
             }
         },
+        "inventory.DeductionCreate": {
+            "type": "object",
+            "properties": {
+                "basis": {
+                    "type": "string",
+                    "enum": [
+                        "quote",
+                        "invoice"
+                    ]
+                },
+                "cost_cents": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "document_id": {
+                    "type": "string"
+                },
+                "exit_item_id": {
+                    "type": "string"
+                },
+                "key": {
+                    "$ref": "#/definitions/inventory.KeyRef"
+                }
+            }
+        },
+        "inventory.DeductionView": {
+            "type": "object",
+            "properties": {
+                "amount_cents": {
+                    "type": "integer"
+                },
+                "basis": {
+                    "type": "string",
+                    "enum": [
+                        "quote",
+                        "invoice"
+                    ]
+                },
+                "cost_cents": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "document_id": {
+                    "type": "string"
+                },
+                "exit_item_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "tenant_share_bp": {
+                    "type": "integer"
+                }
+            }
+        },
+        "inventory.DepositView": {
+            "type": "object",
+            "properties": {
+                "collective_building": {
+                    "type": "boolean"
+                },
+                "deductions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.DeductionView"
+                    }
+                },
+                "deposit_cents": {
+                    "type": "integer"
+                },
+                "exit_inventory_id": {
+                    "type": "string"
+                },
+                "flagged": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.ItemResult"
+                    }
+                },
+                "grid": {
+                    "$ref": "#/definitions/inventory.GridView"
+                },
+                "lease_id": {
+                    "type": "string"
+                },
+                "missing_keys": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.KeyResult"
+                    }
+                },
+                "next": {
+                    "type": "string",
+                    "enum": [
+                        "wait_exit",
+                        "initial",
+                        "release",
+                        "done"
+                    ]
+                },
+                "preview": {
+                    "$ref": "#/definitions/inventory.Statement"
+                },
+                "rent_cents": {
+                    "type": "integer"
+                },
+                "statements": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.Statement"
+                    }
+                }
+            }
+        },
         "inventory.ElementInput": {
             "type": "object",
             "properties": {
@@ -9506,6 +10323,74 @@
                 },
                 "quantity": {
                     "type": "integer"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "inventory.GridInput": {
+            "type": "object",
+            "properties": {
+                "lines": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.GridLine"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                }
+            }
+        },
+        "inventory.GridInputLease": {
+            "type": "object",
+            "properties": {
+                "vetuste_grid_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "inventory.GridLine": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "$ref": "#/definitions/inventory.Category"
+                },
+                "floor_bp": {
+                    "type": "integer"
+                },
+                "franchise_years": {
+                    "type": "integer"
+                },
+                "lifetime_years": {
+                    "type": "integer"
+                },
+                "yearly_rate_bp": {
+                    "type": "integer"
+                }
+            }
+        },
+        "inventory.GridView": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "lines": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.GridLine"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
                 },
                 "version": {
                     "type": "integer"
@@ -9691,6 +10576,17 @@
                             "$ref": "#/definitions/inventory.Works"
                         }
                     ]
+                }
+            }
+        },
+        "inventory.KeyRef": {
+            "type": "object",
+            "properties": {
+                "destination": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
                 }
             }
         },
@@ -10093,6 +10989,28 @@
                 }
             }
         },
+        "inventory.SettleInput": {
+            "type": "object",
+            "properties": {
+                "accounts_approved_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "dry_run": {
+                    "description": "DryRun computes the statement without issuing it.",
+                    "type": "boolean"
+                },
+                "regularisation_cents": {
+                    "type": "integer"
+                },
+                "regularisation_document_id": {
+                    "type": "string"
+                },
+                "release": {
+                    "type": "boolean"
+                }
+            }
+        },
         "inventory.SignInput": {
             "type": "object",
             "properties": {
@@ -10224,6 +11142,124 @@
                 },
                 "works": {
                     "$ref": "#/definitions/inventory.Works"
+                }
+            }
+        },
+        "inventory.Statement": {
+            "type": "object",
+            "properties": {
+                "arrears_cents": {
+                    "type": "integer"
+                },
+                "balance_cents": {
+                    "type": "integer"
+                },
+                "deadline": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "deductions_cents": {
+                    "type": "integer"
+                },
+                "deposit_cents": {
+                    "type": "integer"
+                },
+                "document_id": {
+                    "type": "string"
+                },
+                "holdback_cents": {
+                    "type": "integer"
+                },
+                "keys_returned_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "kind": {
+                    "type": "string",
+                    "enum": [
+                        "initial",
+                        "release"
+                    ]
+                },
+                "lines": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inventory.StatementLine"
+                    }
+                },
+                "new_address_given": {
+                    "type": "boolean"
+                },
+                "penalty_cents": {
+                    "type": "integer"
+                },
+                "penalty_months": {
+                    "type": "integer"
+                },
+                "regularisation_cents": {
+                    "type": "integer"
+                },
+                "regularisation_document_id": {
+                    "type": "string"
+                },
+                "settled_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "total_cents": {
+                    "description": "TotalCents is the balance plus the late penalty: what is paid back to\nthe tenant (negative: what the tenant still owes).",
+                    "type": "integer"
+                }
+            }
+        },
+        "inventory.StatementLine": {
+            "type": "object",
+            "properties": {
+                "amount_cents": {
+                    "type": "integer"
+                },
+                "basis": {
+                    "type": "string",
+                    "enum": [
+                        "quote",
+                        "invoice"
+                    ]
+                },
+                "cost_cents": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "document_id": {
+                    "type": "string"
+                },
+                "document_sha256": {
+                    "type": "string"
+                },
+                "entry": {
+                    "$ref": "#/definitions/inventory.State"
+                },
+                "exit": {
+                    "$ref": "#/definitions/inventory.State"
+                },
+                "exit_item_id": {
+                    "type": "string"
+                },
+                "grid": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "room": {
+                    "type": "string"
+                },
+                "tenant_share_bp": {
+                    "type": "integer"
                 }
             }
         },
@@ -11319,6 +12355,10 @@
                 "address": {
                     "type": "string"
                 },
+                "collective_building": {
+                    "description": "CollectiveBuilding is an asset in a building under a syndic: its\nannual accounts gate the deposit holdback (RENT-INV-001 §6).",
+                    "type": "boolean"
+                },
                 "controlled_zone": {
                     "type": "boolean"
                 },
@@ -11393,6 +12433,10 @@
                 },
                 "address": {
                     "type": "string"
+                },
+                "collective_building": {
+                    "description": "CollectiveBuilding is an asset in a building under a syndic: its\nannual accounts gate the deposit holdback (RENT-INV-001 §6).",
+                    "type": "boolean"
                 },
                 "controlled_zone": {
                     "type": "boolean"

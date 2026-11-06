@@ -77,6 +77,7 @@ export function toInput(a: Asset): AssetInput {
     dpe_class: a.dpe_class || undefined,
     tense_zone: (a.tense_zone ?? false) || (a.controlled_zone ?? false),
     controlled_zone: a.controlled_zone ?? false,
+    collective_building: a.collective_building ?? false,
     rent_control_zone: a.rent_control_zone ?? '',
     rent_control_category: a.rent_control_category ?? '',
     acquired_on: a.acquired_on || undefined,

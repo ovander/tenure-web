@@ -24,6 +24,7 @@ import LeaseContract from './LeaseContract.vue'
 import LeaseGuarantees from './LeaseGuarantees.vue'
 import LeaseBilling from '@/features/billing/LeaseBilling.vue'
 import LeaseInventories from './LeaseInventories.vue'
+import LeaseDeposit from './LeaseDeposit.vue'
 import ActivityList from '@/features/common/ActivityList.vue'
 
 const route = useRoute()
@@ -40,7 +41,7 @@ const busy = ref(false)
 const error = ref('')
 const id = computed(() => route.params.id as string)
 const tab = computed(() => (route.params.tab as string) || 'overview')
-const tabs = ['overview', 'contract', 'guarantees', 'billing', 'inventories', 'activity'] as const
+const tabs = ['overview', 'contract', 'guarantees', 'billing', 'inventories', 'deposit', 'activity'] as const
 // What a blocker is about, named in the owner's words (Q-105).
 function subject(b: Blocker): string {
   return blockerSubject(b, (a) => (assets.byId[a] ? assetLabel(assets.byId[a]) : undefined))
@@ -187,6 +188,7 @@ const confirmBody = computed(() => (confirming.value ? t(`confirm.${confirming.v
       <LeaseContract v-else-if="tab === 'contract'" :lease="lease" @changed="load" />
       <LeaseGuarantees v-else-if="tab === 'guarantees'" :lease="lease" @changed="load" />
       <LeaseInventories v-else-if="tab === 'inventories'" :lease="lease" @changed="load" />
+      <LeaseDeposit v-else-if="tab === 'deposit'" :lease="lease" />
       <LeaseBilling v-else-if="tab === 'billing'" :lease="lease" />
       <ActivityList v-else-if="tab === 'activity'" entity-type="lease" :entity-id="lease.id ?? ''" />
       <ComingSoonPanel v-else />
