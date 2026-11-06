@@ -23,13 +23,25 @@ export function draftCapture(state, inv, lease, uuid) {
   return state.captures[inv.id]
 }
 
+// corrected is the entry's item corrected by its accepted completion lines
+// (tenure-api Q-114).
+function corrected(e, it) {
+  const out = { ...it }
+  for (const c of e.completions ?? []) for (const l of c.lines) if (l.entry_item_id === it.id && l.accepted) {
+    if (l.requested.condition) out.condition = l.requested.condition
+    if (l.requested.works) out.works = l.requested.works
+    if (l.requested.comment) out.comment = l.requested.comment
+  }
+  return out
+}
+
 // draftExit pre-fills an exit from the issued entry's capture (Q-113): each
 // item at its entry state, linked and to check; the keys as handed over.
 export function draftExit(state, inv, entryInv, uuid) {
   const e = state.captures[entryInv.id]
   state.captures[inv.id] = { id: inv.id, lease_id: inv.lease_id, kind: 'exit', mode: 'amicable', state: 'draft', place: '', observations: '',
     version: 1, entry_inventory_id: entryInv.id, entry_done_on: e.done_on, keys_returned_on: undefined, tenant_new_address: '',
-    rooms: e.rooms.map((r) => ({ ...r, items: r.items.map((it) => ({ ...it, id: uuid(), entry_item_id: it.id, photos: [], version: 1, to_check: true })) })),
+    rooms: e.rooms.map((r) => ({ ...r, items: r.items.map((it) => ({ ...corrected(e, it), id: uuid(), entry_item_id: it.id, photos: [], version: 1, to_check: true })) })),
     meters: e.meters.map((m) => ({ ...m, id: uuid(), reading: '', photos: [] })), keys: e.keys.map((k) => ({ ...k })),
     signatures: [], requests: [], parties: e.parties.map((p) => ({ ...p, signed: false })) }
   return state.captures[inv.id]
@@ -39,7 +51,7 @@ export function draftExit(state, inv, entryInv, uuid) {
 const rank = { new: 5, good: 4, fair: 3, poor: 2, broken: 1 }
 function compare(state, c) {
   const e = state.captures[c.entry_inventory_id]
-  const byID = Object.fromEntries(e.rooms.flatMap((r) => r.items).map((it) => [it.id, it]))
+  const byID = Object.fromEntries(e.rooms.flatMap((r) => r.items).map((it) => [it.id, corrected(e, it)]))
   const items = []
   for (const r of c.rooms) for (const x of r.items) {
     const en = byID[x.entry_item_id]
@@ -263,7 +275,74 @@ export function inventoryRoutes(ctx) {
     return json(res, 405, { status: 405 })
   }
 
+  // The completion routes (tenure-api Q-114): windows from the entry's day
+  // (ten days; October for an entry done from June to September), a request
+  // within its window, the decision per line issuing an EC document.
+  const addDays = (day, n) => new Date(Date.parse(`${day}T00:00:00Z`) + n * 86400000).toISOString().slice(0, 10)
+  const todayParis = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Paris' }).format(new Date())
+  function windows(c) {
+    if (c.state !== 'issued' || c.mode === 'upload' || !c.done_on) return undefined
+    const w = { ten_day_ends_on: addDays(c.done_on, 10) }
+    const [y, mo] = c.done_on.split('-').map(Number)
+    if (mo >= 6 && mo <= 9) Object.assign(w, { heating_starts_on: `${y}-10-01`, heating_ends_on: `${y}-10-31` })
+    return w
+  }
+  const isOpen = (w, c, reason, on) => !!w && (reason === 'ten_day' ? on >= c.done_on && on <= w.ten_day_ends_on
+    : reason === 'heating' && !!w.heating_starts_on && on >= w.heating_starts_on && on <= w.heating_ends_on)
+  function completions(req, res, path, entry) {
+    const m = /^\/inventories\/([^/]+)\/completions$/.exec(path)
+    const d = /^\/completions\/([^/]+)$/.exec(path)
+    if (!m && !d) return false
+    if (state.role === 'accountant') return forbidden(res)
+    const c = m ? state.captures[m[1]] : Object.values(state.captures).find((x) => (x.completions ?? []).some((y) => y.id === d[1]))
+    if (!c) return json(res, 404, { type: 'http/not-found', status: 404, title: 'Ressource introuvable.' })
+    if (c.kind !== 'entry') return json(res, 409, { type: 'inventory/completion-unavailable', status: 409, title: 'Un complément porte sur un état des lieux d’entrée émis et saisi dans Tenure.' })
+    c.completions ??= []
+    const w = windows(c)
+    if (m && req.method === 'GET') {
+      const open = ['ten_day', 'heating'].filter((r) => isOpen(w, c, r, todayParis()))
+      return json(res, 200, { inventory_id: c.id, done_on: c.done_on, windows: w, open, completions: c.completions })
+    }
+    if (state.role !== 'owner') return forbidden(res)
+    const b = entry.body ?? {}
+    const items = Object.fromEntries(c.rooms.flatMap((r) => r.items.map((it) => [it.id, { ...it, room: r.label }])))
+    if (m && req.method === 'POST') {
+      if (!w) return json(res, 409, { type: 'inventory/completion-unavailable', status: 409, title: 'Un complément porte sur un état des lieux d’entrée émis et saisi dans Tenure.' })
+      if (!isOpen(w, c, b.reason, b.requested_on ?? '')) return json(res, 409, { type: 'inventory/completion-window-closed', status: 409, title: 'La demande de complément est hors du délai prévu par la loi.' })
+      const errs = []
+      for (const [i, l] of (b.lines ?? []).entries()) {
+        const it = items[l.entry_item_id]
+        if (!it) errs.push({ field: `lines[${i}].entry_item_id`, message: 'Un élément de cet état des lieux, une seule fois.' })
+        else if (b.reason === 'heating' && it.category !== 'heating') errs.push({ field: `lines[${i}].entry_item_id`, message: 'Une demande pendant la période de chauffe porte sur les éléments de chauffage.' })
+      }
+      if (!(b.lines ?? []).length) errs.push({ field: 'lines', message: 'Au moins un élément à compléter.' })
+      if (errs.length) return invalid(res, errs)
+      const st = (it) => ({ condition: it.condition, works: it.works, quantity: it.quantity, comment: it.comment })
+      const x = { id: uuid(), inventory_id: c.id, reason: b.reason, requested_on: b.requested_on, request_document_id: b.request_document_id, decision: 'pending', version: 1,
+        lines: b.lines.map((l) => ({ entry_item_id: l.entry_item_id, room: items[l.entry_item_id].room, label: items[l.entry_item_id].label, category: items[l.entry_item_id].category,
+          entry: st(items[l.entry_item_id]), requested: { condition: l.condition, works: l.works, comment: l.comment } })) }
+      c.completions.push(x)
+      ctxRecord('inventory.completion.create', 'inventory_completion', x.id, null, b)
+      return json(res, 201, x, { ETag: `W/"${x.version}"` })
+    }
+    if (d && req.method === 'PUT') {
+      const x = c.completions.find((y) => y.id === d[1])
+      if (x.decision !== 'pending') return json(res, 409, { type: 'inventory/completion-decided', status: 409, title: 'Cette demande de complément est déjà tranchée.' })
+      if (entry.ifMatch !== `W/"${x.version}"`) return stale(res)
+      const by = Object.fromEntries((b.lines ?? []).map((l) => [l.entry_item_id, l.accepted]))
+      if ((b.lines ?? []).length !== x.lines.length || x.lines.some((l) => by[l.entry_item_id] === undefined))
+        return invalid(res, [{ field: 'lines', message: 'Chaque ligne de la demande est acceptée ou refusée.' }])
+      for (const l of x.lines) l.accepted = by[l.entry_item_id]
+      const n = x.lines.filter((l) => l.accepted).length
+      Object.assign(x, { decision: n === x.lines.length ? 'accepted' : n ? 'partial' : 'refused', decided_on: b.decided_on ?? todayParis(), document_id: uuid(), version: x.version + 1 })
+      ctxRecord('inventory.completion.decide', 'inventory_completion', x.id, null, b)
+      return json(res, 200, x, { ETag: `W/"${x.version}"` })
+    }
+    return json(res, 405, { status: 405 })
+  }
+
   return function route(req, res, path, entry) {
+    if (completions(req, res, path, entry) !== false) return true
     if (capture(req, res, path, entry) !== false) return true
     const m = /^\/assets\/([^/]+)\/layout(\/seed)?$/.exec(path)
     if (!m && path !== '/inventory-templates') return false

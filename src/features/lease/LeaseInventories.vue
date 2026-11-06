@@ -20,6 +20,7 @@ import { useLeases, download, type Inventory, type Lease } from './store'
 import { useSession } from '@/stores/session'
 import { t, type Key } from '@/i18n'
 import { date } from '@/i18n/format'
+import { getCompletions, pending, type Completions } from '@/features/inventory/completions'
 
 const props = defineProps<{ lease: Lease }>()
 const emit = defineEmits<{ changed: [] }>()
@@ -58,9 +59,15 @@ watch([kind, entryIssued], () => {
 })
 const kinds = computed(() => (['entry', 'exit'] as const).filter((k) => !rows.value.some((r) => r.kind === k)).map((k) => ({ value: k, label: t(`inventory.kind.${k}` as Key) })))
 
+// The issued entry's completion windows and requests (tenure-api Q-114,
+// Q-W29); none when the entry was recorded from its PDF.
+const entry = computed(() => rows.value.find((r) => r.kind === 'entry' && r.state === 'issued' && r.mode !== 'upload'))
+const cmp = ref<Completions | null>(null)
+
 async function load(): Promise<void> {
   if (props.lease.id) rows.value = await store.inventories(props.lease.id)
   kind.value = rows.value.some((r) => r.kind === 'entry') ? 'exit' : 'entry'
+  cmp.value = entry.value?.id ? await getCompletions(entry.value.id).catch(() => null) : null
 }
 onMounted(load)
 
@@ -109,6 +116,12 @@ async function save(): Promise<void> {
       </template>
       <Button v-if="capturing" :label="t('inventory.create')" icon="pi pi-pencil" :loading="busy" data-test="create-capture" @click="save" />
       <Button v-else :label="t('common.save')" :disabled="!file || !doneOn" :loading="busy" data-test="save-inventory" @click="save" />
+    </div>
+    <div v-if="entry && cmp?.windows" class="flex flex-wrap items-center gap-3 rounded-md border border-slate-200 bg-white p-3 text-sm" data-test="completion-windows">
+      <span data-test="tab-ten-day">{{ t('completion.tenDayUntil', { day: date(cmp.windows.ten_day_ends_on) }) }}</span>
+      <span v-if="cmp.windows.heating_starts_on" data-test="tab-heating">{{ t('completion.heatingFromTo', { from: date(cmp.windows.heating_starts_on), to: date(cmp.windows.heating_ends_on ?? '') }) }}</span>
+      <Tag v-if="pending(cmp)" :value="t('completion.pendingN', { n: pending(cmp) })" severity="warn" data-test="tab-pending" />
+      <Button :label="t('completion.openScreen')" icon="pi pi-list-check" text size="small" data-test="open-completions" @click="router.push(`/inventories/${entry.id}/completions`)" />
     </div>
     <DataTable :value="rows" size="small" data-key="id" data-test="inventories">
       <template #empty>{{ t('inventory.none') }}</template>
