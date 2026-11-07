@@ -1340,6 +1340,81 @@
                 }
             }
         },
+        "/calendar": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Every dated obligation Tenure derives from what it holds (RENT-SPEC-012, computed base): diagnostics' end of validity, IRL revisions, ends of notice and of term, the yearly home insurance certificate, the entry inventory's completion windows, the deposit restitution deadline. From from to to (today and the next 90 days by default, three years at most), always with the overdue ones; for one asset with asset_id. Not for an accountant.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "calendar"
+                ],
+                "summary": "The obligations calendar",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "first day, YYYY-MM-DD",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "last day, YYYY-MM-DD",
+                        "name": "to",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "one asset",
+                        "name": "asset_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/calendar.View"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
         "/charges": {
             "get": {
                 "security": [
@@ -8785,6 +8860,63 @@
                 },
                 "run": {
                     "$ref": "#/definitions/jobs.Run"
+                }
+            }
+        },
+        "calendar.Item": {
+            "type": "object",
+            "properties": {
+                "asset_id": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string",
+                    "enum": [
+                        "diagnostic_expiry",
+                        "irl_revision",
+                        "notice_end",
+                        "term_end",
+                        "insurance_certificate",
+                        "completion_window",
+                        "deposit_deadline"
+                    ]
+                },
+                "lease_id": {
+                    "type": "string"
+                },
+                "on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "ref": {
+                    "description": "Ref is what the item is about within its kind: the diagnostic kind,\nor the completion window (ten_day, heating).",
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "upcoming",
+                        "overdue"
+                    ]
+                }
+            }
+        },
+        "calendar.View": {
+            "type": "object",
+            "properties": {
+                "from": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/calendar.Item"
+                    }
+                },
+                "to": {
+                    "type": "string",
+                    "format": "date"
                 }
             }
         },

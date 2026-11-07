@@ -1143,5 +1143,20 @@
   "about.mismatch": "The loaded app ({web}) is not the one the server pins ({pinned}): reload the page, or the server serves another bundle.",
   "about.copy": "Copy for a bug report",
   "about.copied": "Information copied",
-  "about.copyFailed": "Copy not possible in this browser"
+  "about.copyFailed": "Copy not possible in this browser",
+  "tab.deadlines": "Deadlines",
+  "home.calendar": "Deadlines in the next 90 days",
+  "home.calendar.none": "No deadline in the next 90 days.",
+  "calendar.overdue": "Overdue",
+  "calendar.none": "No deadline in the coming year.",
+  "calendar.denied": "The calendar is not available with this role.",
+  "calendar.assetHint": "The deadlines of the coming year, computed by Tenure from the diagnostics, leases, inventories and deposit. A past deadline still to deal with is flagged overdue.",
+  "calendar.kind.diagnostic_expiry": "End of validity of the {what} diagnostic",
+  "calendar.kind.irl_revision": "IRL revision possible",
+  "calendar.kind.notice_end": "End of the notice",
+  "calendar.kind.term_end": "End of the lease term",
+  "calendar.kind.insurance_certificate": "Ask for the home insurance certificate",
+  "calendar.kind.completion_ten_day": "End of the window to complete the entry inventory",
+  "calendar.kind.completion_heating": "End of the window to complete the heating",
+  "calendar.kind.deposit_deadline": "Deposit to be returned by"
 }

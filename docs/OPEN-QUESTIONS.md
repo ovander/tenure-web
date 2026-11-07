@@ -468,4 +468,22 @@ say how the user tells which build runs. Provisional:
   reloading. Examples are a cached older bundle, or a local build served from `web/dist`. It
   is not shown under the dev server.
 - **Report.** « Copier pour un signalement » copies both builds as plain text.
+**Q-W32 Obligations calendar, computed base — Open (#52, tenure-api Q-116).** RENT-SPEC-012
+renders the calendar as a per-asset timeline and a cross-portfolio « next 90 days » list.
+Provisional:
+- **Home.** « Échéances des 90 prochains jours » replaces the « Prochaines échéances » the app
+  computed from the leases itself. The list comes from `GET /calendar`: date, an « En retard »
+  tag for an overdue item, the item's label, and the lease (or asset) it concerns.
+  - When the calendar cannot be read (the accountant gets 403), the leases' own dates are
+    shown as before.
+- **Asset.** An « Échéances » tab on the asset hub lists its coming year
+  (`/calendar?asset_id=…&to=`). That year always holds the next IRL revision and insurance
+  anniversary.
+- **Links.** Each item opens where it is dealt with:
+  - a diagnostic: the asset's overview;
+  - a completion window: the lease's inventories tab;
+  - a deposit deadline: the lease's deposit tab;
+  - the insurance certificate: the lease's guarantees tab;
+  - any other item: the lease's overview.
+- **Not built yet.** Items entered by hand, reminders and the digest (tenure-api Q-116).
 

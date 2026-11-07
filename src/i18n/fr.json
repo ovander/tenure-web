@@ -1143,5 +1143,20 @@
   "about.mismatch": "L’application chargée ({web}) n’est pas celle que le serveur épingle ({pinned}) : rechargez la page, ou le serveur sert un autre bundle.",
   "about.copy": "Copier pour un signalement",
   "about.copied": "Informations copiées",
-  "about.copyFailed": "Copie impossible dans ce navigateur"
+  "about.copyFailed": "Copie impossible dans ce navigateur",
+  "tab.deadlines": "Échéances",
+  "home.calendar": "Échéances des 90 prochains jours",
+  "home.calendar.none": "Aucune échéance dans les 90 prochains jours.",
+  "calendar.overdue": "En retard",
+  "calendar.none": "Aucune échéance dans l’année qui vient.",
+  "calendar.denied": "Le calendrier n’est pas accessible avec ce rôle.",
+  "calendar.assetHint": "Les échéances de l’année qui vient, calculées par Tenure à partir des diagnostics, des baux, des états des lieux et du dépôt de garantie. Une échéance passée qui reste à traiter est signalée en retard.",
+  "calendar.kind.diagnostic_expiry": "Fin de validité du diagnostic {what}",
+  "calendar.kind.irl_revision": "Révision IRL possible",
+  "calendar.kind.notice_end": "Fin du préavis",
+  "calendar.kind.term_end": "Fin de la période du bail",
+  "calendar.kind.insurance_certificate": "Demander l’attestation d’assurance habitation",
+  "calendar.kind.completion_ten_day": "Fin du délai de complément de l’état des lieux d’entrée",
+  "calendar.kind.completion_heating": "Fin du délai de complément pour le chauffage",
+  "calendar.kind.deposit_deadline": "Restitution du dépôt de garantie au plus tard"
 }

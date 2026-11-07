@@ -111,6 +111,16 @@ async function api(req, res, path) {
   // GET /api/v1/version (tenure-api #113); state.version overrides it.
   if (path === '/version' && req.method === 'GET') return json(res, 200, state.version ?? { api: { version: 'v0.1.21', commit: '0123456789abcdef', build_time: '2026-11-07T01:00:00Z',
     stamped: true, go_version: 'go1.27.3', platform: 'linux/amd64', backendkit: 'v1.27.0', schema: '000016' }, web: { release: 'v0.21.0', sha256: 'a'.repeat(64) } })
+  // GET /api/v1/calendar (tenure-api Q-116): state.calendar's items, filtered
+  // by asset; absent, the route is not there and the home falls back to the
+  // leases' own dates.
+  if (path === '/calendar' && req.method === 'GET') {
+    if (!state.calendar) return json(res, 404, { type: 'http/not-found', status: 404, title: 'Ressource introuvable.' })
+    if (state.role === 'accountant') return json(res, 403, { type: 'auth/forbidden', status: 403, title: 'Accès refusé.' })
+    const q = new URL(req.url, 'http://x').searchParams
+    const items = state.calendar.filter((x) => !q.get('asset_id') || x.asset_id === q.get('asset_id'))
+    return json(res, 200, { from: q.get('from') ?? '', to: q.get('to') ?? '', items })
+  }
   if (path === '/me' && req.method === 'PUT') {
     const v = state.owner?.version
     if (state.owner && entry.ifMatch !== `W/"${v}"`) return json(res, 412, { type: 'http/stale', status: 412, title: 'Version périmée.' })
