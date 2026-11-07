@@ -487,3 +487,33 @@ Provisional:
   - any other item: the lease's overview.
 - **Not built yet.** Items entered by hand, reminders and the digest (tenure-api Q-116).
 
+
+**Q-W33 Lease notice — Open (#59, tenure-api Q-118).** RENT-FE-001 lists « notice » among
+S05's transitions, with no screen of its own. Provisional reading:
+
+- **Where.** « Enregistrer un congé » on the lease hub opens a dialog for every lease under loi
+  89-462: unfurnished, furnished and mobility. A box keeps the confirmation with an end date typed
+  by hand, because tenure-api computes nothing for it.
+- **Tenant.** The owner records:
+  - who gave notice;
+  - the reduced-notice ground, or « aucun motif »;
+  - the reception date (today by default), the delivery and its reference;
+  - optionally, the tenant's letter, uploaded as class `notice`.
+  
+  « Calculer la date de fin » asks the API (`dry_run`), which shows the end and whether the notice
+  is reduced. Saving uploads the letter first, then records the notice.
+- **Owner.**
+  - Offered only for an unfurnished or furnished lease. The owner gives a ground (sale, with its
+    price; repossession, with the beneficiary; legitimate, with its statement) and answers the
+    protected-tenant question.
+  - « Calculer l'échéance » shows the term reached and the last day of receipt. « Générer la lettre
+    de congé » issues the CG letter.
+  - The reception is recorded on that letter. Reopening the dialog finds the latest CG letter of
+    the lease, so the owner can record its reception once it is delivered.
+  - The web checks the fields of the ground before calling. The API remains the judge of the legal
+    rules: too late, protected tenant, kinds.
+- **Overview.** For a lease under notice or after, the overview shows the recorded notice: who
+  gave it, the ground, the reception and delivery, the period and the end. It is not shown to an
+  accountant, who is refused by the API.
+- **Not built yet:** a notice withdrawn, and the letter's attachments, which the owner adds
+  (tenure-api Q-118).

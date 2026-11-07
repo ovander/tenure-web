@@ -73,6 +73,83 @@ export function leaseRoutes(ctx) {
       record('lease.create', 'lease', l.id, null, l)
       return json(res, 201, l)
     }
+    // The notice (tenure-api Q-118), modelled on internal/lease/notice.go.
+    let nm = /^\/leases\/([^/]+)\/notice(\/letter)?$/.exec(path)
+    if (nm) {
+      const l = state.leases.find((x) => x.id === nm[1])
+      if (!l) return json(res, 404, { type: 'http/not-found', status: 404, title: 'Introuvable.' })
+      state.notices ??= {}
+      if (req.method === 'GET') {
+        if (state.role === 'accountant') return json(res, 403, { type: 'auth/forbidden', status: 403, title: 'Accès refusé.' })
+        return state.notices[l.id] ? json(res, 200, state.notices[l.id]) : json(res, 404, { type: 'http/not-found', status: 404, title: 'Introuvable.' })
+      }
+      const bad = (type, title) => json(res, 422, { type, status: 422, title })
+      const iso = (d) => d.toISOString().slice(0, 10)
+      const at = (ymd) => new Date(`${ymd}T00:00:00Z`)
+      const addMonths = (ymd, n) => {
+        const d = at(ymd)
+        const t = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + n, 1))
+        t.setUTCDate(Math.min(d.getUTCDate(), new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + 1, 0)).getUTCDate()))
+        return iso(t)
+      }
+      const addDays = (ymd, n) => iso(new Date(at(ymd).getTime() + n * 86400000))
+      const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Paris' }).format(new Date())
+      const termEnd = (on) => { for (let k = 1; k < 200; k++) { const e = addDays(addMonths(l.start_on, l.term_months * k), -1); if (e >= on) return e } }
+      const ownerTerms = (on) => {
+        const months = l.kind === 'furnished' ? 3 : 6
+        let end = termEnd(on)
+        let latest = addDays(addMonths(addDays(end, 1), -months), -1)
+        if (on > latest) {
+          end = termEnd(addDays(end, 1))
+          latest = addDays(addMonths(addDays(end, 1), -months), -1)
+          return { months, end_on: end, latest_receipt_on: latest, warnings: [], late: true }
+        }
+        return { months, end_on: end, latest_receipt_on: latest, warnings: [] }
+      }
+      if (nm[2]) {
+        if (l.state !== 'active') return conflict(res, 'lease/invalid-transition', 'Cette transition n’est pas possible dans l’état actuel du bail.')
+        if (!['unfurnished', 'furnished'].includes(l.kind)) return bad('lease/notice-not-allowed', 'Ce bail ne permet pas ce congé.')
+        if (b.protected_tenant === 'yes') return bad('lease/notice-protected-tenant', 'Un locataire protégé ne peut recevoir congé sans offre de relogement.')
+        const ok = ['no', 'rehousing_offered'].includes(b.protected_tenant) && (b.reason !== 'sale' || b.price_cents > 0) &&
+          (b.reason !== 'repossession' || (b.beneficiary?.name && b.beneficiary?.address && b.beneficiary?.relationship)) && (b.reason !== 'legitimate' || b.grounds)
+        if (!ok) return bad('lease/notice-invalid', 'Le congé est incomplet ou son motif n’est pas reconnu.')
+        const { late, ...terms } = ownerTerms(today)
+        void late
+        if (b.dry_run) return json(res, 200, { terms })
+        const n = state.leaseDocs.filter((d) => d.kind === 'owner_notice').length + 1
+        const doc = { id: uuid(), lease_id: l.id, kind: 'owner_notice', number: `CG-00000001-2026-${String(n).padStart(4, '0')}`, document_id: uuid(), issued_at: new Date().toISOString(), sha256: 'f'.repeat(64), lease_version: l.version, ground: { ...b, dry_run: undefined } }
+        state.leaseDocs.push(doc)
+        record('lease.notice_letter', 'lease', l.id, null, doc)
+        return json(res, 200, { terms, letter: doc })
+      }
+      if (l.state !== 'active') return conflict(res, 'lease/invalid-transition', 'Cette transition n’est pas possible dans l’état actuel du bail.')
+      if (state.notices[l.id]) return conflict(res, 'lease/notice-exists', 'Un congé est déjà enregistré pour ce bail.')
+      if (!b.received_on) return invalid(res, [{ field: 'received_on', message: 'La date de réception est obligatoire.' }])
+      let terms, ground
+      if (b.given_by === 'owner') {
+        const letter = state.leaseDocs.find((d) => d.kind === 'owner_notice' && d.document_id === b.document_id && d.lease_id === l.id)
+        if (!letter) return bad('lease/notice-letter-missing', 'Le congé du bailleur doit reprendre une lettre de congé générée pour ce bail.')
+        const { late, ...t } = ownerTerms(b.received_on)
+        if (late) return bad('lease/notice-too-late', 'Le congé du bailleur arrive trop tard pour ce terme.')
+        terms = t
+        ground = letter.ground
+      } else {
+        const tense = l.asset_ids.some((id) => state.assets.find((a) => a.id === id)?.tense_zone)
+        const reduced = l.kind === 'unfurnished' && (!!b.reason || tense)
+        const months = l.kind === 'unfurnished' && !reduced ? 3 : 1
+        const same = addMonths(b.received_on, months)
+        terms = { months, end_on: same.slice(8) !== b.received_on.slice(8) ? same : addDays(same, -1), reduced: reduced || undefined, warnings: b.reason === 'tense_zone' && !tense ? ['tense_zone_not_flagged'] : [] }
+        ground = { reason: b.reason }
+      }
+      if (b.dry_run) return json(res, 200, { terms })
+      const before = { ...l }
+      const notice = { id: uuid(), lease_id: l.id, given_by: b.given_by, ground, received_on: b.received_on, months: terms.months, end_on: terms.end_on,
+        delivery: b.delivery, sent_on: b.sent_on, tracking_ref: b.tracking_ref, document_id: b.document_id }
+      state.notices[l.id] = notice
+      Object.assign(l, { state: 'notice', end_on: terms.end_on, version: l.version + 1 })
+      record('lease.notice', 'lease', l.id, before, { ...l })
+      return json(res, 200, { terms, notice, lease: l })
+    }
     let m = /^\/leases\/([^/]+)(?:\/([a-z]+))?$/.exec(path)
     if (m) {
       const l = state.leases.find((x) => x.id === m[1])

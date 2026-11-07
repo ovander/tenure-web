@@ -129,18 +129,17 @@ test('flow 1: from a draft to an active lease, then to its close', async ({ page
   await page.getByTestId('save-inventory').click()
   await expect(page.getByTestId('inventories')).toContainText('01/12/2026')
 
-  // Activate, then notice (needs its end date), end, and close refused while
-  // the deposit is held; settling it lets the lease close.
+  // Activate, then the tenant's notice (its end computed by the API), end,
+  // and close refused while the deposit is held; settling it lets the lease
+  // close.
   await expect(page.getByTestId('blockers')).not.toContainText('Avant d’activer')
   await page.getByTestId('action-activate').click()
   await confirm(page)
   await expect(page.getByTestId('lease-state')).toHaveText('en cours')
   await expect(page.getByTestId('edit-lease')).toHaveCount(0)
   await page.getByTestId('action-notice').click()
-  await expect(page.getByTestId('confirm')).toBeDisabled()
-  await page.locator('#notice_end').fill('30/11/2029')
-  await page.locator('#notice_end').press('Tab')
-  await confirm(page)
+  await page.getByTestId('save-notice').click()
+  await expect(page.getByTestId('notice-dialog')).toBeHidden()
   await expect(page.getByTestId('lease-state')).toHaveText('congé donné')
   await page.getByTestId('action-end').click()
   await confirm(page)
@@ -157,7 +156,8 @@ test('flow 1: from a draft to an active lease, then to its close', async ({ page
   await expect(page.getByTestId('add-guarantee')).toHaveCount(0)
 
   const transitions = (await requests(page)).filter((r) => r.path.endsWith('/transitions')).map((r) => r.body?.action)
-  expect(transitions).toEqual(['activate', 'notice', 'end', 'close', 'close'])
+  expect(transitions).toEqual(['activate', 'end', 'close', 'close'])
+  expect((await requests(page)).filter((r) => r.path.endsWith('/notice') && r.method === 'POST').map((r) => r.body?.given_by)).toEqual(['tenant'])
   const settle = (await requests(page)).filter((r) => r.method === 'PUT' && r.path.startsWith('/guarantees/')).at(-1)
   expect(settle?.ifMatch).toBe('W/"1"')
   expect(settle?.body).toMatchObject({ kind: 'deposit', status: 'settled', amount_cents: 80000 })
