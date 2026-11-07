@@ -5925,6 +5925,256 @@
                 }
             }
         },
+        "/leases/{id}/notice": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The notice that ends the lease (RENT-SPEC-010): who gave it, its ground, when it was received and how, and the end it set. Not for an accountant.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "lease"
+                ],
+                "summary": "A lease's recorded notice",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "lease id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/lease.NoticeView"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The tenant's notice, with its reduced-notice ground if any, or the owner's on the letter generated for the lease, received on a date: tenure computes the end (Q-118) and the lease moves to notice. One notice per lease; dry_run only computes.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "lease"
+                ],
+                "summary": "Record a notice and put the lease under notice",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "lease id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "notice",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/lease.NoticeInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/lease.NoticeResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/leases/{id}/notice/letter": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "For an active unfurnished or furnished lease, on a legal ground (sale with its price, repossession with its beneficiary, legitimate ground), never to a protected tenant without a rehousing offer: the letter for the end of the next term it can still reach, with the last day the tenant must receive it. dry_run only computes the term.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "lease"
+                ],
+                "summary": "Prepare the owner's notice letter (CG)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "lease id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "ground",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/lease.NoticeLetterInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/lease.NoticeLetter"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
         "/leases/{id}/revision": {
             "post": {
                 "security": [
@@ -9429,6 +9679,7 @@
                 "other",
                 "surety",
                 "restitution",
+                "notice",
                 "cancellation"
             ],
             "x-enum-varnames": [
@@ -9445,6 +9696,7 @@
                 "ClassOther",
                 "ClassSurety",
                 "ClassRestitution",
+                "ClassNotice",
                 "ClassCancellation"
             ]
         },
@@ -9598,6 +9850,10 @@
                     "type": "string"
                 },
                 "lease_id": {
+                    "type": "string"
+                },
+                "number": {
+                    "description": "Number is a generated document's number (AL-…, EE-…, RD-…), read from\nits archive key; empty for an upload.",
                     "type": "string"
                 },
                 "original_name": {
@@ -11640,6 +11896,20 @@
                 }
             }
         },
+        "lease.Beneficiary": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "relationship": {
+                    "type": "string"
+                }
+            }
+        },
         "lease.Blocker": {
             "type": "object",
             "properties": {
@@ -11721,7 +11991,8 @@
                         "contract",
                         "amendment",
                         "deposit_receipt",
-                        "surety_act"
+                        "surety_act",
+                        "owner_notice"
                     ]
                 },
                 "lease_id": {
@@ -12106,6 +12377,220 @@
                 "ReasonJobTransfer",
                 "ReasonTemporaryAssignment"
             ]
+        },
+        "lease.NoticeGround": {
+            "type": "object",
+            "properties": {
+                "beneficiary": {
+                    "description": "Beneficiary is the person who takes the home back.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/lease.Beneficiary"
+                        }
+                    ]
+                },
+                "conditions": {
+                    "type": "string"
+                },
+                "grounds": {
+                    "description": "Grounds states the legitimate and serious ground.",
+                    "type": "string"
+                },
+                "price_cents": {
+                    "description": "PriceCents and Conditions are the offer of a sale, which is worth an\noffer to the tenant.",
+                    "type": "integer"
+                },
+                "protected_tenant": {
+                    "description": "Protected is the owner's answer about a protected tenant.",
+                    "type": "string"
+                },
+                "reason": {
+                    "description": "Reason is a reduced-notice ground of the tenant (empty for the\nstandard period), or the owner's ground: sale, repossession, legitimate.",
+                    "type": "string"
+                }
+            }
+        },
+        "lease.NoticeInput": {
+            "type": "object",
+            "properties": {
+                "delivery": {
+                    "type": "string",
+                    "enum": [
+                        "registered_letter",
+                        "bailiff",
+                        "hand_delivery"
+                    ]
+                },
+                "document_id": {
+                    "description": "DocumentID is the owner's letter, or the tenant's letter uploaded.",
+                    "type": "string"
+                },
+                "dry_run": {
+                    "type": "boolean"
+                },
+                "given_by": {
+                    "type": "string",
+                    "enum": [
+                        "tenant",
+                        "owner"
+                    ]
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "received_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "sent_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "tracking_ref": {
+                    "description": "TrackingRef is the registered letter's or the bailiff's reference.",
+                    "type": "string"
+                }
+            }
+        },
+        "lease.NoticeLetter": {
+            "type": "object",
+            "properties": {
+                "letter": {
+                    "$ref": "#/definitions/lease.DocumentView"
+                },
+                "terms": {
+                    "$ref": "#/definitions/lease.NoticeTerms"
+                }
+            }
+        },
+        "lease.NoticeLetterInput": {
+            "type": "object",
+            "properties": {
+                "beneficiary": {
+                    "description": "Beneficiary is the person who takes the home back.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/lease.Beneficiary"
+                        }
+                    ]
+                },
+                "conditions": {
+                    "type": "string"
+                },
+                "dry_run": {
+                    "type": "boolean"
+                },
+                "grounds": {
+                    "description": "Grounds states the legitimate and serious ground.",
+                    "type": "string"
+                },
+                "price_cents": {
+                    "description": "PriceCents and Conditions are the offer of a sale, which is worth an\noffer to the tenant.",
+                    "type": "integer"
+                },
+                "protected_tenant": {
+                    "description": "Protected is the owner's answer about a protected tenant.",
+                    "type": "string"
+                },
+                "reason": {
+                    "description": "Reason is a reduced-notice ground of the tenant (empty for the\nstandard period), or the owner's ground: sale, repossession, legitimate.",
+                    "type": "string"
+                }
+            }
+        },
+        "lease.NoticeResult": {
+            "type": "object",
+            "properties": {
+                "lease": {
+                    "$ref": "#/definitions/lease.View"
+                },
+                "notice": {
+                    "$ref": "#/definitions/lease.NoticeView"
+                },
+                "terms": {
+                    "$ref": "#/definitions/lease.NoticeTerms"
+                }
+            }
+        },
+        "lease.NoticeTerms": {
+            "type": "object",
+            "properties": {
+                "end_on": {
+                    "description": "EndOn is the last day of the lease.",
+                    "type": "string",
+                    "format": "date"
+                },
+                "latest_receipt_on": {
+                    "description": "LatestReceiptOn is, for the owner, the last day the tenant may receive\nthe notice for EndOn.",
+                    "type": "string",
+                    "format": "date"
+                },
+                "months": {
+                    "description": "Months is the notice period applied.",
+                    "type": "integer"
+                },
+                "reduced": {
+                    "description": "Reduced says a tenant's notice is the reduced one.",
+                    "type": "boolean"
+                },
+                "warnings": {
+                    "description": "Warnings are what the owner should check (a zone tendue ground on an\nasset not flagged so).",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "lease.NoticeView": {
+            "type": "object",
+            "properties": {
+                "delivery": {
+                    "type": "string",
+                    "enum": [
+                        "registered_letter",
+                        "bailiff",
+                        "hand_delivery"
+                    ]
+                },
+                "document_id": {
+                    "type": "string"
+                },
+                "end_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "given_by": {
+                    "type": "string",
+                    "enum": [
+                        "tenant",
+                        "owner"
+                    ]
+                },
+                "ground": {
+                    "$ref": "#/definitions/lease.NoticeGround"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "lease_id": {
+                    "type": "string"
+                },
+                "months": {
+                    "type": "integer"
+                },
+                "received_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "sent_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "tracking_ref": {
+                    "type": "string"
+                }
+            }
         },
         "lease.RentExemption": {
             "type": "string",
