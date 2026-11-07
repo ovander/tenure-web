@@ -9138,6 +9138,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/version": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The running tenure's build
+         * @description The API's version, commit, build time, whether it is a release build, the Go toolchain, the platform, backendkit and the last embedded migration; the tenure-web release pinned in the binary. Any signed-in user; /healthz keeps only the version for monitoring.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["version.View"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/vetuste-grids": {
         parameters: {
             query?: never;
@@ -10987,6 +11035,50 @@ export interface components {
             summary?: components["schemas"]["tax.Summary"];
             tax_year?: number;
             version?: number;
+        };
+        "version.API": {
+            /** @example v1.9.0 */
+            backendkit?: string;
+            build_time?: string;
+            /**
+             * @description Commit and BuildTime come from the stamp, or from Go's VCS stamp of an
+             *     unstamped build; empty when neither is known (go run).
+             */
+            commit?: string;
+            /** @example go1.27.3 */
+            go_version?: string;
+            /**
+             * @description Modified says an unstamped build was made from a tree with local
+             *     changes.
+             */
+            modified?: boolean;
+            /** @example linux/amd64 */
+            platform?: string;
+            /**
+             * @description Schema is the last migration embedded in the binary (applied by
+             *     tenure migrate up).
+             * @example 000016
+             */
+            schema?: string;
+            /** @description Stamped says the binary was built by scripts/build.sh (a release). */
+            stamped?: boolean;
+            /**
+             * @description Version is the release tag stamped by scripts/build.sh, or "dev".
+             * @example v0.1.20
+             */
+            version?: string;
+        };
+        "version.View": {
+            api?: components["schemas"]["version.API"];
+            web?: components["schemas"]["version.Web"];
+        };
+        "version.Web": {
+            /**
+             * @description Release is the tag pinned in web/VERSION, empty when none is.
+             * @example v0.20.0
+             */
+            release?: string;
+            sha256?: string;
         };
     };
     responses: never;

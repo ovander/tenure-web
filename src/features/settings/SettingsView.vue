@@ -13,6 +13,7 @@ const tabs = computed(() =>
       { to: '/settings/templates', key: 'settings.templates', show: true },
       { to: '/settings/params', key: 'settings.params', show: true },
       { to: '/settings/grants', key: 'settings.grants', show: s.canWrite },
+      { to: '/settings/about', key: 'settings.about', show: true },
     ] as { to: string; key: Key; show: boolean }[]
   ).filter((x) => x.show),
 )
