@@ -12,7 +12,7 @@ export type DataExport = Schemas['portfolio.DataExport']
 
 export const classes: DocClass[] = [
   'rent_call', 'receipt', 'cancellation', 'revision_notice', 'regularisation', 'tax_summary',
-  'contract', 'amendment', 'deposit', 'surety', 'inventory', 'supporting', 'other',
+  'contract', 'amendment', 'deposit', 'surety', 'inventory', 'restitution', 'supporting', 'other',
 ]
 
 export interface DocQuery { asset_id?: string; year?: number; class?: string; number?: string; page?: number; size?: number }

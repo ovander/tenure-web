@@ -30,6 +30,23 @@ async function mock(page: Page, state: Record<string, unknown> = {}): Promise<vo
 }
 const fresh = (page: Page) => page.request.post('/__mock/state', { data: { stepUpFresh: true } })
 
+test('S13 shows each document number and lists the restitution statements', async ({ page }) => {
+  await mock(page)
+  await page.request.post('/__mock/state', { data: { archive: [
+    { id: 'f1', class: 'inventory', number: 'EE-00000001-2026-0001', asset_id: 'a1', lease_id: 'l1', issued_at: '2026-01-02T10:00:00Z', source: 'generated', template_version: 'inventory/v3', sha256: 'a'.repeat(64) },
+    { id: 'f2', class: 'inventory', asset_id: 'a1', lease_id: 'l1', issued_at: '2026-01-02T10:00:00Z', source: 'upload', original_name: 'edl-signé.pdf', sha256: 'b'.repeat(64) },
+    { id: 'f3', class: 'restitution', number: 'RD-00000001-2026-0001', asset_id: 'a1', lease_id: 'l1', issued_at: '2026-11-07T10:00:00Z', source: 'generated', template_version: 'restitution/v1', sha256: 'c'.repeat(64) },
+  ] } })
+  await page.goto('/documents')
+  await expect(page.getByTestId('doc-class')).toHaveText(['État des lieux', 'État des lieux', 'Restitution du dépôt de garantie'])
+  // A numbered document shows its number; an upload has none.
+  await expect(page.getByTestId('doc-number')).toHaveText(['EE-00000001-2026-0001', 'RD-00000001-2026-0001'])
+  await page.locator('#d_class').click()
+  await page.getByRole('option', { name: 'Restitution du dépôt de garantie' }).click()
+  await expect(page).toHaveURL(/class=restitution/)
+  await expect(page.getByTestId('doc-number')).toHaveText(['RD-00000001-2026-0001'])
+})
+
 test('S13: filter and search the archive, download, export a year after step-up, cancel and reissue a rent call', async ({ page }) => {
   await mock(page)
   const violations = await watchCSP(page)
