@@ -108,6 +108,9 @@ async function api(req, res, path) {
   if (!unsafe && state.delay?.[path]) await new Promise((r) => setTimeout(r, state.delay[path]))
   if (unsafe && entry.csrf !== state.csrf) return json(res, 403, { type: 'bff/csrf', status: 403, title: 'Jeton CSRF invalide.' })
   if (path === '/me' && req.method === 'GET') return json(res, 200, me())
+  // GET /api/v1/version (tenure-api #113); state.version overrides it.
+  if (path === '/version' && req.method === 'GET') return json(res, 200, state.version ?? { api: { version: 'v0.1.21', commit: '0123456789abcdef', build_time: '2026-11-07T01:00:00Z',
+    stamped: true, go_version: 'go1.27.3', platform: 'linux/amd64', backendkit: 'v1.27.0', schema: '000016' }, web: { release: 'v0.21.0', sha256: 'a'.repeat(64) } })
   if (path === '/me' && req.method === 'PUT') {
     const v = state.owner?.version
     if (state.owner && entry.ifMatch !== `W/"${v}"`) return json(res, 412, { type: 'http/stale', status: 412, title: 'Version périmée.' })
