@@ -31,7 +31,7 @@ import { t, type Key } from '@/i18n'
 import { date } from '@/i18n/format'
 import { categories, type Category } from './layout'
 import {
-  PhotoQueue, addItem, blocking, conditions, getCapture, hasWorks, headerEditable, itemsEditable, keyKinds, meterKinds,
+  PhotoQueue, addItem, blocking, conditions, fresher, getCapture, hasWorks, headerEditable, itemsEditable, keyKinds, meterKinds,
   photoLink, progress, resize, saveHeader, saveItem, saveKeys, saveMeters, transition, uploadPhoto, worksValues,
   type Action, type Capture, type Item, type KeyLine, type MeterInput,
 } from './capture'
@@ -194,7 +194,7 @@ async function refreshChecks(): Promise<void> {
   if (!inv.value?.id) return
   try {
     const fresh = await getCapture(inv.value.id)
-    if (inv.value) {
+    if (inv.value && fresher(inv.value, fresh)) {
       inv.value.checks = fresh.checks
       inv.value.version = fresh.version
     }

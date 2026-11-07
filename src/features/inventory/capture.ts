@@ -80,6 +80,13 @@ export function progress(room: Pick<CaptureRoom, 'items'>): { done: number; tota
 }
 
 // blocking lists the checks of a stage that block it.
+// fresher says a capture read back from the server may replace what the
+// screen holds: not when a save answered with a newer version meanwhile (a
+// checks refresh that started before the save committed). Versions only grow.
+export function fresher(held: Pick<Capture, 'version'>, read: Pick<Capture, 'version'>): boolean {
+  return (read.version ?? 0) >= (held.version ?? 0)
+}
+
 export function blocking(c: Pick<Capture, 'checks'>, stage: 'complete' | 'issue'): Check[] {
   return (c.checks?.blocking ?? []).filter((x) => stage === 'issue' || x.stage === stage)
 }
