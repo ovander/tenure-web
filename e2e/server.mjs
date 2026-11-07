@@ -108,6 +108,16 @@ async function api(req, res, path) {
   if (!unsafe && state.delay?.[path]) await new Promise((r) => setTimeout(r, state.delay[path]))
   if (unsafe && entry.csrf !== state.csrf) return json(res, 403, { type: 'bff/csrf', status: 403, title: 'Jeton CSRF invalide.' })
   if (path === '/me' && req.method === 'GET') return json(res, 200, me())
+  // GET /api/v1/calendar (tenure-api Q-116): state.calendar's items, filtered
+  // by asset; absent, the route is not there and the home falls back to the
+  // leases' own dates.
+  if (path === '/calendar' && req.method === 'GET') {
+    if (!state.calendar) return json(res, 404, { type: 'http/not-found', status: 404, title: 'Ressource introuvable.' })
+    if (state.role === 'accountant') return json(res, 403, { type: 'auth/forbidden', status: 403, title: 'Accès refusé.' })
+    const q = new URL(req.url, 'http://x').searchParams
+    const items = state.calendar.filter((x) => !q.get('asset_id') || x.asset_id === q.get('asset_id'))
+    return json(res, 200, { from: q.get('from') ?? '', to: q.get('to') ?? '', items })
+  }
   if (path === '/me' && req.method === 'PUT') {
     const v = state.owner?.version
     if (state.owner && entry.ifMatch !== `W/"${v}"`) return json(res, 412, { type: 'http/stale', status: 412, title: 'Version périmée.' })

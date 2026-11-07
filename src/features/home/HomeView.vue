@@ -20,6 +20,8 @@ import { useLeases, tenantName, blockerSubject, type Blocker, type Blockers, typ
 import { useAssets, assetLabel } from '@/features/portfolio/store'
 import { useBilling, type Arrears, type BillingDoc, type Payment } from '@/features/billing/store'
 import { nextDates, todos, type NextDate, type Todo } from './todos'
+import CalendarList from '@/features/calendar/CalendarList.vue'
+import { getCalendar, type CalendarItem } from '@/features/calendar/calendar'
 
 const s = useSession()
 const leases = useLeases()
@@ -28,6 +30,10 @@ const billing = useBilling()
 const runs = ref<JobRun[] | null>(null)
 const items = ref<Todo[] | null>(null)
 const next = ref<NextDate[]>([])
+// The API's calendar (Q-W32); the leases' own dates when it cannot be read
+// (an accountant, Q-116).
+const cal = ref<CalendarItem[] | null>(null)
+const leaseById = ref<Record<string, Lease>>({})
 const failed = ref(false)
 const period = currentPeriod()
 
@@ -69,6 +75,8 @@ async function loadTodos(): Promise<void> {
   ])
   items.value = todos({ leases: all, blockers, arrears, unmatched, billed, period, label, named, money, month: monthLabel })
   next.value = nextDates(all, parisToday())
+  leaseById.value = Object.fromEntries(all.map((l) => [l.id ?? '', l]))
+  cal.value = await getCalendar().then((v) => v.items ?? []).catch(() => null)
 }
 
 onMounted(async () => {
@@ -86,6 +94,12 @@ onMounted(async () => {
   ])
 })
 
+function subject(it: CalendarItem): string {
+  const l = it.lease_id ? leaseById.value[it.lease_id] : undefined
+  if (l) return label(l)
+  const a = it.asset_id ? assets.byId[it.asset_id] : undefined
+  return a ? assetLabel(a) : ''
+}
 const nextText = (d: NextDate) => t(`next.${d.kind}` as Key, { month: monthLabel(d.on.slice(0, 7)) })
 const hasItems = computed(() => (items.value ?? []).length > 0)
 </script>
@@ -123,8 +137,12 @@ const hasItems = computed(() => (items.value ?? []).length > 0)
       </div>
 
       <div>
-        <h2 class="mb-2 font-medium">{{ t('home.next') }}</h2>
-        <ul v-if="next.length" class="divide-y divide-slate-200 rounded-md border border-slate-200 bg-white text-sm" data-test="next">
+        <h2 class="mb-2 font-medium">{{ t(cal ? 'home.calendar' : 'home.next') }}</h2>
+        <template v-if="cal">
+          <CalendarList v-if="cal.length" :items="cal" :subject="subject" />
+          <p v-else class="text-sm text-slate-500" data-test="calendar-none">{{ t('home.calendar.none') }}</p>
+        </template>
+        <ul v-else-if="next.length" class="divide-y divide-slate-200 rounded-md border border-slate-200 bg-white text-sm" data-test="next">
           <li v-for="d in next" :key="`${d.kind}-${d.lease.id}`" class="flex flex-wrap items-center gap-x-4 px-4 py-2" data-test="next-date">
             <span class="w-24 font-mono">{{ date(d.on) }}</span>
             <span class="w-64">{{ nextText(d) }}</span>

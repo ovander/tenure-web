@@ -1122,5 +1122,20 @@
   "deposit.done": "The deposit is settled.",
   "help.deposit": "The deposit is paid back within one month of the keys without deduction, two months with; each deduction is backed by a quote or invoice (law of 6 July 1989, art. 22). Past the deadline, 10 % of the rent per started month is owed, unless the tenant gave no new address.",
   "help.deposit.grid": "A wear grid, from a collective agreement or agreed by the parties, sets per category the lifetime, franchise, yearly reduction and residual value: the tenant's share allows for normal wear.",
-  "help.deposit.approved": "In a building under a syndic, a share can be held back until the annual accounts are approved; its balance is due within the following month."
+  "help.deposit.approved": "In a building under a syndic, a share can be held back until the annual accounts are approved; its balance is due within the following month.",
+  "tab.deadlines": "Deadlines",
+  "home.calendar": "Deadlines in the next 90 days",
+  "home.calendar.none": "No deadline in the next 90 days.",
+  "calendar.overdue": "Overdue",
+  "calendar.none": "No deadline in the coming year.",
+  "calendar.denied": "The calendar is not available with this role.",
+  "calendar.assetHint": "The deadlines of the coming year, computed by Tenure from the diagnostics, leases, inventories and deposit. A past deadline still to deal with is flagged overdue.",
+  "calendar.kind.diagnostic_expiry": "End of validity of the {what} diagnostic",
+  "calendar.kind.irl_revision": "IRL revision possible",
+  "calendar.kind.notice_end": "End of the notice",
+  "calendar.kind.term_end": "End of the lease term",
+  "calendar.kind.insurance_certificate": "Ask for the home insurance certificate",
+  "calendar.kind.completion_ten_day": "End of the window to complete the entry inventory",
+  "calendar.kind.completion_heating": "End of the window to complete the heating",
+  "calendar.kind.deposit_deadline": "Deposit to be returned by"
 }
