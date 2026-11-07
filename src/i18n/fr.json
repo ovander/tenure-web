@@ -793,6 +793,7 @@
   "docs.class.deposit": "Dépôt de garantie",
   "docs.class.surety": "Cautionnement",
   "docs.class.inventory": "État des lieux",
+  "docs.class.restitution": "Restitution du dépôt de garantie",
   "docs.class.supporting": "Justificatif",
   "docs.class.other": "Autre",
   "tab.activity": "Activité",

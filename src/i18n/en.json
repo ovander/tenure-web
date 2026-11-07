@@ -793,6 +793,7 @@
   "docs.class.deposit": "Deposit",
   "docs.class.surety": "Surety",
   "docs.class.inventory": "Inventory",
+  "docs.class.restitution": "Deposit return",
   "docs.class.supporting": "Supporting document",
   "docs.class.other": "Other",
   "tab.activity": "Activity",

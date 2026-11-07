@@ -200,6 +200,7 @@ async function cancel(): Promise<void> {
       <Column v-if="!embedded" :header="t('charges.asset')"><template #body="{ data }">{{ assetName(data.asset_id) }}</template></Column>
       <Column :header="t('docs.name')">
         <template #body="{ data }">
+          <span v-if="data.number" class="mr-2 font-mono" data-test="doc-number">{{ data.number }}</span>
           <span data-test="doc-name">{{ data.original_name || t('docs.generated', { version: data.template_version ?? '' }) }}</span>
           <span :title="`${t('doc.hash')} : ${data.sha256}`" class="ml-2 cursor-help text-xs text-slate-400 underline decoration-dotted">SHA-256</span>
         </template>
