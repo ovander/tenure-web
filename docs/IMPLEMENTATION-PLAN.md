@@ -26,6 +26,7 @@ each release is pinned in tenure-api `web/VERSION`.
 | 15 | Deposit restitution (RENT-INV-001 slice 9, Q-W30) | `/vetuste-grids`, `/leases/{id}/vetuste-grid`, `/leases/{id}/deposit`, `/leases/{id}/deposit-deductions`, `/deposit-deductions/{id}`, `/leases/{id}/deposit-settlement` (tenure-api Q-115) | Grid recorded and annexed; a deduction on the worse item with its quote, the share from the grid; a key deduction removed; the first RD with the holdback; the release net of the regularisation; co-owner reads; accountant refused |
 | 16 | Build information, Settings › À propos (Q-W31) | `/version` (tenure-api #113) | Web and API builds shown under the CSP; a release vs unstamped API; a bundle the API does not pin flagged; the API unavailable said; copied as text |
 | 17 | Obligations calendar, computed base (RENT-SPEC-012, RENT-INV-001 slice 10, Q-W32) | `/calendar` (tenure-api Q-116) | The home's next 90 days from the API, an overdue item flagged, each linking to where it is dealt with; an asset's coming year on its tab; the accountant falls back to the leases' dates |
+| 18 | Lease notice on S05, the tenant's and the owner's (RENT-SPEC-010 part 12b, Q-W33) | `/leases/{id}/notice`, `/leases/{id}/notice/letter` (tenure-api Q-118) | The tenant's end computed before saving, the letter uploaded; the owner's ground checked, the term previewed, the CG letter, then its reception; a box keeps the typed end date; the overview shows the notice |
 
 Rules that hold in every slice:
 - Amounts are integers (cents) and are converted by string, never through a float.

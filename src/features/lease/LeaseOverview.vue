@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // The hub's overview: assets, tenants, terms and the IRL revision, which an
 // owner can compute and apply from here (RevisionDialog, Q-W23).
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import Button from 'primevue/button'
 import { useToast } from 'primevue/usetoast'
@@ -13,6 +13,7 @@ import type { RevisionView } from '@/features/billing/store'
 import { useAssets, assetLabel } from '@/features/portfolio/store'
 import { t, type Key } from '@/i18n'
 import { date, hundredths, money } from '@/i18n/format'
+import { getNotice, type Notice } from './notice'
 
 const props = defineProps<{ lease: Lease }>()
 const emit = defineEmits<{ changed: [] }>()
@@ -32,6 +33,14 @@ function revised(v: RevisionView): void {
   toast.add({ severity: 'success', summary: n ? t('revision.done', { number: n }) : t('revision.doneNoNotice'), life: 5000 })
   emit('changed')
 }
+// The recorded notice, for a lease under notice or after; not for an
+// accountant (it may name a repossession's beneficiary).
+const notice = ref<Notice | null>(null)
+watch(() => [l.value.id, l.value.state], async () => {
+  notice.value = null
+  if (s.role === 'accountant' || !l.value.id || !['notice', 'ended', 'closed'].includes(l.value.state ?? '')) return
+  notice.value = await getNotice(l.value.id).catch(() => null)
+}, { immediate: true })
 const monthly = computed(() => (l.value.rent_cents ?? 0) + (l.value.provision_cents ?? 0))
 </script>
 
@@ -79,6 +88,19 @@ const monthly = computed(() => (l.value.rent_cents ?? 0) + (l.value.provision_ce
         <template v-if="l.mobility_reason"><dt class="text-slate-500">{{ t('lease.mobilityReason') }}</dt><dd>{{ t(`mobility.${l.mobility_reason}` as Key) }}</dd></template>
       </dl>
       <RevisionDialog v-if="revising" v-model:visible="revising" :lease="l" @applied="revised" />
+    </section>
+    <section v-if="notice" class="rounded-md border border-orange-200 bg-white p-5 lg:col-span-2" data-test="notice-card">
+      <h2 class="mb-3 font-medium">{{ t('notice.recorded') }}</h2>
+      <dl class="grid grid-cols-[12rem_1fr] gap-x-4 gap-y-2 text-sm">
+        <dt class="text-slate-500">{{ t('notice.givenBy') }}</dt><dd data-test="notice-given-by">{{ t(`notice.by.${notice.given_by}` as Key) }}</dd>
+        <template v-if="notice.ground?.reason">
+          <dt class="text-slate-500">{{ t('notice.reasonLabel') }}</dt>
+          <dd data-test="notice-ground">{{ t((notice.given_by === 'owner' ? `notice.owner.${notice.ground.reason}` : `notice.reason.${notice.ground.reason}`) as Key) }}</dd>
+        </template>
+        <dt class="text-slate-500">{{ t('notice.receivedOn') }}</dt><dd>{{ date(notice.received_on) }} · {{ t(`notice.delivery.${notice.delivery}` as Key) }}<template v-if="notice.tracking_ref"> · {{ notice.tracking_ref }}</template></dd>
+        <dt class="text-slate-500">{{ t('notice.period') }}</dt><dd>{{ t('notice.months', { months: notice.months ?? 0 }) }}</dd>
+        <dt class="text-slate-500">{{ t('lease.endOn') }}</dt><dd class="font-semibold" data-test="notice-end">{{ date(notice.end_on) }}</dd>
+      </dl>
     </section>
   </div>
 </template>

@@ -6733,6 +6733,297 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/leases/{id}/notice": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * A lease's recorded notice
+         * @description The notice that ends the lease (RENT-SPEC-010): who gave it, its ground, when it was received and how, and the end it set. Not for an accountant.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description lease id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["lease.NoticeView"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Record a notice and put the lease under notice
+         * @description The tenant's notice, with its reduced-notice ground if any, or the owner's on the letter generated for the lease, received on a date: tenure computes the end (Q-118) and the lease moves to notice. One notice per lease; dry_run only computes.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description lease id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description notice */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["lease.NoticeInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["lease.NoticeResult"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/leases/{id}/notice/letter": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Prepare the owner's notice letter (CG)
+         * @description For an active unfurnished or furnished lease, on a legal ground (sale with its price, repossession with its beneficiary, legitimate ground), never to a protected tenant without a rehousing offer: the letter for the end of the next term it can still reach, with the last day the tenant must receive it. dry_run only computes the term.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description lease id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description ground */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["lease.NoticeLetterInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["lease.NoticeLetter"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/leases/{id}/revision": {
         parameters: {
             query?: never;
@@ -9905,7 +10196,7 @@ export interface components {
             version?: number;
         };
         /** @enum {string} */
-        "document.Class": "rent_call" | "receipt" | "regularisation" | "revision_notice" | "contract" | "amendment" | "deposit" | "tax_summary" | "inventory" | "supporting" | "other" | "surety" | "restitution" | "cancellation";
+        "document.Class": "rent_call" | "receipt" | "regularisation" | "revision_notice" | "contract" | "amendment" | "deposit" | "tax_summary" | "inventory" | "supporting" | "other" | "surety" | "restitution" | "notice" | "cancellation";
         "document.ExportInput": {
             asset_id?: string;
             year?: number;
@@ -9965,6 +10256,11 @@ export interface components {
             id?: string;
             issued_at?: string;
             lease_id?: string;
+            /**
+             * @description Number is a generated document's number (AL-…, EE-…, RD-…), read from
+             *     its archive key; empty for an upload.
+             */
+            number?: string;
             original_name?: string;
             period?: string;
             /**
@@ -10573,6 +10869,11 @@ export interface components {
             amendment?: components["schemas"]["lease.DocumentView"];
             lease?: components["schemas"]["lease.View"];
         };
+        "lease.Beneficiary": {
+            address?: string;
+            name?: string;
+            relationship?: string;
+        };
         "lease.Blocker": {
             /**
              * Format: uuid
@@ -10606,7 +10907,7 @@ export interface components {
             id?: string;
             issued_at?: string;
             /** @enum {string} */
-            kind?: "contract" | "amendment" | "deposit_receipt" | "surety_act";
+            kind?: "contract" | "amendment" | "deposit_receipt" | "surety_act" | "owner_notice";
             lease_id?: string;
             lease_version?: number;
             /** @example CT-0190A1B2-2026-0001 */
@@ -10723,6 +11024,110 @@ export interface components {
         "lease.Kind": "unfurnished" | "furnished" | "mobility" | "box";
         /** @enum {string} */
         "lease.MobilityReason": "vocational_training" | "higher_education" | "apprenticeship" | "internship" | "civic_service" | "job_transfer" | "temporary_assignment";
+        "lease.NoticeGround": {
+            /** @description Beneficiary is the person who takes the home back. */
+            beneficiary?: components["schemas"]["lease.Beneficiary"];
+            conditions?: string;
+            /** @description Grounds states the legitimate and serious ground. */
+            grounds?: string;
+            /**
+             * @description PriceCents and Conditions are the offer of a sale, which is worth an
+             *     offer to the tenant.
+             */
+            price_cents?: number;
+            /** @description Protected is the owner's answer about a protected tenant. */
+            protected_tenant?: string;
+            /**
+             * @description Reason is a reduced-notice ground of the tenant (empty for the
+             *     standard period), or the owner's ground: sale, repossession, legitimate.
+             */
+            reason?: string;
+        };
+        "lease.NoticeInput": {
+            /** @enum {string} */
+            delivery?: "registered_letter" | "bailiff" | "hand_delivery";
+            /** @description DocumentID is the owner's letter, or the tenant's letter uploaded. */
+            document_id?: string;
+            dry_run?: boolean;
+            /** @enum {string} */
+            given_by?: "tenant" | "owner";
+            reason?: string;
+            /** Format: date */
+            received_on?: string;
+            /** Format: date */
+            sent_on?: string;
+            /** @description TrackingRef is the registered letter's or the bailiff's reference. */
+            tracking_ref?: string;
+        };
+        "lease.NoticeLetter": {
+            letter?: components["schemas"]["lease.DocumentView"];
+            terms?: components["schemas"]["lease.NoticeTerms"];
+        };
+        "lease.NoticeLetterInput": {
+            /** @description Beneficiary is the person who takes the home back. */
+            beneficiary?: components["schemas"]["lease.Beneficiary"];
+            conditions?: string;
+            dry_run?: boolean;
+            /** @description Grounds states the legitimate and serious ground. */
+            grounds?: string;
+            /**
+             * @description PriceCents and Conditions are the offer of a sale, which is worth an
+             *     offer to the tenant.
+             */
+            price_cents?: number;
+            /** @description Protected is the owner's answer about a protected tenant. */
+            protected_tenant?: string;
+            /**
+             * @description Reason is a reduced-notice ground of the tenant (empty for the
+             *     standard period), or the owner's ground: sale, repossession, legitimate.
+             */
+            reason?: string;
+        };
+        "lease.NoticeResult": {
+            lease?: components["schemas"]["lease.View"];
+            notice?: components["schemas"]["lease.NoticeView"];
+            terms?: components["schemas"]["lease.NoticeTerms"];
+        };
+        "lease.NoticeTerms": {
+            /**
+             * Format: date
+             * @description EndOn is the last day of the lease.
+             */
+            end_on?: string;
+            /**
+             * Format: date
+             * @description LatestReceiptOn is, for the owner, the last day the tenant may receive
+             *     the notice for EndOn.
+             */
+            latest_receipt_on?: string;
+            /** @description Months is the notice period applied. */
+            months?: number;
+            /** @description Reduced says a tenant's notice is the reduced one. */
+            reduced?: boolean;
+            /**
+             * @description Warnings are what the owner should check (a zone tendue ground on an
+             *     asset not flagged so).
+             */
+            warnings?: string[];
+        };
+        "lease.NoticeView": {
+            /** @enum {string} */
+            delivery?: "registered_letter" | "bailiff" | "hand_delivery";
+            document_id?: string;
+            /** Format: date */
+            end_on?: string;
+            /** @enum {string} */
+            given_by?: "tenant" | "owner";
+            ground?: components["schemas"]["lease.NoticeGround"];
+            id?: string;
+            lease_id?: string;
+            months?: number;
+            /** Format: date */
+            received_on?: string;
+            /** Format: date */
+            sent_on?: string;
+            tracking_ref?: string;
+        };
         /** @enum {string} */
         "lease.RentExemption": "" | "works" | "under_valued";
         "lease.RentPart": {

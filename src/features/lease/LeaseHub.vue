@@ -14,6 +14,7 @@ import { useLeases, nextActions, tenantName, blockerSubject, type Action, type B
 import { useAssets, assetLabel } from '@/features/portfolio/store'
 import { useSession } from '@/stores/session'
 import { t, type Key } from '@/i18n'
+import { date } from '@/i18n/format'
 import LeaseStateTag from '@/components/LeaseStateTag.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import DayInput from '@/components/DayInput.vue'
@@ -25,6 +26,8 @@ import LeaseGuarantees from './LeaseGuarantees.vue'
 import LeaseBilling from '@/features/billing/LeaseBilling.vue'
 import LeaseInventories from './LeaseInventories.vue'
 import LeaseDeposit from './LeaseDeposit.vue'
+import NoticeDialog from './NoticeDialog.vue'
+import { computedNotice, type NoticeResult } from './notice'
 import ActivityList from '@/features/common/ActivityList.vue'
 
 const route = useRoute()
@@ -95,10 +98,21 @@ async function run(): Promise<void> {
     busy.value = false
   }
 }
+// A computed notice (every kind under loi 89-462) opens its own dialog; a
+// box keeps the end date typed by hand.
+const noticing = ref(false)
 function ask(a: Action | 'generate'): void {
   error.value = ''
   endOn.value = null
+  if (a === 'notice' && computedNotice(lease.value?.kind)) {
+    noticing.value = true
+    return
+  }
   confirming.value = a
+}
+async function noticed(r: NoticeResult): Promise<void> {
+  toast.add({ severity: 'success', summary: t('notice.saved', { end: r.notice?.end_on ? date(r.notice.end_on) : '' }), life: 5000 })
+  await load()
 }
 const confirmVisible = computed({ get: () => confirming.value !== null, set: (v: boolean) => (confirming.value = v ? confirming.value : null) })
 const confirmLabel = computed(() => (confirming.value === 'generate' ? t('action.generate') : confirming.value ? t(`action.${confirming.value}` as Key) : ''))
@@ -193,6 +207,7 @@ const confirmBody = computed(() => (confirming.value ? t(`confirm.${confirming.v
       <ActivityList v-else-if="tab === 'activity'" entity-type="lease" :entity-id="lease.id ?? ''" />
       <ComingSoonPanel v-else />
 
+      <NoticeDialog v-if="lease && noticing" v-model:visible="noticing" :lease="lease" @saved="noticed" />
       <ConfirmDialog v-model:visible="confirmVisible" :title="confirmLabel" :body="confirmBody" :confirm="confirmLabel" :busy="busy" :disabled="confirming === 'notice' && !endOn" @confirm="run">
         <FormField v-if="confirming === 'notice'" id="notice_end" :help="t('help.lease.noticeEnd')" :label="t('lease.endOn')">
           <DayInput id="notice_end" v-model="endOn" />
