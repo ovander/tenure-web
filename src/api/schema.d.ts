@@ -1473,6 +1473,91 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/calendar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The obligations calendar
+         * @description Every dated obligation Tenure derives from what it holds (RENT-SPEC-012, computed base): diagnostics' end of validity, IRL revisions, ends of notice and of term, the yearly home insurance certificate, the entry inventory's completion windows, the deposit restitution deadline. From from to to (today and the next 90 days by default, three years at most), always with the overdue ones; for one asset with asset_id. Not for an accountant.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description one asset */
+                    asset_id?: string;
+                    /** @description first day, YYYY-MM-DD */
+                    from?: string;
+                    /** @description last day, YYYY-MM-DD */
+                    to?: string;
+                };
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["calendar.View"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/charges": {
         parameters: {
             query?: never;
@@ -9580,6 +9665,28 @@ export interface components {
             dry_run?: boolean;
             fees?: components["schemas"]["billing.Fee"][];
             run?: components["schemas"]["jobs.Run"];
+        };
+        "calendar.Item": {
+            asset_id?: string;
+            /** @enum {string} */
+            kind?: "diagnostic_expiry" | "irl_revision" | "notice_end" | "term_end" | "insurance_certificate" | "completion_window" | "deposit_deadline";
+            lease_id?: string;
+            /** Format: date */
+            on?: string;
+            /**
+             * @description Ref is what the item is about within its kind: the diagnostic kind,
+             *     or the completion window (ten_day, heating).
+             */
+            ref?: string;
+            /** @enum {string} */
+            status?: "upcoming" | "overdue";
+        };
+        "calendar.View": {
+            /** Format: date */
+            from?: string;
+            items?: components["schemas"]["calendar.Item"][];
+            /** Format: date */
+            to?: string;
         };
         /** @enum {string} */
         "charge.Action": "allocate" | "issue" | "settle" | "cancel";
