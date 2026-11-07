@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { PhotoQueue, blocking, changed, conditions, fitSize, hasWorks, headerEditable, itemsEditable, progress, type Photo } from './capture'
+import { PhotoQueue, blocking, changed, conditions, fitSize, fresher, hasWorks, headerEditable, itemsEditable, progress, type Photo } from './capture'
 
 describe('capture', () => {
   it('counts every comparison result but « same » as a change', () => {
@@ -77,5 +77,14 @@ describe('signatures', () => {
     expect(unsigned({})).toEqual([])
     expect(partyKey({ party: 'tenant', name: 'Léa' })).toBe('tenant:Léa')
     expect(partyKey({ party: 'tenant', signer_name: 'Léa' })).toBe('tenant:Léa')
+  })
+})
+
+describe('fresher', () => {
+  it('drops a read older than what a save answered, keeps an equal or newer one', () => {
+    expect(fresher({ version: 7 }, { version: 6 })).toBe(false)
+    expect(fresher({ version: 7 }, { version: 7 })).toBe(true)
+    expect(fresher({ version: 7 }, { version: 9 })).toBe(true)
+    expect(fresher({}, { version: 1 })).toBe(true)
   })
 })
