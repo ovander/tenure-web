@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
@@ -11,7 +12,19 @@ import { VitePWA } from 'vite-plugin-pwa'
 // In development, /api and /bff go to a local tenure (TENURE_URL).
 const tenure = process.env.TENURE_URL ?? 'http://127.0.0.1:8080'
 
+// The build facts shown in Settings › À propos: the app's version and the
+// installed versions of its framework, read from the package files so the
+// bundle stays reproducible (no date, no host, no git call).
+const read = (path: string) => JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8')) as { version: string }
+export const webBuild = {
+  version: read('./package.json').version,
+  vue: read('./node_modules/vue/package.json').version,
+  primevue: read('./node_modules/primevue/package.json').version,
+  vite: read('./node_modules/vite/package.json').version,
+}
+
 export default defineConfig({
+  define: { __WEB_BUILD__: JSON.stringify(webBuild) },
   plugins: [
     vue(),
     tailwindcss(),

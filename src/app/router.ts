@@ -44,6 +44,7 @@ export const routes: RouteRecordRaw[] = [
       { path: 'profile', name: 'profile', component: () => import('@/features/settings/ProfileView.vue'), meta: { title: 'settings.profile' } },
       { path: 'templates', name: 'templates', component: () => import('@/features/settings/TemplatesView.vue'), meta: { title: 'settings.templates' } },
       { path: 'params', name: 'params', component: () => import('@/features/settings/ParamsView.vue'), meta: { title: 'settings.params' } },
+      { path: 'about', name: 'about', component: () => import('@/features/settings/AboutView.vue'), meta: { title: 'settings.about' } },
       { path: 'grants', name: 'grants', component: () => import('@/features/settings/GrantsView.vue'), meta: { title: 'settings.grants', ownerOnly: true } },
     ],
   },

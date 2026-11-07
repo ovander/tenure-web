@@ -8095,6 +8095,37 @@
                 }
             }
         },
+        "/version": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The API's version, commit, build time, whether it is a release build, the Go toolchain, the platform, backendkit and the last embedded migration; the tenure-web release pinned in the binary. Any signed-in user; /healthz keeps only the version for monitoring.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "meta"
+                ],
+                "summary": "The running tenure's build",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/version.View"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
         "/vetuste-grids": {
             "get": {
                 "security": [
@@ -13302,6 +13333,72 @@
                 },
                 "version": {
                     "type": "integer"
+                }
+            }
+        },
+        "version.API": {
+            "type": "object",
+            "properties": {
+                "backendkit": {
+                    "type": "string",
+                    "example": "v1.9.0"
+                },
+                "build_time": {
+                    "type": "string"
+                },
+                "commit": {
+                    "description": "Commit and BuildTime come from the stamp, or from Go's VCS stamp of an\nunstamped build; empty when neither is known (go run).",
+                    "type": "string"
+                },
+                "go_version": {
+                    "type": "string",
+                    "example": "go1.27.3"
+                },
+                "modified": {
+                    "description": "Modified says an unstamped build was made from a tree with local\nchanges.",
+                    "type": "boolean"
+                },
+                "platform": {
+                    "type": "string",
+                    "example": "linux/amd64"
+                },
+                "schema": {
+                    "description": "Schema is the last migration embedded in the binary (applied by\ntenure migrate up).",
+                    "type": "string",
+                    "example": "000016"
+                },
+                "stamped": {
+                    "description": "Stamped says the binary was built by scripts/build.sh (a release).",
+                    "type": "boolean"
+                },
+                "version": {
+                    "description": "Version is the release tag stamped by scripts/build.sh, or \"dev\".",
+                    "type": "string",
+                    "example": "v0.1.20"
+                }
+            }
+        },
+        "version.View": {
+            "type": "object",
+            "properties": {
+                "api": {
+                    "$ref": "#/definitions/version.API"
+                },
+                "web": {
+                    "$ref": "#/definitions/version.Web"
+                }
+            }
+        },
+        "version.Web": {
+            "type": "object",
+            "properties": {
+                "release": {
+                    "description": "Release is the tag pinned in web/VERSION, empty when none is.",
+                    "type": "string",
+                    "example": "v0.20.0"
+                },
+                "sha256": {
+                    "type": "string"
                 }
             }
         }

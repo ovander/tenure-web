@@ -455,6 +455,19 @@ the settlement wizard and the RD statement, not the screen. Provisional:
 - **Asset form.** The « Immeuble en copropriété » toggle (`collective_building`).
 - **Roles.** The co-owner reads, with no actions; the accountant gets the API's 403.
 
+**Q-W31 Build information, « À propos » — Open (#51, tenure-api #113).** RENT-FE-001 does not
+say how the user tells which build runs. Provisional:
+- **Where.** A tab in Settings, « À propos », with no other entry point.
+- **Web.** The version in `package.json`, and the Vue, PrimeVue and Vite versions installed.
+  They are read from the package files by `vite.config.ts` at build time, so the bundle stays
+  reproducible: no date, host or git call. Under the Vite dev server it says so.
+- **API.** `GET /api/v1/version`: version, release or local build (and local changes), commit,
+  build date, Go toolchain and platform, backendkit, last embedded migration, and the web
+  release the binary pins. A failed call says the server's information is unavailable.
+- **Mismatch.** When the loaded bundle is not the release the API pins, a warning suggests
+  reloading. Examples are a cached older bundle, or a local build served from `web/dist`. It
+  is not shown under the dev server.
+- **Report.** « Copier pour un signalement » copies both builds as plain text.
 **Q-W32 Obligations calendar, computed base — Open (#52, tenure-api Q-116).** RENT-SPEC-012
 renders the calendar as a per-asset timeline and a cross-portfolio « next 90 days » list.
 Provisional:
