@@ -6233,6 +6233,488 @@
                 }
             }
         },
+        "/leases/{id}/renewal/letter": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "For an active unfurnished lease outside rent control: the proposed rent and its references (three, six in an agglomeration of more than a million inhabitants), at most the cap of a zone tendue, for the next renewal the proposal can still reach; the increase in yearly steps, thirds or sixths. A proposal not yet received is replaced. dry_run only computes.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "lease"
+                ],
+                "summary": "Prepare the proposal of a new rent at renewal (PR)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "lease id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "proposal",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/lease.RenewalLetterInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/lease.RenewalLetter"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/leases/{id}/renewals": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The owner's proposals of a new rent at the renewal of an unfurnished lease (RENT-SPEC-010, loi 89-462 art. 17-2, Q-120), the latest renewal first: the references, the schedule of steps, the reception, the tenant's answer and the steps applied and due.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "lease"
+                ],
+                "summary": "A lease's rent re-evaluation proposals",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "lease id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/lease.RenewalView"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/leases/{id}/renewals/{rid}/answer": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The tenant's agreement or refusal of a received proposal, on a day. A refusal leaves the rent as it is (conciliation, then the judge, Q-120).",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "lease"
+                ],
+                "summary": "Record the tenant's answer to a rent re-evaluation proposal",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "lease id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "proposal id",
+                        "name": "rid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "answer",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/lease.AnswerInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/lease.RenewalView"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "412": {
+                        "description": "Precondition Failed",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/leases/{id}/renewals/{rid}/reception": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The day the tenant received the proposal, at the latest its lead time before the term, and how it was delivered.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "lease"
+                ],
+                "summary": "Record the reception of a rent re-evaluation proposal",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "lease id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "proposal id",
+                        "name": "rid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "reception",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/lease.ReceptionInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/lease.RenewalView"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "412": {
+                        "description": "Precondition Failed",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/leases/{id}/renewals/{rid}/steps": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Adds to the lease's rent the share of the increase of each step whose day has come, on top of any IRL revision since the letter. dry_run only computes.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "lease"
+                ],
+                "summary": "Apply the due steps of an accepted rent re-evaluation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "lease id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "proposal id",
+                        "name": "rid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "version",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/lease.StepsInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/lease.StepsResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "412": {
+                        "description": "Precondition Failed",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
         "/leases/{id}/revision": {
             "post": {
                 "security": [
@@ -9796,6 +10278,7 @@
                 "surety",
                 "restitution",
                 "notice",
+                "renewal",
                 "cancellation"
             ],
             "x-enum-varnames": [
@@ -9813,6 +10296,7 @@
                 "ClassSurety",
                 "ClassRestitution",
                 "ClassNotice",
+                "ClassRenewal",
                 "ClassCancellation"
             ]
         },
@@ -12012,6 +12496,25 @@
                 }
             }
         },
+        "lease.AnswerInput": {
+            "type": "object",
+            "properties": {
+                "answer": {
+                    "type": "string",
+                    "enum": [
+                        "accepted",
+                        "refused"
+                    ]
+                },
+                "answered_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
         "lease.Beneficiary": {
             "type": "object",
             "properties": {
@@ -12108,7 +12611,8 @@
                         "amendment",
                         "deposit_receipt",
                         "surety_act",
-                        "owner_notice"
+                        "owner_notice",
+                        "renewal_proposal"
                     ]
                 },
                 "lease_id": {
@@ -12708,6 +13212,202 @@
                 }
             }
         },
+        "lease.ReceptionInput": {
+            "type": "object",
+            "properties": {
+                "delivery": {
+                    "type": "string",
+                    "enum": [
+                        "registered_letter",
+                        "bailiff",
+                        "hand_delivery"
+                    ]
+                },
+                "received_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "sent_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "tracking_ref": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "lease.ReevaluationInput": {
+            "type": "object",
+            "properties": {
+                "large_agglomeration": {
+                    "description": "LargeAgglomeration says the home is in an agglomeration of more than a\nmillion inhabitants, which needs more references.",
+                    "type": "boolean"
+                },
+                "proposed_rent_cents": {
+                    "type": "integer"
+                },
+                "references": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/lease.Reference"
+                    }
+                }
+            }
+        },
+        "lease.ReevaluationTerms": {
+            "type": "object",
+            "properties": {
+                "cap_cents": {
+                    "description": "CapCents is the highest rent a zone tendue allows, when it applies.",
+                    "type": "integer"
+                },
+                "current_rent_cents": {
+                    "type": "integer"
+                },
+                "increase_bp": {
+                    "description": "IncreaseBP is the increase over the current rent, in basis points,\nrounded down.",
+                    "type": "integer"
+                },
+                "increase_cents": {
+                    "type": "integer"
+                },
+                "latest_receipt_on": {
+                    "description": "LatestReceiptOn is the last day the tenant may receive the proposal.",
+                    "type": "string",
+                    "format": "date"
+                },
+                "references_mean_cents": {
+                    "description": "ReferencesMeanCents is the mean of the references, rounded down.",
+                    "type": "integer"
+                },
+                "renewal_on": {
+                    "description": "RenewalOn is the first day of the renewed term.",
+                    "type": "string",
+                    "format": "date"
+                },
+                "steps": {
+                    "description": "Steps is the yearly schedule of the increase, from the renewal.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/lease.Step"
+                    }
+                }
+            }
+        },
+        "lease.Reference": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "rent_cents": {
+                    "type": "integer"
+                }
+            }
+        },
+        "lease.RenewalLetter": {
+            "type": "object",
+            "properties": {
+                "letter": {
+                    "$ref": "#/definitions/lease.DocumentView"
+                },
+                "renewal": {
+                    "$ref": "#/definitions/lease.RenewalView"
+                },
+                "terms": {
+                    "$ref": "#/definitions/lease.ReevaluationTerms"
+                }
+            }
+        },
+        "lease.RenewalLetterInput": {
+            "type": "object",
+            "properties": {
+                "dry_run": {
+                    "type": "boolean"
+                },
+                "large_agglomeration": {
+                    "description": "LargeAgglomeration says the home is in an agglomeration of more than a\nmillion inhabitants, which needs more references.",
+                    "type": "boolean"
+                },
+                "proposed_rent_cents": {
+                    "type": "integer"
+                },
+                "references": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/lease.Reference"
+                    }
+                }
+            }
+        },
+        "lease.RenewalView": {
+            "type": "object",
+            "properties": {
+                "answered_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "delivery": {
+                    "type": "string",
+                    "enum": [
+                        "registered_letter",
+                        "bailiff",
+                        "hand_delivery"
+                    ]
+                },
+                "document_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "lease_id": {
+                    "type": "string"
+                },
+                "proposal": {
+                    "$ref": "#/definitions/lease.ReevaluationInput"
+                },
+                "received_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "renewal_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "prepared",
+                        "received",
+                        "accepted",
+                        "refused"
+                    ]
+                },
+                "steps_applied": {
+                    "type": "integer"
+                },
+                "steps_due": {
+                    "description": "StepsDue is how many steps of an accepted proposal are due and not yet\napplied to the rent, on the day read.",
+                    "type": "integer"
+                },
+                "terms": {
+                    "$ref": "#/definitions/lease.ReevaluationTerms"
+                },
+                "tracking_ref": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
         "lease.RentExemption": {
             "type": "string",
             "enum": [
@@ -12748,6 +13448,49 @@
                 "StateEnded",
                 "StateClosed"
             ]
+        },
+        "lease.Step": {
+            "type": "object",
+            "properties": {
+                "from": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "rent_cents": {
+                    "type": "integer"
+                }
+            }
+        },
+        "lease.StepsInput": {
+            "type": "object",
+            "properties": {
+                "dry_run": {
+                    "type": "boolean"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "lease.StepsResult": {
+            "type": "object",
+            "properties": {
+                "applied": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/lease.Step"
+                    }
+                },
+                "lease": {
+                    "$ref": "#/definitions/lease.View"
+                },
+                "renewal": {
+                    "$ref": "#/definitions/lease.RenewalView"
+                },
+                "rent_cents": {
+                    "type": "integer"
+                }
+            }
         },
         "lease.TenantLink": {
             "type": "object",
