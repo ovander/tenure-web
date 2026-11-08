@@ -534,3 +534,32 @@ tacit renewal or vacancy. Provisional reading:
   known (no acquisition date and no lease), the card is hidden. When there was never a gap, it
   says « aucune vacance depuis … ».
 - Both are read-only and computed by the API. Nothing is entered on these screens.
+
+**Q-W35 Rent re-evaluation at renewal — Open (#70, tenure-api Q-120).** RENT-FE-001 has no screen
+for the under-valued rent procedure (loi 89-462 art. 17-2). Provisional reading:
+
+- **Lease overview (S05).** A « Réévaluation du loyer au renouvellement » card is shown on an
+  unfurnished lease when a proposal exists, or when the owner may make one (active, no end set).
+  It shows the latest proposal:
+  - the renewal it aims at and its status (lettre prête, reçue, acceptée, refusée);
+  - the PR letter to download;
+  - the current and proposed rents, and the zone tendue cap;
+  - the last day of receipt, or the days of reception and answer;
+  - the yearly steps, each marked « appliqué » once applied.
+- **Proposal.**
+  - The dialog takes the new rent, the references (address, description, monthly rent; three
+    rows to start, more can be added) and whether the home is in an agglomeration of more than a
+    million inhabitants.
+  - « Calculer » shows what the API computes (renewal, last day of receipt, increase and its
+    share, cap, steps). « Préparer la lettre » issues the PR letter.
+  - A half-filled reference is refused before sending. Empty rows are ignored.
+  - While the letter is not received, a new one replaces it.
+- **Then:**
+  1. the reception (date, delivery, reference);
+  2. the tenant's answer (accepted or refused, on a day). A refusal shows the conciliation and
+     court route; tenure does not track it yet.
+  3. Once accepted, « Appliquer les paliers échus » appears when a step is due, and the rent is
+     reloaded.
+- An accountant sees the card read-only; a co-owner gets no buttons.
+- The archive (S13) gains the classes « Congé » and « Proposition de nouveau loyer ». The notice
+  class had no label since part 12b.

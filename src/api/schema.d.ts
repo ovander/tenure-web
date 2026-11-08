@@ -7096,6 +7096,572 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/leases/{id}/renewal/letter": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Prepare the proposal of a new rent at renewal (PR)
+         * @description For an active unfurnished lease outside rent control: the proposed rent and its references (three, six in an agglomeration of more than a million inhabitants), at most the cap of a zone tendue, for the next renewal the proposal can still reach; the increase in yearly steps, thirds or sixths. A proposal not yet received is replaced. dry_run only computes.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description lease id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description proposal */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["lease.RenewalLetterInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["lease.RenewalLetter"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/leases/{id}/renewals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * A lease's rent re-evaluation proposals
+         * @description The owner's proposals of a new rent at the renewal of an unfurnished lease (RENT-SPEC-010, loi 89-462 art. 17-2, Q-120), the latest renewal first: the references, the schedule of steps, the reception, the tenant's answer and the steps applied and due.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description lease id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["lease.RenewalView"][];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/leases/{id}/renewals/{rid}/answer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record the tenant's answer to a rent re-evaluation proposal
+         * @description The tenant's agreement or refusal of a received proposal, on a day. A refusal leaves the rent as it is (conciliation, then the judge, Q-120).
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description lease id */
+                    id: string;
+                    /** @description proposal id */
+                    rid: string;
+                };
+                cookie?: never;
+            };
+            /** @description answer */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["lease.AnswerInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["lease.RenewalView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Failed */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/leases/{id}/renewals/{rid}/reception": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record the reception of a rent re-evaluation proposal
+         * @description The day the tenant received the proposal, at the latest its lead time before the term, and how it was delivered.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description lease id */
+                    id: string;
+                    /** @description proposal id */
+                    rid: string;
+                };
+                cookie?: never;
+            };
+            /** @description reception */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["lease.ReceptionInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["lease.RenewalView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Failed */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/leases/{id}/renewals/{rid}/steps": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Apply the due steps of an accepted rent re-evaluation
+         * @description Adds to the lease's rent the share of the increase of each step whose day has come, on top of any IRL revision since the letter. dry_run only computes.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description lease id */
+                    id: string;
+                    /** @description proposal id */
+                    rid: string;
+                };
+                cookie?: never;
+            };
+            /** @description version */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["lease.StepsInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["lease.StepsResult"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Failed */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/leases/{id}/revision": {
         parameters: {
             query?: never;
@@ -10340,7 +10906,7 @@ export interface components {
             version?: number;
         };
         /** @enum {string} */
-        "document.Class": "rent_call" | "receipt" | "regularisation" | "revision_notice" | "contract" | "amendment" | "deposit" | "tax_summary" | "inventory" | "supporting" | "other" | "surety" | "restitution" | "notice" | "cancellation";
+        "document.Class": "rent_call" | "receipt" | "regularisation" | "revision_notice" | "contract" | "amendment" | "deposit" | "tax_summary" | "inventory" | "supporting" | "other" | "surety" | "restitution" | "notice" | "renewal" | "cancellation";
         "document.ExportInput": {
             asset_id?: string;
             year?: number;
@@ -11013,6 +11579,13 @@ export interface components {
             amendment?: components["schemas"]["lease.DocumentView"];
             lease?: components["schemas"]["lease.View"];
         };
+        "lease.AnswerInput": {
+            /** @enum {string} */
+            answer?: "accepted" | "refused";
+            /** Format: date */
+            answered_on?: string;
+            version?: number;
+        };
         "lease.Beneficiary": {
             address?: string;
             name?: string;
@@ -11051,7 +11624,7 @@ export interface components {
             id?: string;
             issued_at?: string;
             /** @enum {string} */
-            kind?: "contract" | "amendment" | "deposit_receipt" | "surety_act" | "owner_notice";
+            kind?: "contract" | "amendment" | "deposit_receipt" | "surety_act" | "owner_notice" | "renewal_proposal";
             lease_id?: string;
             lease_version?: number;
             /** @example CT-0190A1B2-2026-0001 */
@@ -11272,6 +11845,95 @@ export interface components {
             sent_on?: string;
             tracking_ref?: string;
         };
+        "lease.ReceptionInput": {
+            /** @enum {string} */
+            delivery?: "registered_letter" | "bailiff" | "hand_delivery";
+            /** Format: date */
+            received_on?: string;
+            /** Format: date */
+            sent_on?: string;
+            tracking_ref?: string;
+            version?: number;
+        };
+        "lease.ReevaluationInput": {
+            /**
+             * @description LargeAgglomeration says the home is in an agglomeration of more than a
+             *     million inhabitants, which needs more references.
+             */
+            large_agglomeration?: boolean;
+            proposed_rent_cents?: number;
+            references?: components["schemas"]["lease.Reference"][];
+        };
+        "lease.ReevaluationTerms": {
+            /** @description CapCents is the highest rent a zone tendue allows, when it applies. */
+            cap_cents?: number;
+            current_rent_cents?: number;
+            /**
+             * @description IncreaseBP is the increase over the current rent, in basis points,
+             *     rounded down.
+             */
+            increase_bp?: number;
+            increase_cents?: number;
+            /**
+             * Format: date
+             * @description LatestReceiptOn is the last day the tenant may receive the proposal.
+             */
+            latest_receipt_on?: string;
+            /** @description ReferencesMeanCents is the mean of the references, rounded down. */
+            references_mean_cents?: number;
+            /**
+             * Format: date
+             * @description RenewalOn is the first day of the renewed term.
+             */
+            renewal_on?: string;
+            /** @description Steps is the yearly schedule of the increase, from the renewal. */
+            steps?: components["schemas"]["lease.Step"][];
+        };
+        "lease.Reference": {
+            address?: string;
+            description?: string;
+            rent_cents?: number;
+        };
+        "lease.RenewalLetter": {
+            letter?: components["schemas"]["lease.DocumentView"];
+            renewal?: components["schemas"]["lease.RenewalView"];
+            terms?: components["schemas"]["lease.ReevaluationTerms"];
+        };
+        "lease.RenewalLetterInput": {
+            dry_run?: boolean;
+            /**
+             * @description LargeAgglomeration says the home is in an agglomeration of more than a
+             *     million inhabitants, which needs more references.
+             */
+            large_agglomeration?: boolean;
+            proposed_rent_cents?: number;
+            references?: components["schemas"]["lease.Reference"][];
+        };
+        "lease.RenewalView": {
+            /** Format: date */
+            answered_on?: string;
+            /** @enum {string} */
+            delivery?: "registered_letter" | "bailiff" | "hand_delivery";
+            document_id?: string;
+            id?: string;
+            lease_id?: string;
+            proposal?: components["schemas"]["lease.ReevaluationInput"];
+            /** Format: date */
+            received_on?: string;
+            /** Format: date */
+            renewal_on?: string;
+            /** @enum {string} */
+            status?: "prepared" | "received" | "accepted" | "refused";
+            steps_applied?: number;
+            /**
+             * @description StepsDue is how many steps of an accepted proposal are due and not yet
+             *     applied to the rent, on the day read.
+             */
+            steps_due?: number;
+            terms?: components["schemas"]["lease.ReevaluationTerms"];
+            tracking_ref?: string;
+            version?: number;
+        };
         /** @enum {string} */
         "lease.RentExemption": "" | "works" | "under_valued";
         "lease.RentPart": {
@@ -11280,6 +11942,21 @@ export interface components {
         };
         /** @enum {string} */
         "lease.State": "draft" | "active" | "notice" | "ended" | "closed";
+        "lease.Step": {
+            /** Format: date */
+            from?: string;
+            rent_cents?: number;
+        };
+        "lease.StepsInput": {
+            dry_run?: boolean;
+            version?: number;
+        };
+        "lease.StepsResult": {
+            applied?: components["schemas"]["lease.Step"][];
+            lease?: components["schemas"]["lease.View"];
+            renewal?: components["schemas"]["lease.RenewalView"];
+            rent_cents?: number;
+        };
         "lease.TenantLink": {
             /** @description Solidary defaults to true (clause de solidarité). */
             solidary?: boolean;
