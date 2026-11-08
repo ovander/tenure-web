@@ -780,6 +780,78 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/assets/{id}/vacancies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * An asset's vacancy
+         * @description The periods the asset had no lease, from its acquisition (or else its first lease) to today, the last open while it lasts, and the vacant days of each calendar year (RENT-SPEC-010, Q-119). A draft lease occupies nothing.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description asset id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["lease.VacancyView"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/audit/events": {
         parameters: {
             query?: never;
@@ -7146,6 +7218,78 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/leases/{id}/terms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * A lease's terms, renewed tacitly
+         * @description The first term, then each renewed tacitly for the same duration (loi 89-462 art. 10, 25-7), each past, current or upcoming; the term the lease's end cuts short; the next renewal; beyond_term when a lease that does not renew runs past its term (RENT-SPEC-010, Q-119).
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description lease id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["lease.TermsView"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/leases/{id}/transitions": {
         parameters: {
             query?: never;
@@ -11141,6 +11285,33 @@ export interface components {
             solidary?: boolean;
             tenant_id?: string;
         };
+        "lease.Term": {
+            /** Format: date */
+            end_on?: string;
+            ended_early?: boolean;
+            n?: number;
+            /** @enum {string} */
+            renewal?: "initial" | "tacit";
+            /** Format: date */
+            start_on?: string;
+            /** @enum {string} */
+            status?: "past" | "current" | "upcoming";
+        };
+        "lease.TermsView": {
+            /**
+             * @description BeyondTerm says a lease that does not renew runs past its term with
+             *     no end set: the owner should record how it goes on.
+             */
+            beyond_term?: boolean;
+            /**
+             * Format: date
+             * @description NextRenewalOn is the first day of the next tacit renewal, when the
+             *     lease renews and no end is set.
+             */
+            next_renewal_on?: string;
+            renews?: boolean;
+            terms?: components["schemas"]["lease.Term"][];
+        };
         "lease.TransitionInput": {
             /** @enum {unknown} */
             action?: "activate" | "notice" | "end" | "close";
@@ -11149,6 +11320,23 @@ export interface components {
              * @description EndOn is required for a notice: the last day of the lease.
              */
             end_on?: string;
+        };
+        "lease.Vacancy": {
+            days?: number;
+            /** Format: date */
+            from_on?: string;
+            open?: boolean;
+            /** Format: date */
+            to_on?: string;
+        };
+        "lease.VacancyView": {
+            asset_id?: string;
+            days_by_year?: {
+                [key: string]: number;
+            };
+            periods?: components["schemas"]["lease.Vacancy"][];
+            /** Format: date */
+            since?: string;
         };
         "lease.View": {
             asset_ids?: string[];
