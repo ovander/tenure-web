@@ -77,6 +77,88 @@ export function leaseRoutes(ctx) {
     // by the test; none ⇒ nothing known.
     const vm = /^\/assets\/([^/]+)\/vacancies$/.exec(path)
     if (vm && req.method === 'GET') return json(res, 200, state.vacancies?.[vm[1]] ?? { asset_id: vm[1], since: '', periods: [], days_by_year: {} })
+    // The rent re-evaluation at renewal (tenure-api Q-120), modelled on
+    // internal/lease/reevaluation.go: three references, the lead time of six
+    // months, thirds (sixths above 10 %), the zone tendue cap at half the gap.
+    const rm = /^\/leases\/([^/]+)\/(?:renewals|renewal\/letter|renewals\/([^/]+)\/(reception|answer|steps))$/.exec(path)
+    if (rm) {
+      const l = state.leases.find((x) => x.id === rm[1])
+      if (!l) return json(res, 404, { type: 'http/not-found', status: 404, title: 'Introuvable.' })
+      state.renewals ??= {}
+      const list = (state.renewals[l.id] ??= [])
+      if (req.method === 'GET') return json(res, 200, list)
+      const bad = (type, title) => json(res, 422, { type, status: 422, title })
+      const iso = (d) => d.toISOString().slice(0, 10)
+      const at = (ymd) => new Date(`${ymd}T00:00:00Z`)
+      const addMonths = (ymd, n) => {
+        const d = at(ymd)
+        const t = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + n, 1))
+        t.setUTCDate(Math.min(d.getUTCDate(), new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + 1, 0)).getUTCDate()))
+        return iso(t)
+      }
+      const addDays = (ymd, n) => iso(new Date(at(ymd).getTime() + n * 86400000))
+      const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Paris' }).format(new Date())
+      if (!rm[2]) {
+        if (l.kind !== 'unfurnished' || l.state !== 'active') return bad('lease/reevaluation-not-allowed', 'Ce bail ne permet pas de réévaluer le loyer à son renouvellement.')
+        const refs = b.references ?? []
+        if (refs.length < (b.large_agglomeration ? 6 : 3) || refs.some((r) => !r.address || !(r.rent_cents > 0)) || !(b.proposed_rent_cents > l.rent_cents))
+          return bad('lease/reevaluation-invalid', 'La proposition de nouveau loyer est incomplète.')
+        let renewal
+        for (let k = 1; k < 200; k++) {
+          renewal = addMonths(l.start_on, l.term_months * k)
+          if (addDays(addMonths(renewal, -6), -1) >= today) break
+        }
+        const mean = Math.floor(refs.reduce((x, r) => x + r.rent_cents, 0) / refs.length)
+        const tense = l.asset_ids.some((id) => state.assets.find((a) => a.id === id)?.tense_zone)
+        const terms = { renewal_on: renewal, latest_receipt_on: addDays(addMonths(renewal, -6), -1), current_rent_cents: l.rent_cents, references_mean_cents: mean }
+        if (tense) {
+          terms.cap_cents = l.rent_cents + Math.floor((mean - l.rent_cents) / 2)
+          if (b.proposed_rent_cents > terms.cap_cents) return bad('lease/reevaluation-above-cap', 'Le loyer proposé dépasse la hausse autorisée en zone tendue.')
+        }
+        terms.increase_cents = b.proposed_rent_cents - l.rent_cents
+        terms.increase_bp = Math.floor((terms.increase_cents * 10000) / l.rent_cents)
+        const n = terms.increase_bp > 1000 || l.term_months >= 72 ? 6 : 3
+        terms.steps = Array.from({ length: n }, (_, i) => ({ from: addMonths(renewal, 12 * i), rent_cents: l.rent_cents + Math.floor((terms.increase_cents * (i + 1)) / n) }))
+        const prev = list.find((r) => r.renewal_on === renewal)
+        if (prev && prev.status !== 'prepared') return conflict(res, 'lease/reevaluation-exists', 'Une proposition de nouveau loyer a déjà été remise pour ce renouvellement.')
+        if (b.dry_run) return json(res, 200, { terms })
+        const doc = { id: uuid(), lease_id: l.id, kind: 'renewal_proposal', number: `PR-00000001-2026-${String(state.leaseDocs.filter((d) => d.kind === 'renewal_proposal').length + 1).padStart(4, '0')}`, document_id: uuid(), issued_at: new Date().toISOString(), sha256: 'e'.repeat(64), lease_version: l.version }
+        state.leaseDocs.push(doc)
+        const proposal = { ...b }
+        delete proposal.dry_run
+        const r = { id: prev?.id ?? uuid(), lease_id: l.id, renewal_on: renewal, status: 'prepared', proposal, terms, document_id: doc.document_id, steps_applied: 0, steps_due: 0, version: (prev?.version ?? 0) + 1 }
+        if (prev) Object.assign(prev, r)
+        else list.unshift(r)
+        record('lease.renewal_letter', 'lease_renewal', r.id, null, r)
+        return json(res, 200, { terms, letter: doc, renewal: r })
+      }
+      const r = list.find((x) => x.id === rm[2])
+      if (!r) return json(res, 404, { type: 'http/not-found', status: 404, title: 'Introuvable.' })
+      if (b.version !== r.version) return stale(res)
+      const notAt = () => conflict(res, 'lease/reevaluation-state', 'Cette proposition n’en est pas à cette étape.')
+      if (rm[3] === 'reception') {
+        if (r.status !== 'prepared') return notAt()
+        if (!b.received_on) return invalid(res, [{ field: 'received_on', message: 'La date de réception est obligatoire.' }])
+        if (b.received_on > r.terms.latest_receipt_on) return bad('lease/reevaluation-too-late', 'La proposition arrive trop tard pour ce renouvellement.')
+        Object.assign(r, { status: 'received', received_on: b.received_on, delivery: b.delivery, tracking_ref: b.tracking_ref, version: r.version + 1 })
+        return json(res, 200, r)
+      }
+      if (rm[3] === 'answer') {
+        if (r.status !== 'received') return notAt()
+        Object.assign(r, { status: b.answer, answered_on: b.answered_on, version: r.version + 1 })
+        r.steps_due = b.answer === 'accepted' ? r.terms.steps.filter((x) => x.from <= today).length : 0
+        return json(res, 200, r)
+      }
+      if (r.status !== 'accepted') return notAt()
+      if (!r.steps_due) return bad('lease/reevaluation-no-step-due', 'Aucun palier de hausse n’est échu.')
+      const due = r.terms.steps.slice(r.steps_applied, r.steps_applied + r.steps_due)
+      let prevRent = r.steps_applied ? r.terms.steps[r.steps_applied - 1].rent_cents : r.terms.current_rent_cents
+      for (const d of due) { l.rent_cents += d.rent_cents - prevRent; prevRent = d.rent_cents }
+      l.version += 1
+      Object.assign(r, { steps_applied: r.steps_applied + due.length, steps_due: 0, version: r.version + 1 })
+      record('lease.renewal_steps', 'lease', l.id, null, { rent_cents: l.rent_cents })
+      return json(res, 200, { applied: due, rent_cents: l.rent_cents, renewal: r, lease: l })
+    }
     // The notice (tenure-api Q-118), modelled on internal/lease/notice.go.
     let nm = /^\/leases\/([^/]+)\/notice(\/letter)?$/.exec(path)
     if (nm) {

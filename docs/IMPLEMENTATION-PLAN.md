@@ -28,6 +28,7 @@ each release is pinned in tenure-api `web/VERSION`.
 | 17 | Obligations calendar, computed base (RENT-SPEC-012, RENT-INV-001 slice 10, Q-W32) | `/calendar` (tenure-api Q-116) | The home's next 90 days from the API, an overdue item flagged, each linking to where it is dealt with; an asset's coming year on its tab; the accountant falls back to the leases' dates |
 | 18 | Lease notice on S05, the tenant's and the owner's (RENT-SPEC-010 part 12b, Q-W33) | `/leases/{id}/notice`, `/leases/{id}/notice/letter` (tenure-api Q-118) | The tenant's end computed before saving, the letter uploaded; the owner's ground checked, the term previewed, the CG letter, then its reception; a box keeps the typed end date; the overview shows the notice |
 | 19 | Lease terms and vacancy (RENT-SPEC-010 part 12c, Q-W34) | `/leases/{id}/terms`, `/assets/{id}/vacancies` (tenure-api Q-119) | The terms and the next tacit renewal on the lease overview, a term cut short by the notice, a lease past its term flagged; the vacancy and its days by year on the asset overview |
+| 20 | Rent re-evaluation at renewal (RENT-SPEC-010 part 12d, Q-W35) | `/leases/{id}/renewals`, `/leases/{id}/renewal/letter`, `/leases/{id}/renewals/{rid}/reception`, `/answer`, `/steps` (tenure-api Q-120) | The proposal and its references computed, the PR letter, its reception and the tenant's answer; the due steps applied to the rent; the archive labels the notice and renewal classes |
 
 Rules that hold in every slice:
 - Amounts are integers (cents) and are converted by string, never through a float.
