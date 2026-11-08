@@ -1241,5 +1241,21 @@
   "help.notice.receivedOn": "Le préavis court à partir de la réception par l’autre partie, pas de l’envoi.",
   "help.notice.delivery": "Lettre recommandée avec accusé de réception, acte de commissaire de justice ou remise en main propre contre récépissé.",
   "help.notice.sentOn": "Date d’envoi de la lettre, pour mémoire.",
-  "help.notice.tracking": "Le numéro du recommandé ou la référence de l’acte."
+  "help.notice.tracking": "Le numéro du recommandé ou la référence de l’acte.",
+  "terms.title": "Périodes du bail",
+  "terms.range": "du {from} au {to}",
+  "terms.renewal.initial": "première période",
+  "terms.renewal.tacit": "tacite reconduction",
+  "terms.status.past": "passée",
+  "terms.status.current": "en cours",
+  "terms.status.upcoming": "à venir",
+  "terms.endedEarly": "terminée par le congé",
+  "terms.nextRenewal": "Prochaine tacite reconduction le {day}, sauf congé.",
+  "terms.noRenewal": "Ce bail ne se reconduit pas tacitement.",
+  "terms.beyondTerm": "Ce bail, qui ne se reconduit pas, a dépassé son terme sans date de fin : enregistrez sa fin ou un nouveau bail.",
+  "vacancy.title": "Vacance",
+  "vacancy.none": "Aucune vacance depuis le {since}.",
+  "vacancy.range": "Du {from} au {to} · {days} jours",
+  "vacancy.open": "Depuis le {from} · {days} jours, en cours",
+  "vacancy.days": "{days} jours vacants"
 }

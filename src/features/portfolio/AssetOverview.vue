@@ -11,6 +11,7 @@ import { useSession } from '@/stores/session'
 import { t, type Key } from '@/i18n'
 import { basisPoints, date, money, surface } from '@/i18n/format'
 import DiagnosticDialog from './DiagnosticDialog.vue'
+import AssetVacancy from './AssetVacancy.vue'
 
 const props = defineProps<{ asset: Asset }>()
 const store = useAssets()
@@ -103,6 +104,8 @@ const details = computed(() => {
         </tbody>
       </table>
     </section>
+
+    <AssetVacancy v-if="asset.id" :asset-id="asset.id" />
 
     <DiagnosticDialog
       v-if="editing !== undefined && asset.id"

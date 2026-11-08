@@ -517,3 +517,20 @@ S05's transitions, with no screen of its own. Provisional reading:
   accountant, who is refused by the API.
 - **Not built yet:** a notice withdrawn, and the letter's attachments, which the owner adds
   (tenure-api Q-118).
+
+**Q-W34 Lease terms and vacancy — Open (#61, tenure-api Q-119).** RENT-FE-001 has no screen for
+tacit renewal or vacancy. Provisional reading:
+
+- **Lease overview (S05).** A « Périodes du bail » card shows every term the API lists: its
+  dates, « première période » or « tacite reconduction », and its status (passée, en cours, à
+  venir).
+  - A term cut short by the lease's end reads « terminée par le congé ».
+  - The next renewal is shown when the lease renews and has no end. A lease that does not renew
+    says so.
+  - A lease past its term with no end gets a warning asking the owner to record its end or a new
+    lease.
+- **Asset overview (S03).** A « Vacance » card lists the periods without a lease, the last one
+  « en cours » while it lasts, and the vacant days of each year, latest first. When nothing is
+  known (no acquisition date and no lease), the card is hidden. When there was never a gap, it
+  says « aucune vacance depuis … ».
+- Both are read-only and computed by the API. Nothing is entered on these screens.
