@@ -9,6 +9,7 @@ import { useSession } from '@/stores/session'
 import { useLeases, amendable, tenantName, type Lease, type Tenant } from './store'
 import TenantDialog from './TenantDialog.vue'
 import RevisionDialog from './RevisionDialog.vue'
+import LeaseTerms from './LeaseTerms.vue'
 import type { RevisionView } from '@/features/billing/store'
 import { useAssets, assetLabel } from '@/features/portfolio/store'
 import { t, type Key } from '@/i18n'
@@ -89,6 +90,7 @@ const monthly = computed(() => (l.value.rent_cents ?? 0) + (l.value.provision_ce
       </dl>
       <RevisionDialog v-if="revising" v-model:visible="revising" :lease="l" @applied="revised" />
     </section>
+    <LeaseTerms :lease="l" />
     <section v-if="notice" class="rounded-md border border-orange-200 bg-white p-5 lg:col-span-2" data-test="notice-card">
       <h2 class="mb-3 font-medium">{{ t('notice.recorded') }}</h2>
       <dl class="grid grid-cols-[12rem_1fr] gap-x-4 gap-y-2 text-sm">

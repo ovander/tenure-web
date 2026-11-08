@@ -1241,5 +1241,21 @@
   "help.notice.receivedOn": "The notice runs from its reception by the other party, not its sending.",
   "help.notice.delivery": "Registered letter with acknowledgement, bailiff's deed, or hand delivery against receipt.",
   "help.notice.sentOn": "The letter's sending date, for the record.",
-  "help.notice.tracking": "The registered letter's number or the deed's reference."
+  "help.notice.tracking": "The registered letter's number or the deed's reference.",
+  "terms.title": "Lease terms",
+  "terms.range": "from {from} to {to}",
+  "terms.renewal.initial": "first term",
+  "terms.renewal.tacit": "tacit renewal",
+  "terms.status.past": "past",
+  "terms.status.current": "current",
+  "terms.status.upcoming": "upcoming",
+  "terms.endedEarly": "ended by the notice",
+  "terms.nextRenewal": "Next tacit renewal on {day}, unless notice is given.",
+  "terms.noRenewal": "This lease does not renew tacitly.",
+  "terms.beyondTerm": "This lease, which does not renew, has run past its term with no end date: record its end or a new lease.",
+  "vacancy.title": "Vacancy",
+  "vacancy.none": "No vacancy since {since}.",
+  "vacancy.range": "From {from} to {to} · {days} days",
+  "vacancy.open": "Since {from} · {days} days, ongoing",
+  "vacancy.days": "{days} vacant days"
 }

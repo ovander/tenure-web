@@ -724,6 +724,64 @@
                 }
             }
         },
+        "/assets/{id}/vacancies": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The periods the asset had no lease, from its acquisition (or else its first lease) to today, the last open while it lasts, and the vacant days of each calendar year (RENT-SPEC-010, Q-119). A draft lease occupies nothing.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "lease"
+                ],
+                "summary": "An asset's vacancy",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "asset id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/lease.VacancyView"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
         "/audit/events": {
             "get": {
                 "security": [
@@ -6268,6 +6326,64 @@
                     },
                     "503": {
                         "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/leases/{id}/terms": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The first term, then each renewed tacitly for the same duration (loi 89-462 art. 10, 25-7), each past, current or upcoming; the term the lease's end cuts short; the next renewal; beyond_term when a lease that does not renew runs past its term (RENT-SPEC-010, Q-119).",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "lease"
+                ],
+                "summary": "A lease's terms, renewed tacitly",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "lease id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/lease.TermsView"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/problem.Body"
                         }
@@ -12645,6 +12761,63 @@
                 }
             }
         },
+        "lease.Term": {
+            "type": "object",
+            "properties": {
+                "end_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "ended_early": {
+                    "type": "boolean"
+                },
+                "n": {
+                    "type": "integer"
+                },
+                "renewal": {
+                    "type": "string",
+                    "enum": [
+                        "initial",
+                        "tacit"
+                    ]
+                },
+                "start_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "past",
+                        "current",
+                        "upcoming"
+                    ]
+                }
+            }
+        },
+        "lease.TermsView": {
+            "type": "object",
+            "properties": {
+                "beyond_term": {
+                    "description": "BeyondTerm says a lease that does not renew runs past its term with\nno end set: the owner should record how it goes on.",
+                    "type": "boolean"
+                },
+                "next_renewal_on": {
+                    "description": "NextRenewalOn is the first day of the next tacit renewal, when the\nlease renews and no end is set.",
+                    "type": "string",
+                    "format": "date"
+                },
+                "renews": {
+                    "type": "boolean"
+                },
+                "terms": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/lease.Term"
+                    }
+                }
+            }
+        },
         "lease.TransitionInput": {
             "type": "object",
             "properties": {
@@ -12663,6 +12836,49 @@
                 },
                 "end_on": {
                     "description": "EndOn is required for a notice: the last day of the lease.",
+                    "type": "string",
+                    "format": "date"
+                }
+            }
+        },
+        "lease.Vacancy": {
+            "type": "object",
+            "properties": {
+                "days": {
+                    "type": "integer"
+                },
+                "from_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "open": {
+                    "type": "boolean"
+                },
+                "to_on": {
+                    "type": "string",
+                    "format": "date"
+                }
+            }
+        },
+        "lease.VacancyView": {
+            "type": "object",
+            "properties": {
+                "asset_id": {
+                    "type": "string"
+                },
+                "days_by_year": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "periods": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/lease.Vacancy"
+                    }
+                },
+                "since": {
                     "type": "string",
                     "format": "date"
                 }

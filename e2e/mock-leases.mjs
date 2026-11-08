@@ -73,6 +73,10 @@ export function leaseRoutes(ctx) {
       record('lease.create', 'lease', l.id, null, l)
       return json(res, 201, l)
     }
+    // An asset's vacancy (tenure-api Q-119): state.vacancies[asset id], as set
+    // by the test; none ⇒ nothing known.
+    const vm = /^\/assets\/([^/]+)\/vacancies$/.exec(path)
+    if (vm && req.method === 'GET') return json(res, 200, state.vacancies?.[vm[1]] ?? { asset_id: vm[1], since: '', periods: [], days_by_year: {} })
     // The notice (tenure-api Q-118), modelled on internal/lease/notice.go.
     let nm = /^\/leases\/([^/]+)\/notice(\/letter)?$/.exec(path)
     if (nm) {
@@ -167,6 +171,9 @@ export function leaseRoutes(ctx) {
           return json(res, 200, l)
         case 'blockers':
           return json(res, 200, blockers(l))
+        case 'terms':
+          // The terms (tenure-api Q-119): state.terms[lease id], as set by the test.
+          return json(res, 200, state.terms?.[l.id] ?? { terms: [], renews: true })
         case 'documents':
           return json(res, 200, state.leaseDocs.filter((d) => d.lease_id === l.id))
         case 'contract': {
