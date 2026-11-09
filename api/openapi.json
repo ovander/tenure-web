@@ -6233,6 +6233,447 @@
                 }
             }
         },
+        "/leases/{id}/recovery": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Where the recovery stands (RENT-SPEC-011, Q-121): the arrears, the episode's first overdue due day, the steps done, the next steps with the day each falls due, the clause résolutoire's day after a commandement de payer, and the lease's natural-person sureties.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "billing"
+                ],
+                "summary": "The recovery of a lease's unpaid rent",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "lease id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/billing.RecoveryResult"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/leases/{id}/recovery/letter": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The formal notice (mise en demeure, MD) or the information of a natural-person surety (IC) of the overdue rent calls and their total. Nothing overdue is refused. dry_run only lists the debt.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "billing"
+                ],
+                "summary": "Prepare a recovery letter (MD or IC)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "lease id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "letter",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/billing.RecoveryLetterInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/billing.RecoveryLetter"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/leases/{id}/recovery/plans": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The plan agreed on a day covers every rent call overdue on it and their whole debt, in instalments adding up to it on increasing days; while respected (instalments paid within their grace, the current rent paid) it suspends the recovery. One plan in force per lease. dry_run only checks it.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "billing"
+                ],
+                "summary": "Record a payment plan of overdue rent",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "lease id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "plan",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/billing.PlanInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/billing.RecoveryResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/leases/{id}/recovery/plans/{pid}/cancel": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Cancels the lease's latest payment plan on a day, which ends its suspension of the recovery. A completed or cancelled plan is refused.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "billing"
+                ],
+                "summary": "Cancel a payment plan",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "lease id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "plan id",
+                        "name": "pid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "cancellation",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/billing.CancelPlanInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/billing.RecoveryResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "412": {
+                        "description": "Precondition Failed",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/leases/{id}/recovery/steps": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "A step done on a day, immutable: the formal notice or the surety's information on its letter, the insurer's claim with its deadline, the commandement de payer and its notice to the surety, the court referral, each with its delivery, reference and deed if uploaded. Needs something overdue on its day.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "billing"
+                ],
+                "summary": "Record a recovery step",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "lease id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "step",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/billing.RecoveryStepInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/billing.RecoveryResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
         "/leases/{id}/renewal/letter": {
             "post": {
                 "security": [
@@ -9366,6 +9807,18 @@
                 }
             }
         },
+        "billing.CancelPlanInput": {
+            "type": "object",
+            "properties": {
+                "cancelled_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
         "billing.CancelResult": {
             "type": "object",
             "properties": {
@@ -9508,6 +9961,18 @@
                 }
             }
         },
+        "billing.Instalment": {
+            "type": "object",
+            "properties": {
+                "amount_cents": {
+                    "type": "integer"
+                },
+                "due_on": {
+                    "type": "string",
+                    "format": "date"
+                }
+            }
+        },
         "billing.IssuedDoc": {
             "type": "object",
             "properties": {
@@ -9599,6 +10064,316 @@
                 "LineProvision",
                 "LineRegularisation"
             ]
+        },
+        "billing.NextStep": {
+            "type": "object",
+            "properties": {
+                "due_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "guarantee_id": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string",
+                    "enum": [
+                        "formal_notice",
+                        "surety_notice",
+                        "insurance_claim",
+                        "commandement",
+                        "surety_commandement",
+                        "court"
+                    ]
+                },
+                "overdue": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "billing.PlanInput": {
+            "type": "object",
+            "properties": {
+                "agreed_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "document_id": {
+                    "type": "string"
+                },
+                "dry_run": {
+                    "type": "boolean"
+                },
+                "instalments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/billing.Instalment"
+                    }
+                }
+            }
+        },
+        "billing.PlanState": {
+            "type": "object",
+            "properties": {
+                "agreed_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "calls": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "cancelled_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "debt_cents": {
+                    "type": "integer"
+                },
+                "document_id": {
+                    "type": "string"
+                },
+                "due_cents": {
+                    "description": "DueCents is the instalments past their day and grace.",
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "instalments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/billing.Instalment"
+                    }
+                },
+                "next_instalment": {
+                    "description": "NextInstalment is the first instalment not yet covered by the\npayments.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/billing.Instalment"
+                        }
+                    ]
+                },
+                "paid_cents": {
+                    "description": "PaidCents is what the covered calls received since: the debt less\nwhat they still owe.",
+                    "type": "integer"
+                },
+                "reason": {
+                    "description": "Reason says why a plan is broken.",
+                    "type": "string",
+                    "enum": [
+                        "instalment_late",
+                        "current_rent_unpaid"
+                    ]
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "respected",
+                        "broken",
+                        "completed",
+                        "cancelled"
+                    ]
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "billing.RecoveryLetter": {
+            "type": "object",
+            "properties": {
+                "document_id": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/billing.ArrearsItem"
+                    }
+                },
+                "kind": {
+                    "type": "string",
+                    "enum": [
+                        "formal_notice",
+                        "surety_notice"
+                    ]
+                },
+                "number": {
+                    "type": "string"
+                },
+                "outstanding_cents": {
+                    "type": "integer"
+                }
+            }
+        },
+        "billing.RecoveryLetterInput": {
+            "type": "object",
+            "properties": {
+                "dry_run": {
+                    "type": "boolean"
+                },
+                "guarantee_id": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string",
+                    "enum": [
+                        "formal_notice",
+                        "surety_notice"
+                    ]
+                }
+            }
+        },
+        "billing.RecoveryResult": {
+            "type": "object",
+            "properties": {
+                "arrears": {
+                    "$ref": "#/definitions/billing.ArrearsView"
+                },
+                "insured": {
+                    "type": "boolean"
+                },
+                "next": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/billing.NextStep"
+                    }
+                },
+                "plan": {
+                    "description": "Plan is the lease's latest payment plan and where it stands.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/billing.PlanState"
+                        }
+                    ]
+                },
+                "resolution_on": {
+                    "description": "ResolutionOn is the day the clause résolutoire may take effect, the\ndelay after the commandement de payer having run.",
+                    "type": "string",
+                    "format": "date"
+                },
+                "since": {
+                    "description": "Since is the due day of the oldest overdue call: the episode starts\nthere, and the steps done since belong to it.",
+                    "type": "string",
+                    "format": "date"
+                },
+                "steps": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/billing.RecoveryStep"
+                    }
+                },
+                "sureties": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/lease.Surety"
+                    }
+                },
+                "suspended": {
+                    "description": "Suspended says a respected payment plan suspends the escalation: no\nstep is called for while it holds.",
+                    "type": "boolean"
+                }
+            }
+        },
+        "billing.RecoveryStep": {
+            "type": "object",
+            "properties": {
+                "deadline_on": {
+                    "description": "DeadlineOn is a date the step sets: the insurer's deadline, as the\nowner records it.",
+                    "type": "string",
+                    "format": "date"
+                },
+                "delivery": {
+                    "type": "string",
+                    "enum": [
+                        "registered_letter",
+                        "bailiff",
+                        "hand_delivery",
+                        "email"
+                    ]
+                },
+                "document_id": {
+                    "type": "string"
+                },
+                "done_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "guarantee_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string",
+                    "enum": [
+                        "formal_notice",
+                        "surety_notice",
+                        "insurance_claim",
+                        "commandement",
+                        "surety_commandement",
+                        "court"
+                    ]
+                },
+                "note": {
+                    "type": "string"
+                },
+                "outstanding_cents": {
+                    "type": "integer"
+                },
+                "tracking_ref": {
+                    "type": "string"
+                }
+            }
+        },
+        "billing.RecoveryStepInput": {
+            "type": "object",
+            "properties": {
+                "deadline_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "delivery": {
+                    "type": "string",
+                    "enum": [
+                        "registered_letter",
+                        "bailiff",
+                        "hand_delivery",
+                        "email"
+                    ]
+                },
+                "document_id": {
+                    "type": "string"
+                },
+                "done_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "guarantee_id": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string",
+                    "enum": [
+                        "formal_notice",
+                        "surety_notice",
+                        "insurance_claim",
+                        "commandement",
+                        "surety_commandement",
+                        "court"
+                    ]
+                },
+                "note": {
+                    "type": "string"
+                },
+                "tracking_ref": {
+                    "type": "string"
+                }
+            }
         },
         "billing.Revision": {
             "type": "object",
@@ -10279,6 +11054,7 @@
                 "restitution",
                 "notice",
                 "renewal",
+                "recovery",
                 "cancellation"
             ],
             "x-enum-varnames": [
@@ -10297,6 +11073,7 @@
                 "ClassRestitution",
                 "ClassNotice",
                 "ClassRenewal",
+                "ClassRecovery",
                 "ClassCancellation"
             ]
         },
@@ -13489,6 +14266,20 @@
                 },
                 "rent_cents": {
                     "type": "integer"
+                }
+            }
+        },
+        "lease.Surety": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "guarantee_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },

@@ -7096,6 +7096,532 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/leases/{id}/recovery": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The recovery of a lease's unpaid rent
+         * @description Where the recovery stands (RENT-SPEC-011, Q-121): the arrears, the episode's first overdue due day, the steps done, the next steps with the day each falls due, the clause résolutoire's day after a commandement de payer, and the lease's natural-person sureties.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description lease id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["billing.RecoveryResult"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/leases/{id}/recovery/letter": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Prepare a recovery letter (MD or IC)
+         * @description The formal notice (mise en demeure, MD) or the information of a natural-person surety (IC) of the overdue rent calls and their total. Nothing overdue is refused. dry_run only lists the debt.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description lease id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description letter */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["billing.RecoveryLetterInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["billing.RecoveryLetter"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/leases/{id}/recovery/plans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record a payment plan of overdue rent
+         * @description The plan agreed on a day covers every rent call overdue on it and their whole debt, in instalments adding up to it on increasing days; while respected (instalments paid within their grace, the current rent paid) it suspends the recovery. One plan in force per lease. dry_run only checks it.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description lease id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description plan */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["billing.PlanInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["billing.RecoveryResult"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/leases/{id}/recovery/plans/{pid}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancel a payment plan
+         * @description Cancels the lease's latest payment plan on a day, which ends its suspension of the recovery. A completed or cancelled plan is refused.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description lease id */
+                    id: string;
+                    /** @description plan id */
+                    pid: string;
+                };
+                cookie?: never;
+            };
+            /** @description cancellation */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["billing.CancelPlanInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["billing.RecoveryResult"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Failed */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/leases/{id}/recovery/steps": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record a recovery step
+         * @description A step done on a day, immutable: the formal notice or the surety's information on its letter, the insurer's claim with its deadline, the commandement de payer and its notice to the surety, the court referral, each with its delivery, reference and deed if uploaded. Needs something overdue on its day.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description lease id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description step */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["billing.RecoveryStepInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["billing.RecoveryResult"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/leases/{id}/renewal/letter": {
         parameters: {
             query?: never;
@@ -10583,6 +11109,11 @@ export interface components {
         "billing.CancelInput": {
             reason?: string;
         };
+        "billing.CancelPlanInput": {
+            /** Format: date */
+            cancelled_on?: string;
+            version?: number;
+        };
         "billing.CancelResult": {
             cancellation?: components["schemas"]["billing.IssuedDoc"];
             reissued?: components["schemas"]["billing.IssuedDoc"];
@@ -10632,6 +11163,11 @@ export interface components {
             quarter?: string;
             value?: number;
         };
+        "billing.Instalment": {
+            amount_cents?: number;
+            /** Format: date */
+            due_on?: string;
+        };
         "billing.IssuedDoc": {
             billing_document_id?: string;
             deliveries?: components["schemas"]["billing.Delivery"][];
@@ -10660,6 +11196,126 @@ export interface components {
         };
         /** @enum {string} */
         "billing.LineKind": "rent" | "provision" | "regularisation";
+        "billing.NextStep": {
+            /** Format: date */
+            due_on?: string;
+            guarantee_id?: string;
+            /** @enum {string} */
+            kind?: "formal_notice" | "surety_notice" | "insurance_claim" | "commandement" | "surety_commandement" | "court";
+            overdue?: boolean;
+        };
+        "billing.PlanInput": {
+            /** Format: date */
+            agreed_on?: string;
+            document_id?: string;
+            dry_run?: boolean;
+            instalments?: components["schemas"]["billing.Instalment"][];
+        };
+        "billing.PlanState": {
+            /** Format: date */
+            agreed_on?: string;
+            calls?: string[];
+            /** Format: date */
+            cancelled_on?: string;
+            debt_cents?: number;
+            document_id?: string;
+            /** @description DueCents is the instalments past their day and grace. */
+            due_cents?: number;
+            id?: string;
+            instalments?: components["schemas"]["billing.Instalment"][];
+            /**
+             * @description NextInstalment is the first instalment not yet covered by the
+             *     payments.
+             */
+            next_instalment?: components["schemas"]["billing.Instalment"];
+            /**
+             * @description PaidCents is what the covered calls received since: the debt less
+             *     what they still owe.
+             */
+            paid_cents?: number;
+            /**
+             * @description Reason says why a plan is broken.
+             * @enum {string}
+             */
+            reason?: "instalment_late" | "current_rent_unpaid";
+            /** @enum {string} */
+            status?: "respected" | "broken" | "completed" | "cancelled";
+            version?: number;
+        };
+        "billing.RecoveryLetter": {
+            document_id?: string;
+            items?: components["schemas"]["billing.ArrearsItem"][];
+            /** @enum {string} */
+            kind?: "formal_notice" | "surety_notice";
+            number?: string;
+            outstanding_cents?: number;
+        };
+        "billing.RecoveryLetterInput": {
+            dry_run?: boolean;
+            guarantee_id?: string;
+            /** @enum {string} */
+            kind?: "formal_notice" | "surety_notice";
+        };
+        "billing.RecoveryResult": {
+            arrears?: components["schemas"]["billing.ArrearsView"];
+            insured?: boolean;
+            next?: components["schemas"]["billing.NextStep"][];
+            /** @description Plan is the lease's latest payment plan and where it stands. */
+            plan?: components["schemas"]["billing.PlanState"];
+            /**
+             * Format: date
+             * @description ResolutionOn is the day the clause résolutoire may take effect, the
+             *     delay after the commandement de payer having run.
+             */
+            resolution_on?: string;
+            /**
+             * Format: date
+             * @description Since is the due day of the oldest overdue call: the episode starts
+             *     there, and the steps done since belong to it.
+             */
+            since?: string;
+            steps?: components["schemas"]["billing.RecoveryStep"][];
+            sureties?: components["schemas"]["lease.Surety"][];
+            /**
+             * @description Suspended says a respected payment plan suspends the escalation: no
+             *     step is called for while it holds.
+             */
+            suspended?: boolean;
+        };
+        "billing.RecoveryStep": {
+            /**
+             * Format: date
+             * @description DeadlineOn is a date the step sets: the insurer's deadline, as the
+             *     owner records it.
+             */
+            deadline_on?: string;
+            /** @enum {string} */
+            delivery?: "registered_letter" | "bailiff" | "hand_delivery" | "email";
+            document_id?: string;
+            /** Format: date */
+            done_on?: string;
+            guarantee_id?: string;
+            id?: string;
+            /** @enum {string} */
+            kind?: "formal_notice" | "surety_notice" | "insurance_claim" | "commandement" | "surety_commandement" | "court";
+            note?: string;
+            outstanding_cents?: number;
+            tracking_ref?: string;
+        };
+        "billing.RecoveryStepInput": {
+            /** Format: date */
+            deadline_on?: string;
+            /** @enum {string} */
+            delivery?: "registered_letter" | "bailiff" | "hand_delivery" | "email";
+            document_id?: string;
+            /** Format: date */
+            done_on?: string;
+            guarantee_id?: string;
+            /** @enum {string} */
+            kind?: "formal_notice" | "surety_notice" | "insurance_claim" | "commandement" | "surety_commandement" | "court";
+            note?: string;
+            tracking_ref?: string;
+        };
         "billing.Revision": {
             above_ceiling?: boolean;
             anniversary?: string;
@@ -10906,7 +11562,7 @@ export interface components {
             version?: number;
         };
         /** @enum {string} */
-        "document.Class": "rent_call" | "receipt" | "regularisation" | "revision_notice" | "contract" | "amendment" | "deposit" | "tax_summary" | "inventory" | "supporting" | "other" | "surety" | "restitution" | "notice" | "renewal" | "cancellation";
+        "document.Class": "rent_call" | "receipt" | "regularisation" | "revision_notice" | "contract" | "amendment" | "deposit" | "tax_summary" | "inventory" | "supporting" | "other" | "surety" | "restitution" | "notice" | "renewal" | "recovery" | "cancellation";
         "document.ExportInput": {
             asset_id?: string;
             year?: number;
@@ -11956,6 +12612,11 @@ export interface components {
             lease?: components["schemas"]["lease.View"];
             renewal?: components["schemas"]["lease.RenewalView"];
             rent_cents?: number;
+        };
+        "lease.Surety": {
+            address?: string;
+            guarantee_id?: string;
+            name?: string;
         };
         "lease.TenantLink": {
             /** @description Solidary defaults to true (clause de solidarité). */
