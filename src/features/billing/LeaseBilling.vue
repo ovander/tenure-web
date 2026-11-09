@@ -10,11 +10,13 @@ import { t, type Key } from '@/i18n'
 import { date, money } from '@/i18n/format'
 import { useBilling, type Arrears, type BillingDoc } from './store'
 import PaymentsView from './PaymentsView.vue'
+import LeaseRecovery from './LeaseRecovery.vue'
 
 const props = defineProps<{ lease: Lease }>()
 const store = useBilling()
 const arrears = ref<Arrears | null>(null)
 const docs = ref<BillingDoc[] | null>(null)
+const recovery = ref<InstanceType<typeof LeaseRecovery> | null>(null)
 
 async function load(): Promise<void> {
   if (!props.lease.id) return
@@ -45,6 +47,8 @@ function label(d: BillingDoc): string {
     </Message>
     <p v-else class="text-sm text-slate-600" data-test="arrears-none">{{ t('billing.upToDate') }}</p>
 
+    <LeaseRecovery ref="recovery" :lease="lease" @changed="load" />
+
     <div class="space-y-2">
       <h2 class="text-base font-semibold">{{ t('billing.documents') }}</h2>
       <Skeleton v-if="docs === null" height="4rem" />
@@ -52,6 +56,6 @@ function label(d: BillingDoc): string {
       <DocumentCard v-for="d in docs ?? []" :key="d.id" :number="d.number" :label="label(d)" :issued-at="d.issued_at" :document-id="d.document_id" />
     </div>
 
-    <PaymentsView :lease-id="lease.id" embedded @changed="load" />
+    <PaymentsView :lease-id="lease.id" embedded @changed="() => { load(); recovery?.load() }" />
   </div>
 </template>

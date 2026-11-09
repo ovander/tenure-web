@@ -563,3 +563,30 @@ for the under-valued rent procedure (loi 89-462 art. 17-2). Provisional reading:
 - An accountant sees the card read-only; a co-owner gets no buttons.
 - The archive (S13) gains the classes « Congé » and « Proposition de nouveau loyer ». The notice
   class had no label since part 12b.
+
+**Q-W36 Recovery of unpaid rent and payment plans — Open (#72, tenure-api Q-121, Q-122).**
+RENT-FE-001 has no screen for the escalation of unpaid rent. Provisional reading:
+
+- **Where it shows.** A « Recouvrement » card on the lease's billing tab, under the arrears. It
+  shows while something is overdue, or once a step or a plan exists. Everything in it comes
+  from `GET /leases/{id}/recovery`; the screen computes no day and no step.
+- **Next steps.** Each step shows its day and a « à faire » tag once that day has passed. A
+  surety step names the surety.
+  - The formal notice and the surety's information have a « Préparer la lettre » button
+    (MD, IC). The letter can be downloaded at once.
+  - « Enregistrer » records the step: day, delivery, reference, the insurer's deadline for a
+    claim, and a note. A step with a letter is recorded on the letter prepared in this visit,
+    or on the letter sent, uploaded. Any other step can carry the deed uploaded.
+- **What else the card shows.** The steps recorded, with their documents and what was owed
+  that day, and the clause résolutoire's day after a commandement.
+- **Payment plan.**
+  - « Proposer un plan d'apurement » opens a dialog. The debt is spread evenly over the chosen
+    number of monthly instalments, the remainder on the last, and each row stays editable.
+  - « Vérifier » asks the API (dry run). The total must equal the overdue debt, and the screen
+    says so before sending.
+  - The card shows the plan's status (respecté, non respecté, soldé, annulé), what was paid
+    against what is due, the next instalment, and why a plan is not respected. While it is
+    respected, it says the escalation is suspended.
+  - The plan can be cancelled.
+- **Who sees what.** An accountant or a co-owner reads the card without buttons.
+- **Archive.** It gains the class « Recouvrement ».

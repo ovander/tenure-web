@@ -96,10 +96,67 @@ export function billingRoutes(ctx) {
     const b = entry.body
     const q = new URL(req.url, 'http://x').searchParams
     const write = req.method !== 'GET'
-    const owned = path.startsWith('/billing') || path.startsWith('/payments') || /^\/leases\/[^/]+\/arrears$/.test(path) || path === '/jobs/billing.receipts/trigger'
+    const owned = path.startsWith('/billing') || path.startsWith('/payments') || /^\/leases\/[^/]+\/(arrears|recovery)/.test(path) || path === '/jobs/billing.receipts/trigger'
     if (!owned) return null
     if (write && state.role !== 'owner') return json(res, 403, { type: 'auth/forbidden', status: 403, title: 'Accès refusé.' })
 
+    // The recovery of unpaid rent (tenure-api Q-121, Q-122): state.recovery[lease
+    // id], as set by the test; letters, steps and plans move it along, not a
+    // second implementation of billing.Recovery.
+    const rec = /^\/leases\/([^/]+)\/recovery(?:\/(letter|steps|plans)(?:\/([^/]+)\/cancel)?)?$/.exec(path)
+    if (rec) {
+      state.recovery ??= {}
+      const r = (state.recovery[rec[1]] ??= { arrears: arrears(rec[1]), steps: [], next: [], sureties: [], insured: false })
+      const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Paris' }).format(new Date())
+      const bad = (type, title) => json(res, 422, { type, status: 422, title })
+      if (req.method === 'GET') return json(res, 200, r)
+      if (rec[2] === 'letter') {
+        const items = (r.arrears.items ?? []).filter((x) => x.overdue)
+        if (!items.length) return bad('billing/recovery-not-due', 'Aucun loyer impayé n’appelle cette étape.')
+        const prefix = b.kind === 'surety_notice' ? 'IC' : 'MD'
+        const l = { kind: b.kind, items, outstanding_cents: r.arrears.overdue_cents, document_id: uuid(), number: `${prefix}-00000001-2026-${String((state.recoveryLetters = (state.recoveryLetters ?? 0) + 1)).padStart(4, '0')}` }
+        record('billing.recovery_letter', 'lease', rec[1], null, l)
+        return json(res, 200, l)
+      }
+      if (rec[2] === 'steps') {
+        if (!b.done_on || b.done_on > today) return bad('billing/recovery-invalid', 'Cette étape du recouvrement est incomplète.')
+        if ((b.kind === 'formal_notice' || b.kind === 'surety_notice') && !b.document_id) return invalid(res, [{ field: 'document_id', message: 'La lettre est obligatoire.' }])
+        const step = { id: uuid(), ...b, outstanding_cents: r.arrears.overdue_cents }
+        r.steps.push(step)
+        r.next = r.next.filter((n) => !(n.kind === b.kind && (n.guarantee_id ?? '') === (b.guarantee_id ?? '')))
+        if (b.kind === 'formal_notice') r.next.push({ kind: 'commandement', due_on: today, overdue: false })
+        if (b.kind === 'commandement') {
+          const d = new Date(`${b.done_on}T00:00:00Z`)
+          d.setUTCDate(d.getUTCDate() + 42)
+          r.resolution_on = d.toISOString().slice(0, 10)
+          r.next.push({ kind: 'court', due_on: r.resolution_on, overdue: false })
+        }
+        record('billing.recovery_step', 'lease', rec[1], null, step)
+        return json(res, 200, r)
+      }
+      if (rec[2] === 'plans' && !rec[3]) {
+        if (r.plan?.status === 'respected') return json(res, 409, { type: 'billing/plan-exists', status: 409, title: 'Un plan d’apurement est déjà en cours pour ce bail.' })
+        const total = (b.instalments ?? []).reduce((x, i) => x + i.amount_cents, 0)
+        if (total !== r.arrears.overdue_cents) return bad('billing/plan-invalid', 'Ce plan d’apurement est incomplet ou ne couvre pas la dette.')
+        const plan = { id: uuid(), agreed_on: b.agreed_on, debt_cents: total, calls: [], instalments: b.instalments, status: 'respected', paid_cents: 0, due_cents: 0, next_instalment: b.instalments[0], version: 1 }
+        if (b.dry_run) return json(res, 200, { ...r, plan })
+        r.plan = plan
+        r.savedNext = r.next
+        r.next = []
+        r.suspended = true
+        record('billing.payment_plan', 'lease', rec[1], null, plan)
+        return json(res, 200, r)
+      }
+      if (rec[3]) {
+        if (!r.plan || r.plan.id !== rec[3]) return json(res, 404, { type: 'http/not-found', status: 404, title: 'Introuvable.' })
+        if (b.version !== r.plan.version) return json(res, 412, { type: 'http/stale', status: 412, title: 'Version périmée.' })
+        Object.assign(r.plan, { status: 'cancelled', cancelled_on: b.cancelled_on, version: r.plan.version + 1 })
+        r.next = r.savedNext ?? []
+        delete r.suspended
+        record('billing.payment_plan_cancel', 'lease', rec[1], null, r.plan)
+        return json(res, 200, r)
+      }
+    }
     if (path === '/billing/runs') {
       if (!/^\d{4}-\d{2}$/.test(b?.period ?? '')) return invalid(res, [{ field: 'period', message: 'Période attendue au format AAAA-MM.' }])
       const fees = due(b.period).map((l) => fee(l, b.period))
