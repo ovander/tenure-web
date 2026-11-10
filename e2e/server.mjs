@@ -14,6 +14,7 @@ import { taxRoutes } from './mock-tax.mjs'
 import { docRoutes } from './mock-docs.mjs'
 import { inventoryRoutes } from './mock-inventory.mjs'
 import { depositRoutes } from './mock-deposit.mjs'
+import { bankRoutes } from './mock-bank.mjs'
 
 const dist = new URL('../dist/', import.meta.url).pathname
 const port = Number(process.env.PORT ?? 4173)
@@ -70,6 +71,7 @@ const tax = (...a) => taxRoutes({ state, json, invalid, uuid, record })(...a)
 const docs = (...a) => docRoutes({ state, json, invalid, uuid, record })(...a)
 const inventory = (...a) => inventoryRoutes({ state, json, invalid, uuid, record })(...a)
 const deposit = (...a) => depositRoutes({ state, json, invalid, uuid, record })(...a)
+const bank = (...a) => bankRoutes({ state, json, invalid, uuid, record })(...a)
 
 const json = (res, status, body, headers = {}) => {
   res.writeHead(status, { 'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json', ...headers })
@@ -136,6 +138,7 @@ async function api(req, res, path) {
   }
   if (path.startsWith('/jobs/runs')) return json(res, 200, { items: state.runs, total: state.runs.length, page: 1, size: 10 })
   if (assets(req, res, path, entry)) return
+  if (bank(req, res, path, entry)) return
   if (billing(req, res, path, entry)) return
   if (charges(req, res, path, entry)) return
   if (tax(req, res, path, entry)) return
