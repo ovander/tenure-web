@@ -30,6 +30,7 @@ export const routes: RouteRecordRaw[] = [
   { path: '/billing', redirect: () => `/billing/${currentPeriod()}` },
   { path: '/billing/payments', name: 'payments', component: () => import('@/features/billing/PaymentsView.vue'), meta: { title: 'nav.billing' } },
   { path: '/billing/:period(\\d{4}-\\d{2})', name: 'billing', component: () => import('@/features/billing/BillingMonth.vue'), meta: { title: 'nav.billing' } },
+  { path: '/bank', name: 'bank', component: () => import('@/features/bank/BankView.vue'), meta: { title: 'nav.bank' } },
   { path: '/charges', name: 'charges', component: () => import('@/features/charges/ChargesLedger.vue'), meta: { title: 'nav.charges' } },
   { path: '/reconciliations/:id', name: 'reconciliation', component: () => import('@/features/charges/ReconciliationWizard.vue'), meta: { title: 'nav.charges' } },
   { path: '/tax', redirect: () => `/tax/${Number(currentPeriod().slice(0, 4)) - 1}` },

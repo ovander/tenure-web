@@ -590,3 +590,32 @@ RENT-FE-001 has no screen for the escalation of unpaid rent. Provisional reading
   - The plan can be cancelled.
 - **Who sees what.** An accountant or a co-owner reads the card without buttons.
 - **Archive.** It gains the class « Recouvrement ».
+
+**Q-W37 Bank reconciliation screen — Open (#74, tenure-api Q-123 to Q-125).** RENT-FE-001 has no
+bank screen; RENT-SPEC-013 asks that only exceptions be left to the owner. Provisional reading:
+
+- **Where.** A « Banque » entry in the navigation opens the lines of one account. The account
+  and the status (à rapprocher by default, rapprochées, ignorées) are kept in the URL. A line
+  the API flags stale is tagged « en attente depuis trop longtemps »; the delay is the API's
+  parameter, and the screen never states a number.
+- **Accounts.** A label, and optionally the last four IBAN characters. The full IBAN is never
+  asked for.
+- **Import.**
+  - The statement is uploaded (scanned and archived), then imported. Its format comes from the
+    extension: .ofx/.qfx or .csv.
+  - For a CSV, the screen reads the header row in the browser, guesses the delimiter, and
+    proposes the columns of a French export: date, label, debit and credit or a signed amount,
+    and reference. The owner checks the mapping and the date format.
+  - « Vérifier » is the API's dry run (new lines, and lines already imported); « Importer »
+    writes.
+- **Matching.**
+  - « Rapprocher automatiquement » first shows how many credits the API is sure of, and how
+    many stay for the owner. It matches nothing until confirmed.
+  - On a credit, « Rapprocher » lists the API's rent suggestions with their rule, each taken in
+    one click for the whole line. « Répartir sur des baux » splits the line across leases,
+    each part with its method; the parts must add up to the amount, and the screen checks this
+    before sending.
+  - On a debit, the charge suggestions are listed: a whole syndic statement, or one charge. A
+    debit with none says to record the charge in the ledger first.
+- **Other actions.** A line is ignored with a note, and reopened from the « ignorées » filter.
+- **Who sees what.** An accountant or a co-owner reads the screen without buttons.

@@ -1098,6 +1098,831 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/bank-accounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The owner's bank accounts
+         * @description Each with its label and the last four IBAN characters; the full IBAN is never stored (RENT-SPEC-013, Q-123).
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["payment.AccountView"][];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Record a bank account
+         * @description A label, and the last four IBAN characters to tell accounts apart.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            /** @description account */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["payment.AccountInput"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["payment.AccountView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bank-lines": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Bank lines
+         * @description The imported bank lines, the latest booked first, by account and status; an unmatched line past the alert delay is flagged stale.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description bank account */
+                    account_id?: string;
+                    /** @description page, from 1 */
+                    page?: number;
+                    /** @description page size, 1 to 100 */
+                    size?: number;
+                    /** @description unmatched, matched or ignored */
+                    status?: string;
+                };
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["httpx.List-payment_LineView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bank-lines/{id}/charge-suggestions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The charges a bank debit may pay
+         * @description A whole statement (every unpaid charge of one asset and day adding up to the debit, as a syndic call), then each unpaid charge of the debit's amount, charged near its day (Q-125). A credit, or a line already matched or ignored, has none.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description bank line id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["charge.Suggestion"][];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bank-lines/{id}/charges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Match a bank debit to charges
+         * @description The confirmed charges the debit paid, adding up to exactly its amount and paid by no other line: each is paid on the line's day and names it, so the charges ledger is bank-backed; the line becomes matched.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description bank line id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description charges */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["charge.MatchChargesInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["charge.MatchChargesResult"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Failed */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bank-lines/{id}/match": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Match a bank credit to rent
+         * @description Records the credit as payments of the leases it is split across (a third party may pay; one line may pay several leases), adding up to its amount; each is paid on the line's day and applied to the lease's oldest unpaid rent calls. The line becomes matched.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description bank line id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description allocations */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["payment.MatchLineInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["payment.MatchLineResult"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Failed */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bank-lines/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ignore or reopen a bank line
+         * @description Ignore an unmatched line (a transfer between one's own accounts, a bank fee), with a note, or reopen an ignored one. A matched line is refused.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description bank line id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description status */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["payment.LineStatusInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["payment.LineView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Failed */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bank-lines/{id}/suggestions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The rent calls a bank credit may pay
+         * @description Strongest rule first (Q-124): the rent call's number and the amount owed; a tenant's name and the amount owed; a housing allowance (CAF, MSA) naming a tenant, for at most the amount owed; the amount owed, booked near the call's due day. A debit, or a line already matched or ignored, has none.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description bank line id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["payment.Suggestion"][];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bank-lines/auto": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Match the sure bank credits
+         * @description Matches, without asking, every unmatched credit with one sure suggestion (the rent call's number, the tenant's name and amount, or an allowance naming the tenant); the amount-and-period rule alone and any ambiguity stay for the owner. dry_run only lists them.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            /** @description account, dry run */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["payment.AutoMatchInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["payment.AutoMatchResult"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/billing/documents": {
         parameters: {
             query?: never;
@@ -9565,6 +10390,107 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/payments/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Import a bank statement (CSV or OFX)
+         * @description A statement uploaded through POST /documents into an account: OFX (version 1 or 2), or CSV read with its mapping (delimiter, decimal point, date column and format, a signed amount or debit and credit columns, label, reference). A statement that cannot be read whole imports nothing; a line the account already holds is counted, not added (Q-123). dry_run only reads it.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            /** @description statement */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["payment.ImportInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["payment.ImportResult"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/reconciliations": {
         parameters: {
             query?: never;
@@ -11476,6 +12402,22 @@ export interface components {
              */
             recoverable?: string;
         };
+        "charge.MatchChargesInput": {
+            charge_ids?: string[];
+            version?: number;
+        };
+        "charge.MatchChargesResult": {
+            charges?: components["schemas"]["charge.View"][];
+            line?: components["schemas"]["payment.LineView"];
+        };
+        "charge.OpenCharge": {
+            amount_cents?: number;
+            asset_id?: string;
+            /** Format: date */
+            charged_on?: string;
+            id?: string;
+            label?: string;
+        };
         "charge.ReconInput": {
             asset_id?: string;
             /** Format: date */
@@ -11505,6 +12447,11 @@ export interface components {
         };
         /** @enum {string} */
         "charge.State": "draft" | "allocated" | "issued" | "settled" | "cancelled";
+        "charge.Suggestion": {
+            charges?: components["schemas"]["charge.OpenCharge"][];
+            /** @enum {string} */
+            rule?: "statement" | "amount_date";
+        };
         "charge.Totals": {
             /**
              * @description Cancellations are the numbers of the documents that cancelled the
@@ -11686,6 +12633,12 @@ export interface components {
         };
         "httpx.List-lease_View": {
             items?: components["schemas"]["lease.View"][];
+            page?: number;
+            size?: number;
+            total?: number;
+        };
+        "httpx.List-payment_LineView": {
+            items?: components["schemas"]["payment.LineView"][];
             page?: number;
             size?: number;
             total?: number;
@@ -12743,6 +13696,87 @@ export interface components {
             source_url?: string;
             value?: Record<string, never>;
         };
+        "payment.AccountInput": {
+            /**
+             * @description IBANLast4 is the last four characters of the IBAN, to tell accounts
+             *     apart; the full IBAN is never stored.
+             * @example 0142
+             */
+            iban_last4?: string;
+            /** @example Compte courant */
+            label?: string;
+        };
+        "payment.AccountView": {
+            iban_last4?: string;
+            id?: string;
+            label?: string;
+            version?: number;
+        };
+        "payment.Allocation": {
+            amount_cents?: number;
+            lease_id?: string;
+            /** @enum {string} */
+            method?: "transfer" | "direct_debit" | "cheque" | "cash" | "card" | "caf" | "other";
+        };
+        "payment.AutoMatched": {
+            line_id?: string;
+            suggestion?: components["schemas"]["payment.Suggestion"];
+        };
+        "payment.AutoMatchInput": {
+            account_id?: string;
+            dry_run?: boolean;
+        };
+        "payment.AutoMatchResult": {
+            left?: number;
+            matched?: components["schemas"]["payment.AutoMatched"][];
+        };
+        "payment.BankLine": {
+            amount_cents?: number;
+            /** Format: date */
+            booked_on?: string;
+            key?: string;
+            label?: string;
+            reference?: string;
+            row?: number;
+        };
+        "payment.CSVMapping": {
+            /** @example Montant */
+            amount?: string;
+            /** @example Crédit */
+            credit?: string;
+            /** @example Date */
+            date?: string;
+            /**
+             * @description DateFormat is a Go layout; 02/01/2006 when empty.
+             * @example 02/01/2006
+             */
+            date_format?: string;
+            /** @example Débit */
+            debit?: string;
+            /** @description DecimalPoint reads amounts as 1234.56; by default they read 1 234,56. */
+            decimal_point?: boolean;
+            /**
+             * @description Delimiter is one character; ";" when empty (the usual French export).
+             * @example ;
+             */
+            delimiter?: string;
+            /** @example Libellé */
+            label?: string;
+            reference?: string;
+        };
+        "payment.ImportInput": {
+            account_id?: string;
+            document_id?: string;
+            dry_run?: boolean;
+            /** @enum {string} */
+            format?: "csv" | "ofx";
+            mapping?: components["schemas"]["payment.CSVMapping"];
+        };
+        "payment.ImportResult": {
+            duplicates?: number;
+            lines?: components["schemas"]["payment.BankLine"][];
+            new?: number;
+        };
         "payment.Input": {
             amount_cents?: number;
             /**
@@ -12757,6 +13791,27 @@ export interface components {
             paid_on?: string;
             reference?: string;
         };
+        "payment.LineStatusInput": {
+            note?: string;
+            /** @enum {string} */
+            status?: "unmatched" | "ignored";
+            version?: number;
+        };
+        "payment.LineView": {
+            account_id?: string;
+            amount_cents?: number;
+            /** Format: date */
+            booked_on?: string;
+            document_id?: string;
+            id?: string;
+            label?: string;
+            note?: string;
+            reference?: string;
+            stale?: boolean;
+            /** @enum {string} */
+            status?: "unmatched" | "matched" | "ignored";
+            version?: number;
+        };
         "payment.MatchInput": {
             auto?: boolean;
             matches?: components["schemas"]["payment.MatchLine"][];
@@ -12765,11 +13820,31 @@ export interface components {
             amount_cents?: number;
             billing_document_id?: string;
         };
+        "payment.MatchLineInput": {
+            allocations?: components["schemas"]["payment.Allocation"][];
+            version?: number;
+        };
+        "payment.MatchLineResult": {
+            line?: components["schemas"]["payment.LineView"];
+            payments?: components["schemas"]["payment.View"][];
+        };
         "payment.MatchView": {
             amount_cents?: number;
             billing_document_id?: string;
             created_at?: string;
             id?: string;
+        };
+        "payment.Suggestion": {
+            amount_cents?: number;
+            billing_document_id?: string;
+            lease_id?: string;
+            /** @enum {string} */
+            method?: "transfer" | "caf";
+            number?: string;
+            period?: string;
+            /** @enum {string} */
+            rule?: "reference" | "name_amount" | "allowance" | "amount_period";
+            tenants?: string[];
         };
         "payment.View": {
             amount_cents?: number;
