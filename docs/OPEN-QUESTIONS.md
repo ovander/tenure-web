@@ -619,3 +619,37 @@ bank screen; RENT-SPEC-013 asks that only exceptions be left to the owner. Provi
     debit with none says to record the charge in the ledger first.
 - **Other actions.** A line is ignored with a note, and reopened from the « ignorées » filter.
 - **Who sees what.** An accountant or a co-owner reads the screen without buttons.
+
+**Q-W38 Loans, the owner's journal and the exports — Open (#76, tenure-api Q-126 to Q-128).**
+RENT-FE-001 has no screen for them; RENT-SPEC-014 asks for loans whose interest feeds line 250,
+a double-entry ledger and the year-end exports. Provisional reading:
+
+- **Loans live on the asset.** An « Emprunts » tab of the asset hub lists the loans that
+  finance it. Each one shows its terms, its totals by year (principal, interest, insurance,
+  balance at the year's end), and its amortisation table, folded by default and opened after
+  a save.
+- **Two ways to record a loan.**
+  - **Computed**: rate in percent, term, first due day, insurance per instalment. The rate is
+    read by string into parts per million, never through a float. A preview shows the monthly
+    instalment and the totals before saving.
+  - **Pasted**: the bank's table from a spreadsheet or its export, one instalment a line, tab-
+    or semicolon-separated, header and total lines skipped. The dialog counts the instalments
+    and the principal they repay against the principal borrowed, and reports the lines it
+    cannot read before sending. The API makes the final check.
+
+  A change touching a closed year comes back as the API's 409 `ledger/period-locked`, shown at
+  the top of the dialog.
+- **The journal** is a « Journal » entry in the navigation, `/ledger/:year`, the current year by
+  default, with the previous and next years one click away.
+  - Entries come with their lines. A charge or instalment without a supporting document is
+    marked.
+  - Balances are grouped by class of the chart, with a total that is always zero.
+  - A tag says whether the year is closed.
+- **The exports** (journal CSV, FEC, year-end pack) are buttons on the journal, step-up
+  actions like the tax summary's: without a fresh strong sign-in, the StepUpDialog opens. The
+  file is saved through a Blob and a temporary link, named as the API names it. The FEC button
+  is disabled until the year is closed, with the reason shown.
+- **The tax screen** reads the new flag `superseded_by_loan` (loan charges typed by hand, set
+  aside) and names a loan's sources « Emprunt — intérêts / assurance de l'échéance n° … ».
+- **Not built yet:** deleting a loan (the API has no route), a link from a tax line's loan
+  source to its loan, and the opening balances (tenure-api Q-127).
