@@ -23,7 +23,7 @@ export const routes: RouteRecordRaw[] = [
   { path: '/inventories/:id/capture', name: 'inventory-capture', component: () => import('@/features/inventory/CaptureView.vue'), meta: { title: 'nav.assets' } },
   { path: '/assets/:id/layout', name: 'asset-layout', component: () => import('@/features/inventory/LayoutView.vue'), meta: { title: 'nav.assets' } },
   { path: '/assets/:id/edit', name: 'asset-edit', component: () => import('@/features/portfolio/AssetForm.vue'), meta: { title: 'nav.assets', ownerOnly: true } },
-  { path: '/assets/:id/:tab(overview|leases|charges|documents|deadlines|activity)?', name: 'asset', component: () => import('@/features/portfolio/AssetHub.vue'), meta: { title: 'nav.assets' } },
+  { path: '/assets/:id/:tab(overview|leases|charges|loans|documents|deadlines|activity)?', name: 'asset', component: () => import('@/features/portfolio/AssetHub.vue'), meta: { title: 'nav.assets' } },
   { path: '/leases/new', name: 'lease-new', component: () => import('@/features/lease/LeaseForm.vue'), meta: { title: 'nav.assets', ownerOnly: true } },
   { path: '/leases/:id/edit', name: 'lease-edit', component: () => import('@/features/lease/LeaseForm.vue'), meta: { title: 'nav.assets', ownerOnly: true } },
   { path: '/leases/:id/:tab(overview|contract|guarantees|billing|inventories|deposit|activity)?', name: 'lease', component: () => import('@/features/lease/LeaseHub.vue'), meta: { title: 'nav.assets' } },
@@ -35,6 +35,8 @@ export const routes: RouteRecordRaw[] = [
   { path: '/reconciliations/:id', name: 'reconciliation', component: () => import('@/features/charges/ReconciliationWizard.vue'), meta: { title: 'nav.charges' } },
   { path: '/tax', redirect: () => `/tax/${Number(currentPeriod().slice(0, 4)) - 1}` },
   { path: '/tax/:year(\\d{4})', name: 'tax', component: () => import('@/features/tax/TaxYear.vue'), meta: { title: 'nav.tax' } },
+  { path: '/ledger', redirect: () => `/ledger/${currentPeriod().slice(0, 4)}` },
+  { path: '/ledger/:year(\\d{4})', name: 'ledger', component: () => import('@/features/ledger/LedgerView.vue'), meta: { title: 'nav.ledger' } },
   { path: '/documents', name: 'documents', component: () => import('@/features/documents/DocumentsView.vue'), meta: { title: 'nav.documents' } },
   {
     path: '/settings',

@@ -18,6 +18,7 @@ import DocumentCard from '@/components/DocumentCard.vue'
 import HelpTip from '@/components/HelpTip.vue'
 import { ApiError } from '@/api/client'
 import { withStepUp } from '@/app/stepUp'
+import { loanSource } from '@/features/loans/loans'
 import { useSession } from '@/stores/session'
 import { useAssets, assetLabel } from '@/features/portfolio/store'
 import { useCharges, type Charge } from '@/features/charges/store'
@@ -131,6 +132,8 @@ function sourceText(id: string): string {
   if (c) return `${date(c.charged_on)} — ${c.label ?? ''} — ${money(c.amount_cents ?? 0)}`
   const p = paymentById.value[id]
   if (p) return `${date(p.paid_on)} — ${t('tax.payment')} — ${money(p.amount_cents ?? 0)}`
+  const l = loanSource(id)
+  if (l) return t(l.insurance ? 'tax.loanInsurance' : 'tax.loanInterest', { seq: l.seq })
   return id
 }
 function sourceLink(id: string): string | undefined {
@@ -190,6 +193,7 @@ const issueBody = computed(() => {
         <Message v-if="flagCounts.unmatched_payment" severity="warn" :closable="false">
           {{ t('tax.flag.unmatched_payment', { n: flagCounts.unmatched_payment }) }} <RouterLink :to="{ path: '/billing/payments', query: { unmatched: '1' } }" class="underline">{{ t('tax.fix') }}</RouterLink>
         </Message>
+        <Message v-if="flagCounts.superseded_by_loan" severity="info" :closable="false" data-test="flag-superseded">{{ t('tax.flag.superseded_by_loan', { n: flagCounts.superseded_by_loan }) }}</Message>
       </div>
 
       <template v-if="issued">

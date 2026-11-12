@@ -9430,6 +9430,770 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/ledger": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The owner's journal of a year
+         * @description Every movement of the year posted on a cash basis, in double entry, to the accounts of the chart in legal_params: rent received (rent, provisions, unapplied), charges paid (their recoverable part to the provisions account), loan instalments, deposits received (a liability) and deposit statements; and the balance of each account. closed says the year's tax summary is issued: what it was computed from no longer changes (Q-127).
+         */
+        get: {
+            parameters: {
+                query: {
+                    /** @description calendar year */
+                    year: number;
+                };
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ledger.View"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ledger/fec.txt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The year's fichier des écritures comptables
+         * @description The eighteen fields of LPF art. A47 A-1, tab-separated, ISO 8859-15, dates AAAAMMJJ, amounts with a decimal comma; only for a closed year, validated the day its tax summary was issued (Q-128). Requires a recent multi-factor login; the export is audited.
+         */
+        get: {
+            parameters: {
+                query: {
+                    /** @description calendar year */
+                    year: number;
+                };
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": string;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ledger/journal.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The year's journal as CSV
+         * @description One row per line of each entry, numbered, amounts in cents (Q-128). Requires a recent multi-factor login; the export is audited.
+         */
+        get: {
+            parameters: {
+                query: {
+                    /** @description calendar year */
+                    year: number;
+                };
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": string;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ledger/pack.zip": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The year-end pack
+         * @description A ZIP of the journal, the balances, the index of the supporting documents and a note; for a closed year, the FEC and the issued 2044 lines too (Q-128). Requires a recent multi-factor login; the export is audited.
+         */
+        get: {
+            parameters: {
+                query: {
+                    /** @description calendar year */
+                    year: number;
+                };
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/zip": string;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/zip": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/zip": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/zip": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/zip": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/loans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Loans
+         * @description The loans financing the scope's assets, of one asset with asset_id, each with its totals by year and without its instalments (RENT-SPEC-014, Q-126).
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description asset */
+                    asset_id?: string;
+                };
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["loan.View"][];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Record a loan
+         * @description Without instalments, the table is computed: a fixed rate, constant monthly instalments, the interest of each month the balance times the annual rate divided by twelve, to the cent half-up, the last instalment closing the balance. With instalments, it is the bank's table as typed in, checked to repay the principal (Q-126). Each instalment due in an income year puts its interest and insurance on line 250 of the tax summary.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: components["requestBodies"]["loan.Input"];
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["loan.View"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/loans/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A loan and its amortisation table */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description loan id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["loan.View"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        /**
+         * Change a loan
+         * @description Replaces its terms and its table, computed or typed in as for POST /loans. A tax summary already issued keeps its figures.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description current version */
+                    "If-Match": string;
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description loan id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: components["requestBodies"]["loan.Input"];
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["loan.View"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Failed */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Required */
+                428: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/loans/schedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Preview an amortisation table
+         * @description The table POST /loans would compute from these terms, without recording anything.
+         */
+        get: {
+            parameters: {
+                query: {
+                    /** @description annual rate, in parts per million */
+                    annual_rate_ppm: number;
+                    /** @description first due day */
+                    first_due_on: string;
+                    /** @description insurance per instalment, in cents */
+                    insurance_cents?: number;
+                    /** @description principal, in cents */
+                    principal_cents: number;
+                    /** @description number of monthly instalments */
+                    term_months: number;
+                };
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["loan.View"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/me": {
         parameters: {
             query?: never;
@@ -13668,6 +14432,117 @@ export interface components {
             updated_at?: string;
             version?: number;
         };
+        "ledger.Balance": {
+            account?: string;
+            /** @description BalanceCents is debit − credit. */
+            balance_cents?: number;
+            credit_cents?: number;
+            debit_cents?: number;
+            label?: string;
+        };
+        "ledger.Entry": {
+            /** Format: date */
+            date?: string;
+            /** @description DocumentID is the supporting document archived for it, if any. */
+            document_id?: string;
+            /** @enum {string} */
+            journal?: "BQ" | "OD";
+            /** @enum {string} */
+            kind?: "payment" | "charge" | "instalment" | "deposit" | "settlement";
+            label?: string;
+            lines?: components["schemas"]["ledger.Line"][];
+            source?: string;
+        };
+        "ledger.Line": {
+            account?: string;
+            credit_cents?: number;
+            debit_cents?: number;
+            label?: string;
+        };
+        "ledger.View": {
+            balances?: components["schemas"]["ledger.Balance"][];
+            /**
+             * @description Closed says the year's tax summary is issued: its figures no longer
+             *     change (Q-127).
+             */
+            closed?: boolean;
+            entries?: components["schemas"]["ledger.Entry"][];
+            year?: number;
+        };
+        "loan.Input": {
+            /**
+             * @description AnnualRatePPM is the nominal annual rate in parts per million (3.45 %
+             *     is 34500); required for a computed table.
+             * @example 34500
+             */
+            annual_rate_ppm?: number;
+            asset_id?: string;
+            /**
+             * @description DocumentID is the bank's offer or table, uploaded through POST
+             *     /documents.
+             */
+            document_id?: string;
+            /** Format: date */
+            first_due_on?: string;
+            instalments?: components["schemas"]["loan.InstalmentInput"][];
+            /** @example 2500 */
+            insurance_cents?: number;
+            /** @example Prêt bancaire */
+            label?: string;
+            /** @example Banque Exemple */
+            lender?: string;
+            /** @example 15000000 */
+            principal_cents?: number;
+            /** @example 240 */
+            term_months?: number;
+        };
+        "loan.Instalment": {
+            /** Format: date */
+            due_on?: string;
+            insurance_cents?: number;
+            interest_cents?: number;
+            principal_cents?: number;
+            remaining_cents?: number;
+            seq?: number;
+        };
+        "loan.InstalmentInput": {
+            /** Format: date */
+            due_on?: string;
+            insurance_cents?: number;
+            interest_cents?: number;
+            principal_cents?: number;
+        };
+        "loan.View": {
+            annual_rate_ppm?: number;
+            asset_id?: string;
+            document_id?: string;
+            /** Format: date */
+            first_due_on?: string;
+            id?: string;
+            instalments?: components["schemas"]["loan.Instalment"][];
+            insurance_cents?: number;
+            insurance_total_cents?: number;
+            interest_cents?: number;
+            label?: string;
+            /** Format: date */
+            last_due_on?: string;
+            lender?: string;
+            principal_cents?: number;
+            /** @enum {string} */
+            source?: "computed" | "imported";
+            term_months?: number;
+            version?: number;
+            years?: components["schemas"]["loan.Year"][];
+        };
+        "loan.Year": {
+            instalments?: number;
+            insurance_cents?: number;
+            interest_cents?: number;
+            principal_cents?: number;
+            /** @description RemainingCents is the principal still owed at the year's end. */
+            remaining_cents?: number;
+            year?: number;
+        };
         "params.Entry": {
             /** Format: date */
             effective_from?: string;
@@ -14084,6 +14959,11 @@ export interface components {
         "tax.Inputs": {
             charges?: number;
             draft_charges?: number;
+            /**
+             * @description LoanInstalments counts the recorded loans' instalments due in the
+             *     year (Q-126).
+             */
+            loan_instalments?: number;
             payments?: number;
             prior_year?: number;
         };
@@ -14158,7 +15038,7 @@ export interface components {
              *     unstamped build; empty when neither is known (go run).
              */
             commit?: string;
-            /** @example go1.27.3 */
+            /** @example go1.27.4 */
             go_version?: string;
             /**
              * @description Modified says an unstamped build was made from a tree with local
@@ -14219,6 +15099,12 @@ export interface components {
         "lease.Input": {
             content: {
                 "application/json": components["schemas"]["lease.Input"];
+            };
+        };
+        /** @description loan */
+        "loan.Input": {
+            content: {
+                "application/json": components["schemas"]["loan.Input"];
             };
         };
         /** @description payment */
