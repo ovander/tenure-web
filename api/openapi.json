@@ -2701,6 +2701,134 @@
                 }
             }
         },
+        "/dashboard": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Per asset: rent, other income, expenses, net, gross and net yield on the acquisition price (a year's worth), vacant and occupied days, provisions received against recoverable charges paid, arrears aged by dashboard.aging. For the portfolio: the same summed, the bank's movements and the income and expenses by month, the year to date against the same days of the previous year, and the tax estimate under both regimes when the year has its 2044 map. Every figure comes from the owner's journal, the tax summary's split (RENT-SPEC-016, Q-129).",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dashboard"
+                ],
+                "summary": "The dashboard of a year",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "calendar year",
+                        "name": "year",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dashboard.View"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/dashboard/assets.csv": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "One row per asset, then the portfolio; amounts in cents, yields in basis points (Q-129). Requires a recent multi-factor login; the export is audited.",
+                "produces": [
+                    "text/csv"
+                ],
+                "tags": [
+                    "dashboard"
+                ],
+                "summary": "The dashboard's assets as CSV",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "calendar year",
+                        "name": "year",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
         "/deposit-deductions/{id}": {
             "delete": {
                 "security": [
@@ -12550,6 +12678,250 @@
                 }
             }
         },
+        "dashboard.Asset": {
+            "type": "object",
+            "properties": {
+                "acquisition_cents": {
+                    "type": "integer"
+                },
+                "arrears": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dashboard.Bucket"
+                    }
+                },
+                "arrears_cents": {
+                    "type": "integer"
+                },
+                "asset_id": {
+                    "type": "string"
+                },
+                "days": {
+                    "description": "Days are the days of the year the asset was held, up to the as-of\nday; VacantDays those it was let to no one.",
+                    "type": "integer"
+                },
+                "expenses_cents": {
+                    "type": "integer"
+                },
+                "gross_yield_bp": {
+                    "description": "GrossYieldBP is the rent over the acquisition price, and NetYieldBP\nthe net, in basis points a year (annualised over the days elapsed in\nthe current year); nil without an acquisition price.",
+                    "type": "integer"
+                },
+                "interest_cents": {
+                    "description": "InterestCents is the part of the expenses that is loan interest.",
+                    "type": "integer"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "net_cents": {
+                    "description": "NetCents is rent + other income − expenses.",
+                    "type": "integer"
+                },
+                "net_yield_bp": {
+                    "type": "integer"
+                },
+                "occupied_days": {
+                    "type": "integer"
+                },
+                "other_income_cents": {
+                    "type": "integer"
+                },
+                "provisions_received_cents": {
+                    "description": "ProvisionsReceivedCents is what the tenants paid towards the\nrecoverable charges; RecoverablePaidCents what the owner paid of\nthem. The difference is the regularisation to come.",
+                    "type": "integer"
+                },
+                "recoverable_paid_cents": {
+                    "type": "integer"
+                },
+                "rent_cents": {
+                    "type": "integer"
+                },
+                "vacant_days": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dashboard.Bucket": {
+            "type": "object",
+            "properties": {
+                "cents": {
+                    "type": "integer"
+                },
+                "from_days": {
+                    "type": "integer"
+                },
+                "to_days": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dashboard.Figures": {
+            "type": "object",
+            "properties": {
+                "arrears": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dashboard.Bucket"
+                    }
+                },
+                "arrears_cents": {
+                    "type": "integer"
+                },
+                "expenses_cents": {
+                    "type": "integer"
+                },
+                "interest_cents": {
+                    "description": "InterestCents is the part of the expenses that is loan interest.",
+                    "type": "integer"
+                },
+                "net_cents": {
+                    "description": "NetCents is rent + other income − expenses.",
+                    "type": "integer"
+                },
+                "other_income_cents": {
+                    "type": "integer"
+                },
+                "provisions_received_cents": {
+                    "description": "ProvisionsReceivedCents is what the tenants paid towards the\nrecoverable charges; RecoverablePaidCents what the owner paid of\nthem. The difference is the regularisation to come.",
+                    "type": "integer"
+                },
+                "recoverable_paid_cents": {
+                    "type": "integer"
+                },
+                "rent_cents": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dashboard.Month": {
+            "type": "object",
+            "properties": {
+                "expenses_cents": {
+                    "type": "integer"
+                },
+                "in_cents": {
+                    "type": "integer"
+                },
+                "income_cents": {
+                    "type": "integer"
+                },
+                "month": {
+                    "type": "string"
+                },
+                "net_cents": {
+                    "type": "integer"
+                },
+                "out_cents": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dashboard.Span": {
+            "type": "object",
+            "properties": {
+                "expenses_cents": {
+                    "type": "integer"
+                },
+                "from": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "income_cents": {
+                    "type": "integer"
+                },
+                "net_cents": {
+                    "type": "integer"
+                },
+                "to": {
+                    "type": "string",
+                    "format": "date"
+                }
+            }
+        },
+        "dashboard.TaxEstimate": {
+            "type": "object",
+            "properties": {
+                "available": {
+                    "type": "boolean"
+                },
+                "flags": {
+                    "type": "integer"
+                },
+                "lower": {
+                    "type": "string",
+                    "enum": [
+                        "micro",
+                        "reel"
+                    ]
+                },
+                "micro": {
+                    "$ref": "#/definitions/tax.Micro"
+                },
+                "millesime": {
+                    "type": "integer"
+                },
+                "owner_id": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "reel": {
+                    "$ref": "#/definitions/tax.Reel"
+                }
+            }
+        },
+        "dashboard.View": {
+            "type": "object",
+            "properties": {
+                "as_of": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "assets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dashboard.Asset"
+                    }
+                },
+                "months": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dashboard.Month"
+                    }
+                },
+                "partial": {
+                    "description": "Partial says the year is not over: its figures run to AsOf.",
+                    "type": "boolean"
+                },
+                "portfolio": {
+                    "description": "Portfolio is the sum of every movement, those tied to no asset\nincluded.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/dashboard.Figures"
+                        }
+                    ]
+                },
+                "previous_year": {
+                    "$ref": "#/definitions/dashboard.Span"
+                },
+                "tax": {
+                    "$ref": "#/definitions/dashboard.TaxEstimate"
+                },
+                "year": {
+                    "type": "integer"
+                },
+                "year_to_date": {
+                    "description": "YearToDate and PreviousYear compare the same span of days.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/dashboard.Span"
+                        }
+                    ]
+                }
+            }
+        },
         "document.Class": {
             "type": "string",
             "enum": [
@@ -16107,6 +16479,10 @@
         "ledger.Entry": {
             "type": "object",
             "properties": {
+                "asset_id": {
+                    "description": "AssetID is the asset the movement concerns, when known.",
+                    "type": "string"
+                },
                 "date": {
                     "type": "string",
                     "format": "date"
