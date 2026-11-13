@@ -3026,6 +3026,168 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The dashboard of a year
+         * @description Per asset: rent, other income, expenses, net, gross and net yield on the acquisition price (a year's worth), vacant and occupied days, provisions received against recoverable charges paid, arrears aged by dashboard.aging. For the portfolio: the same summed, the bank's movements and the income and expenses by month, the year to date against the same days of the previous year, and the tax estimate under both regimes when the year has its 2044 map. Every figure comes from the owner's journal, the tax summary's split (RENT-SPEC-016, Q-129).
+         */
+        get: {
+            parameters: {
+                query: {
+                    /** @description calendar year */
+                    year: number;
+                };
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dashboard.View"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dashboard/assets.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The dashboard's assets as CSV
+         * @description One row per asset, then the portfolio; amounts in cents, yields in basis points (Q-129). Requires a recent multi-factor login; the export is audited.
+         */
+        get: {
+            parameters: {
+                query: {
+                    /** @description calendar year */
+                    year: number;
+                };
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": string;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/deposit-deductions/{id}": {
         parameters: {
             query?: never;
@@ -13272,6 +13434,110 @@ export interface components {
             updated_at?: string;
             version?: number;
         };
+        "dashboard.Asset": {
+            acquisition_cents?: number;
+            arrears?: components["schemas"]["dashboard.Bucket"][];
+            arrears_cents?: number;
+            asset_id?: string;
+            /**
+             * @description Days are the days of the year the asset was held, up to the as-of
+             *     day; VacantDays those it was let to no one.
+             */
+            days?: number;
+            expenses_cents?: number;
+            /**
+             * @description GrossYieldBP is the rent over the acquisition price, and NetYieldBP
+             *     the net, in basis points a year (annualised over the days elapsed in
+             *     the current year); nil without an acquisition price.
+             */
+            gross_yield_bp?: number;
+            /** @description InterestCents is the part of the expenses that is loan interest. */
+            interest_cents?: number;
+            label?: string;
+            /** @description NetCents is rent + other income − expenses. */
+            net_cents?: number;
+            net_yield_bp?: number;
+            occupied_days?: number;
+            other_income_cents?: number;
+            /**
+             * @description ProvisionsReceivedCents is what the tenants paid towards the
+             *     recoverable charges; RecoverablePaidCents what the owner paid of
+             *     them. The difference is the regularisation to come.
+             */
+            provisions_received_cents?: number;
+            recoverable_paid_cents?: number;
+            rent_cents?: number;
+            vacant_days?: number;
+        };
+        "dashboard.Bucket": {
+            cents?: number;
+            from_days?: number;
+            to_days?: number;
+        };
+        "dashboard.Figures": {
+            arrears?: components["schemas"]["dashboard.Bucket"][];
+            arrears_cents?: number;
+            expenses_cents?: number;
+            /** @description InterestCents is the part of the expenses that is loan interest. */
+            interest_cents?: number;
+            /** @description NetCents is rent + other income − expenses. */
+            net_cents?: number;
+            other_income_cents?: number;
+            /**
+             * @description ProvisionsReceivedCents is what the tenants paid towards the
+             *     recoverable charges; RecoverablePaidCents what the owner paid of
+             *     them. The difference is the regularisation to come.
+             */
+            provisions_received_cents?: number;
+            recoverable_paid_cents?: number;
+            rent_cents?: number;
+        };
+        "dashboard.Month": {
+            expenses_cents?: number;
+            in_cents?: number;
+            income_cents?: number;
+            month?: string;
+            net_cents?: number;
+            out_cents?: number;
+        };
+        "dashboard.Span": {
+            expenses_cents?: number;
+            /** Format: date */
+            from?: string;
+            income_cents?: number;
+            net_cents?: number;
+            /** Format: date */
+            to?: string;
+        };
+        "dashboard.TaxEstimate": {
+            available?: boolean;
+            flags?: number;
+            /** @enum {string} */
+            lower?: "micro" | "reel";
+            micro?: components["schemas"]["tax.Micro"];
+            millesime?: number;
+            owner_id?: string;
+            reason?: string;
+            reel?: components["schemas"]["tax.Reel"];
+        };
+        "dashboard.View": {
+            /** Format: date */
+            as_of?: string;
+            assets?: components["schemas"]["dashboard.Asset"][];
+            months?: components["schemas"]["dashboard.Month"][];
+            /** @description Partial says the year is not over: its figures run to AsOf. */
+            partial?: boolean;
+            /**
+             * @description Portfolio is the sum of every movement, those tied to no asset
+             *     included.
+             */
+            portfolio?: components["schemas"]["dashboard.Figures"];
+            previous_year?: components["schemas"]["dashboard.Span"];
+            tax?: components["schemas"]["dashboard.TaxEstimate"];
+            year?: number;
+            /** @description YearToDate and PreviousYear compare the same span of days. */
+            year_to_date?: components["schemas"]["dashboard.Span"];
+        };
         /** @enum {string} */
         "document.Class": "rent_call" | "receipt" | "regularisation" | "revision_notice" | "contract" | "amendment" | "deposit" | "tax_summary" | "inventory" | "supporting" | "other" | "surety" | "restitution" | "notice" | "renewal" | "recovery" | "cancellation";
         "document.ExportInput": {
@@ -14441,6 +14707,8 @@ export interface components {
             label?: string;
         };
         "ledger.Entry": {
+            /** @description AssetID is the asset the movement concerns, when known. */
+            asset_id?: string;
             /** Format: date */
             date?: string;
             /** @description DocumentID is the supporting document archived for it, if any. */
