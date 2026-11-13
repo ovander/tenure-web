@@ -8,6 +8,7 @@
 //   journal      state.journals[year]
 //   exports      step_up: 401 until state.stepUpFresh; the FEC of an open
 //                year is a 409
+//   dashboard    state.dashboards[year]; its CSV is step_up too
 export function ledgerRoutes(ctx) {
   const { state, json, invalid, uuid, record } = ctx
   const notFound = (res) => json(res, 404, { type: 'http/not-found', status: 404, title: 'Introuvable.' })
@@ -45,7 +46,18 @@ export function ledgerRoutes(ctx) {
   return function route(req, res, path, entry) {
     const b = entry.body
     const q = new URL(req.url, 'http://x').searchParams
-    if (!path.startsWith('/loans') && !path.startsWith('/ledger')) return false
+    if (!path.startsWith('/loans') && !path.startsWith('/ledger') && !path.startsWith('/dashboard')) return false
+    if (path === '/dashboard') {
+      const y = Number(q.get('year'))
+      return json(res, 200, state.dashboards?.[y] ?? { year: y, as_of: `${y}-12-31`, partial: false, assets: [], portfolio: {}, months: [], year_to_date: {}, previous_year: {}, tax: { available: false, reason: 'tax/line-map-missing' } })
+    }
+    if (path === '/dashboard/assets.csv') {
+      if (!state.stepUpFresh) return json(res, 401, { type: 'auth/step-up-required', status: 401, title: 'Une authentification forte récente est nécessaire.' })
+      record('dashboard.export', 'dashboard', q.get('year'), null, {})
+      res.writeHead(200, { 'Content-Type': 'text/csv', 'Content-Disposition': 'attachment; filename="tableau-de-bord.csv"' })
+      res.end('year,as_of,asset_id\n')
+      return true
+    }
     state.loans ??= []
     if (req.method !== 'GET' && state.role !== 'owner') return json(res, 403, { type: 'auth/forbidden', status: 403, title: 'Accès refusé.' })
     if (path === '/loans/schedule') return json(res, 200, view({ ...state.loanPreview, instalments: state.loanPreview?.instalments ?? [] }, true))

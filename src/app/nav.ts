@@ -9,6 +9,7 @@ export interface NavItem {
 // The left navigation (RENT-FE-001 §2); Settings sits apart at the bottom.
 export const nav: NavItem[] = [
   { key: 'nav.home', to: '/', icon: 'pi pi-home' },
+  { key: 'nav.dashboard', to: '/dashboard', icon: 'pi pi-chart-bar' },
   { key: 'nav.assets', to: '/assets', icon: 'pi pi-building' },
   { key: 'nav.billing', to: '/billing', icon: 'pi pi-receipt' },
   { key: 'nav.charges', to: '/charges', icon: 'pi pi-calculator' },

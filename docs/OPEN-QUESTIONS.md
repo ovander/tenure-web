@@ -653,3 +653,24 @@ a double-entry ledger and the year-end exports. Provisional reading:
   aside) and names a loan's sources « Emprunt — intérêts / assurance de l'échéance n° … ».
 - **Not built yet:** deleting a loan (the API has no route), a link from a tax line's loan
   source to its loan, and the opening balances (tenure-api Q-127).
+
+**Q-W39 The dashboard screen — Open (#78, tenure-api Q-129).** RENT-FE-001 has no dashboard
+screen; RENT-SPEC-016 asks to see « the portfolio's performance at a glance ». Provisional
+reading:
+
+- **Where.** A « Tableau de bord » entry heads the navigation and opens `/dashboard/:year`,
+  the current year by default, with the previous and next years one click away. A running year
+  shows the day its figures run to. The home page keeps its to-dos and obligations.
+- **What.**
+  - Four tiles for the portfolio: rent, expenses (the loan interest named), net and arrears.
+  - The year to date against the same days of last year, with the change in percent.
+  - The tax estimate under both regimes and the lower one, with a link to the tax summary.
+    When the year's 2044 lines are not published, the screen says so rather than guess.
+  - One row per asset: rent, net, gross and net yield, occupancy with the vacant days,
+    provisions received against recoverable charges paid, and arrears with their non-empty age
+    buckets. Each row links to the asset and to its deadlines (the calendar).
+  - The bank month by month as plain CSS bars, money in and out scaled to the largest month,
+    with the month's balance. There is no chart library.
+- **Percentages** are formatted from the API's basis points; occupancy is computed in integers.
+- **The CSV export** is a step-up action like the other exports, saved through a Blob.
+- **Not built yet:** charts per asset, a trailing twelve months, comparing several years.
