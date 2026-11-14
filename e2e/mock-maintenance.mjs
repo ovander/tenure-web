@@ -1,10 +1,13 @@
 // A small model of tenure-api's maintenance module (internal/maintenance;
 // Q-130, Q-131): enough for the screen's paths, not a second implementation.
 //   contractors   state.contractors
-//   incidents     state.incidents; transitions follow the API's machine; a
-//                 repair's invoice adds a charge to state.charges
+//   incidents     state.incidents; transitions follow the API's machine; the
+//                 invoice of a repair, or of an improvement of an asset whose
+//                 kind state.extraParams['tax.improvement_deductible'] lists, adds a
+//                 charge to state.charges (Q-130)
 //   contracts     state.contracts with their visits; the legal rhythm by kind
-//                 is state.maintenanceRules (made up, as the params are)
+//                 is state.maintenanceRules (made up, as the params are); a
+//                 chimney's by fuel is state.maintenanceChimney (Q-131)
 const next = { new: { quote: 'quoted', schedule: 'scheduled', cancel: 'cancelled' }, quoted: { quote: 'quoted', schedule: 'scheduled', cancel: 'cancelled' },
   scheduled: { schedule: 'scheduled', done: 'done', cancel: 'cancelled' }, done: { invoice: 'invoiced' } }
 
@@ -26,6 +29,13 @@ export function maintenanceRoutes(ctx) {
     const due = last ? addMonths(last, c.interval_months) : c.first_due_on
     const { visits, ...rest } = c
     return { ...rest, last_done_on: last, next_due_on: c.end_on && c.end_on < due ? undefined : due, visits: [...visits].sort((a, b) => b.done_on.localeCompare(a.done_on)) }
+  }
+  // rhythm is the legal rhythm of a kind, a chimney's by its fuel.
+  const rhythm = (b) => {
+    const rule = state.maintenanceRules?.[b?.kind]
+    const ch = state.maintenanceChimney
+    if (b?.kind === 'chimney' && rule && ch) return { ...rule, interval_months: ch.fuels?.[b.fuel] ?? ch.default_months }
+    return rule
   }
   return function route(req, res, path, entry) {
     const b = entry.body
@@ -76,11 +86,13 @@ export function maintenanceRoutes(ctx) {
       if (!to) return json(res, 409, { type: 'maintenance/transition', status: 409, title: 'Cette étape n’est pas possible depuis ce statut.' })
       if (b.action === 'quote' && !(b.quote_cents > 0)) return invalid(res, [{ field: 'quote_cents', message: 'Le montant du devis doit être positif.' }])
       if (b.action === 'done' && !b.done_on) return invalid(res, [{ field: 'done_on', message: 'La date de fin des travaux est obligatoire.' }])
-      if (b.action === 'invoice' && !['repair', 'improvement'].includes(b.treatment)) return invalid(res, [{ field: 'treatment', message: 'Attendu : repair ou improvement.' }])
+      if (b.action === 'invoice' && !['repair', 'improvement', 'construction'].includes(b.treatment)) return invalid(res, [{ field: 'treatment', message: 'Attendu : repair ou improvement.' }])
       const { action, reason, ...fields } = b
       Object.assign(i, fields, { status: to, version: i.version + 1 })
       if (action === 'cancel') i.cancel_reason = reason ?? ''
-      if (action === 'invoice' && b.treatment === 'repair') {
+      const kind = state.assets?.find((a) => a.id === i.asset_id)?.kind
+      const deductible = b.treatment === 'repair' || (b.treatment === 'improvement' && (state.extraParams?.['tax.improvement_deductible']?.asset_kinds ?? []).includes(kind))
+      if (action === 'invoice' && deductible) {
         const ch = { id: uuid(), asset_id: i.asset_id, category: 'repairs', source: 'invoice', label: `Travaux : ${i.title}`, amount_cents: b.invoice_cents, recoverable_cents: 0,
           charged_on: i.done_on, paid_on: b.paid_on, status: 'confirmed', document_id: b.invoice_document_id, version: 1 }
         state.charges ??= []
@@ -91,7 +103,8 @@ export function maintenanceRoutes(ctx) {
     }
     if (path === '/maintenance-contracts') {
       if (req.method === 'GET') return json(res, 200, state.contracts.filter((c) => !q.get('asset_id') || c.asset_id === q.get('asset_id')).map((c) => ({ ...view(c), visits: undefined })))
-      const rule = state.maintenanceRules?.[b?.kind]
+      if (b?.kind === 'chimney' && !b.fuel) return invalid(res, [{ field: 'fuel', message: 'Le combustible est obligatoire pour un ramonage.' }])
+      const rule = rhythm(b)
       const interval = b?.interval_months ?? rule?.interval_months
       if (rule && interval > rule.interval_months) return invalid(res, [{ field: 'interval_months', message: `La loi impose une visite tous les ${rule.interval_months} mois au plus.` }])
       if (!interval) return invalid(res, [{ field: 'interval_months', message: 'Un intervalle de 1 à 120 mois est obligatoire.' }])
@@ -110,7 +123,7 @@ export function maintenanceRoutes(ctx) {
         c.visits.push({ id: uuid(), done_on: b.done_on, document_id: b.document_id, notes: b.notes })
         record('maintenance.visit', 'maintenance_contract', c.id, null, {})
       } else {
-        const rule = state.maintenanceRules?.[b.kind]
+        const rule = rhythm(b)
         if (rule && b.interval_months > rule.interval_months) return invalid(res, [{ field: 'interval_months', message: `La loi impose une visite tous les ${rule.interval_months} mois au plus.` }])
         Object.assign(c, b, { interval_months: b.interval_months ?? rule?.interval_months ?? c.interval_months, responsible: b.responsible ?? rule?.responsible ?? c.responsible })
       }

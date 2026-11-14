@@ -11155,7 +11155,7 @@ export interface paths {
         put?: never;
         /**
          * Record a maintenance contract
-         * @description A recurring maintenance of an asset. For a boiler or a chimney, the interval and who must have it done default to the legal rhythm in legal_params (maintenance.recurring), and a longer interval is refused; for other, both are required. The first visit is due on first_due_on, each next one its interval after the latest visit; the obligations calendar shows it (maintenance_due).
+         * @description A recurring maintenance of an asset. For a boiler or a chimney, the interval and who must have it done default to the legal rhythm in legal_params (maintenance.recurring; for a chimney, by its fuel, required, maintenance.chimney), and a longer interval is refused; for other, both are required. The first visit is due on first_due_on, each next one its interval after the latest visit; the obligations calendar shows it (maintenance_due).
          */
         post: {
             parameters: {
@@ -16010,6 +16010,8 @@ export interface components {
             end_on?: string;
             /** Format: date */
             first_due_on?: string;
+            /** @enum {string} */
+            fuel?: "gas" | "wood" | "pellets" | "oil" | "other";
             id?: string;
             interval_months?: number;
             /** @enum {string} */
@@ -16043,9 +16045,15 @@ export interface components {
             /** Format: date */
             first_due_on?: string;
             /**
-             * @description IntervalMonths defaults to the legal rhythm of a boiler or a chimney
-             *     (maintenance.recurring) and may not exceed it; it is required for
-             *     other.
+             * @description Fuel of a chimney, required for one: its sweeping rhythm depends on
+             *     it (maintenance.chimney, Q-131).
+             * @enum {string}
+             */
+            fuel?: "gas" | "wood" | "pellets" | "oil" | "other";
+            /**
+             * @description IntervalMonths defaults to the legal rhythm of a boiler
+             *     (maintenance.recurring) or of a chimney's fuel (maintenance.chimney)
+             *     and may not exceed it; it is required for other.
              */
             interval_months?: number;
             /**
@@ -16123,7 +16131,7 @@ export interface components {
             /** @example Fuite sous l’évier */
             title?: string;
             /** @enum {string} */
-            treatment?: "repair" | "improvement";
+            treatment?: "repair" | "improvement" | "construction";
             /** @enum {string} */
             urgency?: "low" | "normal" | "urgent";
             version?: number;
@@ -16167,11 +16175,13 @@ export interface components {
             /** Format: date */
             scheduled_on?: string;
             /**
-             * @description Treatment of the invoice: repair (a deductible repairs charge) or
-             *     improvement (capitalised, never deducted).
+             * @description Treatment of the invoice (Q-130): repair (repair or upkeep, a
+             *     deductible repairs charge), improvement (a deductible repairs charge on
+             *     a dwelling, capitalised otherwise) or construction (construction,
+             *     reconstruction or enlargement, capitalised, never deducted).
              * @enum {string}
              */
-            treatment?: "repair" | "improvement";
+            treatment?: "repair" | "improvement" | "construction";
         };
         "maintenance.Visit": {
             document_id?: string;

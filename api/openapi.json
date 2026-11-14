@@ -9738,7 +9738,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "A recurring maintenance of an asset. For a boiler or a chimney, the interval and who must have it done default to the legal rhythm in legal_params (maintenance.recurring), and a longer interval is refused; for other, both are required. The first visit is due on first_due_on, each next one its interval after the latest visit; the obligations calendar shows it (maintenance_due).",
+                "description": "A recurring maintenance of an asset. For a boiler or a chimney, the interval and who must have it done default to the legal rhythm in legal_params (maintenance.recurring; for a chimney, by its fuel, required, maintenance.chimney), and a longer interval is refused; for other, both are required. The first visit is due on first_due_on, each next one its interval after the latest visit; the obligations calendar shows it (maintenance_due).",
                 "consumes": [
                     "application/json"
                 ],
@@ -17881,6 +17881,16 @@
                     "type": "string",
                     "format": "date"
                 },
+                "fuel": {
+                    "type": "string",
+                    "enum": [
+                        "gas",
+                        "wood",
+                        "pellets",
+                        "oil",
+                        "other"
+                    ]
+                },
                 "id": {
                     "type": "string"
                 },
@@ -17950,8 +17960,19 @@
                     "type": "string",
                     "format": "date"
                 },
+                "fuel": {
+                    "description": "Fuel of a chimney, required for one: its sweeping rhythm depends on\nit (maintenance.chimney, Q-131).",
+                    "type": "string",
+                    "enum": [
+                        "gas",
+                        "wood",
+                        "pellets",
+                        "oil",
+                        "other"
+                    ]
+                },
                 "interval_months": {
-                    "description": "IntervalMonths defaults to the legal rhythm of a boiler or a chimney\n(maintenance.recurring) and may not exceed it; it is required for\nother.",
+                    "description": "IntervalMonths defaults to the legal rhythm of a boiler\n(maintenance.recurring) or of a chimney's fuel (maintenance.chimney)\nand may not exceed it; it is required for other.",
                     "type": "integer"
                 },
                 "kind": {
@@ -18137,7 +18158,8 @@
                     "type": "string",
                     "enum": [
                         "repair",
-                        "improvement"
+                        "improvement",
+                        "construction"
                     ]
                 },
                 "urgency": {
@@ -18277,11 +18299,12 @@
                     "format": "date"
                 },
                 "treatment": {
-                    "description": "Treatment of the invoice: repair (a deductible repairs charge) or\nimprovement (capitalised, never deducted).",
+                    "description": "Treatment of the invoice (Q-130): repair (repair or upkeep, a\ndeductible repairs charge), improvement (a deductible repairs charge on\na dwelling, capitalised otherwise) or construction (construction,\nreconstruction or enlargement, capitalised, never deducted).",
                     "type": "string",
                     "enum": [
                         "repair",
-                        "improvement"
+                        "improvement",
+                        "construction"
                     ]
                 }
             }

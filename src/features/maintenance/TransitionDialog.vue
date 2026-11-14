@@ -1,8 +1,10 @@
 <script setup lang="ts">
 // One step of an incident (tenure-api Q-130): a quote, the works scheduled,
-// done, invoiced or cancelled. The invoice of a repair becomes a deductible
-// repairs charge; that of an improvement is capitalised on the asset and
-// deducted nowhere: the owner chooses, with help.
+// done, invoiced or cancelled. The invoice of a repair, or of an improvement
+// of a dwelling, becomes a deductible repairs charge; construction,
+// enlargement and the improvement of other premises are capitalised and
+// deducted nowhere (tenure-api Q-130): the owner chooses the kind of works,
+// with help, and the screen says what follows for this asset.
 import { computed, ref, watch } from 'vue'
 import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
@@ -15,9 +17,11 @@ import DayInput from '@/components/DayInput.vue'
 import DecimalInput from '@/components/DecimalInput.vue'
 import FilePicker from '@/components/FilePicker.vue'
 import { useProblemForm } from '@/app/form'
+import { useAssets } from '@/features/portfolio/store'
+import { param } from '@/features/params/store'
 import { t, type Key } from '@/i18n'
 import { isoDay } from '@/i18n/format'
-import { transition, uploadSupporting, type Action, type Contractor, type Incident, type Transition } from './maintenance'
+import { transition, treatmentOutcome, uploadSupporting, type Action, type Contractor, type Incident, type Transition } from './maintenance'
 
 const visible = defineModel<boolean>('visible')
 const props = defineProps<{ incident: Incident | null; action: Action | null; contractors: Contractor[] }>()
@@ -30,7 +34,13 @@ const { errors, summary, busy, submit, reset } = useProblemForm(async () => {
 })
 
 const contractorOptions = computed(() => props.contractors.map((c) => ({ value: c.id ?? '', label: c.trade ? `${c.name} · ${c.trade}` : (c.name ?? '') })))
-const treatmentOptions = computed(() => (['repair', 'improvement'] as const).map((v) => ({ value: v, label: t(`maintenance.treatment.${v}` as Key) })))
+const treatmentOptions = computed(() => (['repair', 'improvement', 'construction'] as const).map((v) => ({ value: v, label: t(`maintenance.treatment.${v}` as Key) })))
+const assets = useAssets()
+// The asset kinds whose improvements are deductible: the legal parameter
+// tax.improvement_deductible, read from the API (never known here).
+const deductibleKinds = ref<string[]>([])
+const outcome = computed(() =>
+  treatmentOutcome(form.value.treatment ?? 'repair', assets.byId[props.incident?.asset_id ?? '']?.kind, deductibleKinds.value))
 const needsContractor = computed(() => props.action === 'quote' || props.action === 'schedule')
 
 watch(visible, (v) => {
@@ -46,6 +56,7 @@ watch(visible, (v) => {
   if (props.action === 'invoice') {
     form.value.treatment = 'repair'
     amount.value = i?.quote_cents ?? null
+    void param<{ asset_kinds?: string[] }>('tax.improvement_deductible', i?.done_on).then((p) => (deductibleKinds.value = p?.asset_kinds ?? []))
   }
 }, { immediate: true })
 
@@ -102,7 +113,7 @@ async function save(): Promise<void> {
         <FormField id="tr_treatment" :label="t('maintenance.treatmentLabel')" :help="t('help.maintenance.treatment')" :error="errors.treatment">
           <SelectButton v-model="form.treatment" :options="treatmentOptions" option-label="label" option-value="value" :allow-empty="false" data-test="transition-treatment" />
         </FormField>
-        <p class="text-xs text-slate-600" data-test="treatment-hint">{{ t(`maintenance.treatmentHint.${form.treatment ?? 'repair'}` as Key) }}</p>
+        <p class="text-xs text-slate-600" data-test="treatment-hint">{{ t(`maintenance.treatmentHint.${outcome}` as Key) }}</p>
         <div class="grid gap-4 sm:grid-cols-2">
           <FormField id="tr_invoice" :label="t('maintenance.invoiceAmount')" :error="errors.invoice_cents">
             <DecimalInput id="tr_invoice" v-model="amount" suffix="€" :invalid="!!errors.invoice_cents" />

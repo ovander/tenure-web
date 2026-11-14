@@ -1,8 +1,9 @@
 <script setup lang="ts">
 // A recurring maintenance of an asset, recorded or changed (tenure-api
 // Q-131). For a boiler or a chimney the API fills the legal interval and who
-// must have it done when left empty, and refuses a longer interval; for
-// another kind both are needed.
+// must have it done when left empty, and refuses a longer interval; a
+// chimney's rhythm depends on its fuel, required. For another kind both are
+// needed.
 import { computed, ref, watch } from 'vue'
 import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
@@ -29,6 +30,7 @@ const { errors, summary, busy, submit, reset } = useProblemForm(async () => {
 })
 
 const assetOptions = computed(() => Object.values(assets.byId).map((a) => ({ value: a.id ?? '', label: assetLabel(a) })))
+const fuelOptions = computed(() => (['gas', 'wood', 'pellets', 'oil', 'other'] as const).map((f) => ({ value: f, label: t(`maintenance.fuel.${f}` as Key) })))
 const kindOptions = computed(() => (['boiler', 'chimney', 'other'] as const).map((k) => ({ value: k, label: t(`maintenance.kind.${k}` as Key) })))
 const responsibleOptions = computed(() => [
   ...(form.value.kind === 'other' ? [] : [{ value: '', label: t('maintenance.responsibleLegal') }]),
@@ -43,7 +45,7 @@ watch(visible, (v) => {
   if (!Object.keys(assets.byId).length) void assets.list(1, 100)
   const c = props.contract
   form.value = c
-    ? { asset_id: c.asset_id, kind: c.kind, title: c.title, contractor_id: c.contractor_id ?? '', interval_months: c.interval_months, responsible: c.responsible,
+    ? { asset_id: c.asset_id, kind: c.kind, fuel: c.fuel, title: c.title, contractor_id: c.contractor_id ?? '', interval_months: c.interval_months, responsible: c.responsible,
         first_due_on: c.first_due_on, end_on: c.end_on, document_id: c.document_id, notes: c.notes }
     : { asset_id: '', kind: 'boiler', title: t('maintenance.kind.boiler'), contractor_id: '', responsible: undefined, first_due_on: isoDay(new Date()) }
 }, { immediate: true })
@@ -58,10 +60,11 @@ async function save(): Promise<void> {
   if (!form.value.asset_id) local.asset_id = t('maintenance.assetRequired')
   if (!form.value.title?.trim()) local.title = t('maintenance.titleRequired')
   if (form.value.kind === 'other' && !form.value.interval_months) local.interval_months = t('maintenance.intervalRequired')
+  if (form.value.kind === 'chimney' && !form.value.fuel) local.fuel = t('maintenance.fuelRequired')
   let saved: Contract | undefined
   const ok = await submit(async () => {
     const body: ContractInput = { ...form.value, title: form.value.title?.trim(), contractor_id: form.value.contractor_id || undefined,
-      responsible: form.value.responsible || undefined, interval_months: form.value.interval_months || undefined, end_on: form.value.end_on || undefined }
+      responsible: form.value.responsible || undefined, fuel: form.value.kind === 'chimney' ? form.value.fuel : undefined, interval_months: form.value.interval_months || undefined, end_on: form.value.end_on || undefined }
     saved = await saveContract(body, props.contract)
   }, local)
   if (ok && saved) {
@@ -80,6 +83,9 @@ async function save(): Promise<void> {
       </FormField>
       <FormField id="ct_kind" :label="t('maintenance.kindLabel')" :error="errors.kind">
         <Select v-model="form.kind" input-id="ct_kind" :options="kindOptions" option-label="label" option-value="value" class="w-full" data-test="contract-kind" />
+      </FormField>
+      <FormField v-if="form.kind === 'chimney'" id="ct_fuel" :label="t('maintenance.fuelLabel')" :help="t('help.maintenance.fuel')" :error="errors.fuel" class="sm:col-span-2">
+        <Select v-model="form.fuel" input-id="ct_fuel" :options="fuelOptions" option-label="label" option-value="value" class="w-full" :invalid="!!errors.fuel" data-test="contract-fuel" />
       </FormField>
       <FormField id="ct_title" :label="t('maintenance.title')" :error="errors.title" class="sm:col-span-2">
         <InputText id="ct_title" v-model="form.title" class="w-full" :invalid="!!errors.title" data-test="contract-title" />

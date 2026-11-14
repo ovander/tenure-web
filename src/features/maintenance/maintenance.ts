@@ -1,9 +1,10 @@
 // Maintenance and incidents (RENT-SPEC-015; tenure-api Q-130, Q-131;
 // Q-W40): the owner's contractors, the incidents followed from report to
 // invoice, and the recurring maintenance (boiler, chimney) with its visits.
-// A repair's invoice becomes a deductible repairs charge; an improvement's
-// is capitalised on the asset and never deducted. Pure helpers are exported
-// for the tests.
+// The invoice of a repair, or of an improvement of a dwelling, becomes a
+// deductible repairs charge; construction, enlargement and the improvement
+// of other premises are capitalised, never deducted (tenure-api Q-130). Pure
+// helpers are exported for the tests.
 import { api } from '@/api/client'
 import type { Schemas } from '@/api/types'
 import type { DocumentMeta } from '@/features/lease/store'
@@ -115,4 +116,16 @@ export function dueState(c: Pick<Contract, 'next_due_on'>, today: string): 'over
   const soon = new Date(`${today}T00:00:00Z`)
   soon.setUTCDate(soon.getUTCDate() + 30)
   return d <= soon.toISOString().slice(0, 10) ? 'soon' : 'later'
+}
+
+export type Treatment = NonNullable<Transition['treatment']>
+
+// treatmentOutcome says what an invoice of these works becomes on an asset
+// of this kind, as the API decides it (tenure-api Q-130): a deductible
+// repairs charge, or capitalised. The kinds whose improvements are
+// deductible come from the legal parameter tax.improvement_deductible.
+export function treatmentOutcome(t: Treatment, assetKind: string | undefined, deductibleKinds: string[]): 'charge' | 'capitalised' {
+  if (t === 'repair') return 'charge'
+  if (t === 'improvement' && assetKind && deductibleKinds.includes(assetKind)) return 'charge'
+  return 'capitalised'
 }

@@ -137,7 +137,8 @@ async function api(req, res, path) {
   if (path === '/params/irl') return json(res, 200, state.irl)
   if (path === '/params') {
     const key = new URL(req.url, 'http://x').searchParams.get('key')
-    const rows = Object.entries(state.params).filter(([k]) => !key || k === key).map(([k, value]) => ({ key: k, value, effective_from: '2024-01-01', source: 'test' }))
+    // state.extraParams adds entries for one test without replacing the defaults.
+    const rows = Object.entries({ ...state.params, ...state.extraParams }).filter(([k]) => !key || k === key).map(([k, value]) => ({ key: k, value, effective_from: '2024-01-01', source: 'test' }))
     return json(res, 200, rows)
   }
   if (path.startsWith('/jobs/runs')) return json(res, 200, { items: state.runs, total: state.runs.length, page: 1, size: 10 })
