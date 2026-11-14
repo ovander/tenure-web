@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { actions, dueState, editable, isOpen, statusSeverity } from './maintenance'
+import { actions, dueState, editable, isOpen, statusSeverity, treatmentOutcome } from './maintenance'
 
 describe('maintenance helpers', () => {
   it('offers the actions the API machine allows', () => {
@@ -26,5 +26,14 @@ describe('maintenance helpers', () => {
     expect(dueState({ next_due_on: '2026-12-14' }, '2026-11-14')).toBe('soon')
     expect(dueState({ next_due_on: '2026-12-15' }, '2026-11-14')).toBe('later')
     expect(dueState({}, '2026-11-14')).toBe('none')
+  })
+  it('says what an invoice becomes, from the parameter', () => {
+    // Made-up kinds: the list comes from the API's parameter.
+    const kinds = ['apartment']
+    expect(treatmentOutcome('repair', 'box', kinds)).toBe('charge')
+    expect(treatmentOutcome('improvement', 'apartment', kinds)).toBe('charge')
+    expect(treatmentOutcome('improvement', 'house', kinds)).toBe('capitalised')
+    expect(treatmentOutcome('improvement', undefined, kinds)).toBe('capitalised')
+    expect(treatmentOutcome('construction', 'apartment', kinds)).toBe('capitalised')
   })
 })

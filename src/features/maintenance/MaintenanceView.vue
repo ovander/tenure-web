@@ -137,7 +137,7 @@ const dueSeverity = { overdue: 'danger', soon: 'warn', later: 'secondary', none:
               <span v-if="(i.photo_document_ids ?? []).length"> · {{ t('maintenance.photos', { n: i.photo_document_ids?.length ?? 0 }) }}</span>
             </p>
             <p v-if="i.status === 'invoiced'" class="text-sm" data-test="incident-invoice">
-              {{ t('maintenance.invoiceLine', { amount: money(i.invoice_cents ?? 0) }) }}<span v-if="i.treatment === 'repair'"> — {{ t('maintenance.repairCharged') }} <RouterLink to="/charges" class="text-emerald-700 underline" data-test="incident-charge">{{ t('maintenance.seeCharges') }}</RouterLink></span>
+              {{ t('maintenance.invoiceLine', { amount: money(i.invoice_cents ?? 0), works: t(`maintenance.treatment.${i.treatment ?? 'repair'}` as Key).toLowerCase() }) }}<span v-if="i.charge_id"> — {{ t('maintenance.repairCharged') }} <RouterLink to="/charges" class="text-emerald-700 underline" data-test="incident-charge">{{ t('maintenance.seeCharges') }}</RouterLink></span>
               <span v-else> — {{ t('maintenance.improvementCapitalised') }}</span>
             </p>
             <p v-if="i.status === 'cancelled' && i.cancel_reason" class="text-sm text-slate-500">{{ i.cancel_reason }}</p>
@@ -168,7 +168,7 @@ const dueSeverity = { overdue: 'danger', soon: 'warn', later: 'secondary', none:
           </thead>
           <tbody>
             <tr v-for="c in contracts" :key="c.id" class="border-t border-slate-100" data-test="contract">
-              <td class="px-3 py-2"><span class="font-medium">{{ c.title }}</span> <span class="text-xs text-slate-500">{{ t(`maintenance.kind.${c.kind}` as Key) }}</span><br><span v-if="c.contractor_id" class="text-xs text-slate-500">{{ contractorName(c.contractor_id) }}</span></td>
+              <td class="px-3 py-2"><span class="font-medium">{{ c.title }}</span> <span class="text-xs text-slate-500">{{ t(`maintenance.kind.${c.kind}` as Key) }}<template v-if="c.fuel"> · {{ t(`maintenance.fuel.${c.fuel}` as Key) }}</template></span><br><span v-if="c.contractor_id" class="text-xs text-slate-500">{{ contractorName(c.contractor_id) }}</span></td>
               <td>{{ assetName(c.asset_id) }}</td>
               <td>{{ t('maintenance.everyMonths', { n: c.interval_months ?? 0 }) }}</td>
               <td>{{ t(`maintenance.responsible.${c.responsible}` as Key) }}</td>

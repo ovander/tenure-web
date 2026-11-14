@@ -689,12 +689,15 @@ recurring maintenance on the calendar. Provisional reading:
     changed until the works are done.
   - A quote or an invoice can carry its document; photos and documents are uploaded as
     supporting documents of the asset.
-- **The invoice** asks whether the works are a repair or an improvement, with a help tip and a
-  line saying what follows:
-  - a repair becomes a deductible charge, and the card links to the charges;
-  - an improvement is capitalised and never deducted.
+- **The invoice** asks for the kind of works: repair or upkeep, improvement, or construction
+  and enlargement (tenure-api Q-130, #84). A help tip explains each, and a line says what
+  follows for the incident's asset:
+  - a deductible charge, for a repair, or for an improvement when the asset's kind is listed in
+    the legal parameter `tax.improvement_deductible`, read from the API;
+  - otherwise capitalised and never deducted.
 
-  The amount starts from the quote.
+  The card says whether a charge was created, and links to the charges. The amount starts
+  from the quote.
 - **Recurring maintenance.**
   - One row per contract: its kind, asset, interval, who must have it done, the last visit and
     the next one, red when overdue and orange within 30 days. The 30 days are a display choice,
@@ -702,6 +705,7 @@ recurring maintenance on the calendar. Provisional reading:
   - For a boiler or a chimney the interval and who is responsible may be left empty: the API
     fills the legal rhythm and refuses a longer interval. The screen holds no legal value.
   - A visit is recorded with its certificate.
+  - A chimney asks for its fuel; its rhythm by fuel is the API's (tenure-api Q-131, #84).
 - **The calendar** names the `maintenance_due` items (boiler, chimney, other) and links them to
   the recurring maintenance tab.
 - **Not built yet:** an incident tab on the asset hub, the incident's lease, viewing a photo
