@@ -39,6 +39,7 @@ export const routes: RouteRecordRaw[] = [
   { path: '/dashboard/:year(\\d{4})', name: 'dashboard', component: () => import('@/features/dashboard/DashboardView.vue'), meta: { title: 'nav.dashboard' } },
   { path: '/ledger', redirect: () => `/ledger/${currentPeriod().slice(0, 4)}` },
   { path: '/ledger/:year(\\d{4})', name: 'ledger', component: () => import('@/features/ledger/LedgerView.vue'), meta: { title: 'nav.ledger' } },
+  { path: '/maintenance/:tab(incidents|contracts|contractors)?', name: 'maintenance', component: () => import('@/features/maintenance/MaintenanceView.vue'), meta: { title: 'nav.maintenance' } },
   { path: '/documents', name: 'documents', component: () => import('@/features/documents/DocumentsView.vue'), meta: { title: 'nav.documents' } },
   {
     path: '/settings',

@@ -13,13 +13,15 @@ export async function getCalendar(query: { from?: string; to?: string; asset_id?
 }
 
 // itemKey is the item's French label key, with its subject: the diagnostic
-// kind or the completion window.
+// kind, the completion window or the kind of maintenance (tenure-api Q-131).
 export function itemKey(it: Pick<CalendarItem, 'kind' | 'ref'>): { key: Key; params: Record<string, string> } {
   switch (it.kind) {
     case 'diagnostic_expiry':
       return { key: 'calendar.kind.diagnostic_expiry', params: { what: it.ref ?? '' } }
     case 'completion_window':
       return { key: it.ref === 'heating' ? 'calendar.kind.completion_heating' : 'calendar.kind.completion_ten_day', params: {} }
+    case 'maintenance_due':
+      return { key: `calendar.kind.maintenance_${it.ref === 'boiler' || it.ref === 'chimney' ? it.ref : 'other'}` as Key, params: {} }
     default:
       return { key: `calendar.kind.${it.kind ?? 'term_end'}` as Key, params: {} }
   }
@@ -37,6 +39,8 @@ export function itemLink(it: Pick<CalendarItem, 'kind' | 'lease_id' | 'asset_id'
       return `${lease}/deposit`
     case 'insurance_certificate':
       return `${lease}/guarantees`
+    case 'maintenance_due':
+      return '/maintenance/contracts'
     default:
       return `${lease}/overview`
   }

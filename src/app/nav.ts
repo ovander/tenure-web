@@ -14,6 +14,7 @@ export const nav: NavItem[] = [
   { key: 'nav.billing', to: '/billing', icon: 'pi pi-receipt' },
   { key: 'nav.charges', to: '/charges', icon: 'pi pi-calculator' },
   { key: 'nav.bank', to: '/bank', icon: 'pi pi-wallet' },
+  { key: 'nav.maintenance', to: '/maintenance', icon: 'pi pi-wrench' },
   { key: 'nav.tax', to: '/tax', icon: 'pi pi-percentage' },
   { key: 'nav.ledger', to: '/ledger', icon: 'pi pi-book' },
   { key: 'nav.documents', to: '/documents', icon: 'pi pi-folder-open' },

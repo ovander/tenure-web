@@ -2701,6 +2701,232 @@
                 }
             }
         },
+        "/contractors": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The owner's directory of contractors, by name (RENT-SPEC-015, Q-130).",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "maintenance"
+                ],
+                "summary": "Contractors",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/maintenance.Contractor"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "maintenance"
+                ],
+                "summary": "Record a contractor",
+                "parameters": [
+                    {
+                        "description": "contractor",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/maintenance.ContractorInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/maintenance.Contractor"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/contractors/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "maintenance"
+                ],
+                "summary": "Change a contractor",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "contractor id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "current version",
+                        "name": "If-Match",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "contractor",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/maintenance.ContractorInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/maintenance.Contractor"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "412": {
+                        "description": "Precondition Failed",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "428": {
+                        "description": "Precondition Required",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
         "/dashboard": {
             "get": {
                 "security": [
@@ -3837,6 +4063,452 @@
                     },
                     "503": {
                         "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/incidents": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The scope's incidents and works, the latest reported first; of one asset with asset_id, in one status with status, or still open (neither invoiced nor cancelled) with open=true (RENT-SPEC-015, Q-130).",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "maintenance"
+                ],
+                "summary": "Incidents",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "asset",
+                        "name": "asset_id",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "new",
+                            "quoted",
+                            "scheduled",
+                            "done",
+                            "invoiced",
+                            "cancelled"
+                        ],
+                        "type": "string",
+                        "description": "status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "open incidents only",
+                        "name": "open",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/maintenance.Incident"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "An incident reported by the tenant, or works the owner starts, on an asset, optionally under one of its leases, with photos uploaded beforehand as documents. It starts in status new.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "maintenance"
+                ],
+                "summary": "Report an incident",
+                "parameters": [
+                    {
+                        "description": "report",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/maintenance.IncidentInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/maintenance.Incident"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/incidents/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "maintenance"
+                ],
+                "summary": "An incident",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "incident id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/maintenance.Incident"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Replaces the report (not its asset) while the works are not done: in status new, quoted or scheduled; otherwise 409 maintenance/transition.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "maintenance"
+                ],
+                "summary": "Change an incident's report",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "incident id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "current version",
+                        "name": "If-Match",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "report",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/maintenance.IncidentInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/maintenance.Incident"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "412": {
+                        "description": "Precondition Failed",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "428": {
+                        "description": "Precondition Required",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/incidents/{id}/transitions": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "quote (a contractor and the quote's amount, optionally its document), schedule (the day of the works, a contractor), done (the day they ended), invoice (the amount, the treatment, optionally the invoice's document and the day it was paid) or cancel (an optional reason). A repair's invoice creates a confirmed repairs charge, deductible on line 224 of the tax summary; an improvement's is capitalised on the asset and never deducted (Q-130). 409 maintenance/transition from a status that does not allow the action; 409 ledger/period-locked for a repair charged in a closed year.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "maintenance"
+                ],
+                "summary": "Move an incident",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "incident id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "current version",
+                        "name": "If-Match",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "action",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/maintenance.TransitionInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/maintenance.Incident"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "412": {
+                        "description": "Precondition Failed",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "428": {
+                        "description": "Precondition Required",
                         "schema": {
                             "$ref": "#/definitions/problem.Body"
                         }
@@ -8995,6 +9667,420 @@
                 }
             }
         },
+        "/maintenance-contracts": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The scope's recurring maintenance (boiler, chimney, other), of one asset with asset_id, each with its latest visit and the next one due (RENT-SPEC-015, Q-131).",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "maintenance"
+                ],
+                "summary": "Maintenance contracts",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "asset",
+                        "name": "asset_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/maintenance.Contract"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "A recurring maintenance of an asset. For a boiler or a chimney, the interval and who must have it done default to the legal rhythm in legal_params (maintenance.recurring), and a longer interval is refused; for other, both are required. The first visit is due on first_due_on, each next one its interval after the latest visit; the obligations calendar shows it (maintenance_due).",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "maintenance"
+                ],
+                "summary": "Record a maintenance contract",
+                "parameters": [
+                    {
+                        "description": "contract",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/maintenance.ContractInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/maintenance.Contract"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/maintenance-contracts/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "maintenance"
+                ],
+                "summary": "A maintenance contract and its visits",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "contract id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/maintenance.Contract"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Replaces it, not its asset, checked as for POST /maintenance-contracts; set end_on to end it.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "maintenance"
+                ],
+                "summary": "Change a maintenance contract",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "contract id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "current version",
+                        "name": "If-Match",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "contract",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/maintenance.ContractInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/maintenance.Contract"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "412": {
+                        "description": "Precondition Failed",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "428": {
+                        "description": "Precondition Required",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/maintenance-contracts/{id}/visits": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "A visit done (not in the future), with the certificate the contractor gave, uploaded beforehand as a document. The next visit is due its interval after the latest one. A visit is never changed.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "maintenance"
+                ],
+                "summary": "Record a maintenance visit",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "contract id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "contract's current version",
+                        "name": "If-Match",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "visit",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/maintenance.VisitInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/maintenance.Contract"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "412": {
+                        "description": "Precondition Failed",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "428": {
+                        "description": "Precondition Required",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
         "/me": {
             "get": {
                 "security": [
@@ -12067,6 +13153,10 @@
                 "asset_id": {
                     "type": "string"
                 },
+                "contract_id": {
+                    "description": "ContractID is the maintenance contract of a maintenance_due item.",
+                    "type": "string"
+                },
                 "kind": {
                     "type": "string",
                     "enum": [
@@ -12076,7 +13166,8 @@
                         "term_end",
                         "insurance_certificate",
                         "completion_window",
-                        "deposit_deadline"
+                        "deposit_deadline",
+                        "maintenance_due"
                     ]
                 },
                 "lease_id": {
@@ -12087,8 +13178,16 @@
                     "format": "date"
                 },
                 "ref": {
-                    "description": "Ref is what the item is about within its kind: the diagnostic kind,\nor the completion window (ten_day, heating).",
+                    "description": "Ref is what the item is about within its kind: the diagnostic kind,\nthe completion window (ten_day, heating), or the maintenance kind\n(boiler, chimney, other).",
                     "type": "string"
+                },
+                "responsible": {
+                    "description": "Responsible is who must have a maintenance_due visit done: tenant or\nowner.",
+                    "type": "string",
+                    "enum": [
+                        "tenant",
+                        "owner"
+                    ]
                 },
                 "status": {
                     "type": "string",
@@ -16505,7 +17604,8 @@
                         "charge",
                         "instalment",
                         "deposit",
-                        "settlement"
+                        "settlement",
+                        "improvement"
                     ]
                 },
                 "label": {
@@ -16741,6 +17841,482 @@
                 },
                 "year": {
                     "type": "integer"
+                }
+            }
+        },
+        "maintenance.Action": {
+            "type": "string",
+            "enum": [
+                "quote",
+                "schedule",
+                "done",
+                "invoice",
+                "cancel"
+            ],
+            "x-enum-varnames": [
+                "ActionQuote",
+                "ActionSchedule",
+                "ActionDone",
+                "ActionInvoice",
+                "ActionCancel"
+            ]
+        },
+        "maintenance.Contract": {
+            "type": "object",
+            "properties": {
+                "asset_id": {
+                    "type": "string"
+                },
+                "contractor_id": {
+                    "type": "string"
+                },
+                "document_id": {
+                    "type": "string"
+                },
+                "end_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "first_due_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "interval_months": {
+                    "type": "integer"
+                },
+                "kind": {
+                    "type": "string",
+                    "enum": [
+                        "boiler",
+                        "chimney",
+                        "other"
+                    ]
+                },
+                "last_done_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "next_due_on": {
+                    "description": "NextDueOn is the next visit's day; null once the contract has ended\nbefore it.",
+                    "type": "string",
+                    "format": "date"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "responsible": {
+                    "type": "string",
+                    "enum": [
+                        "tenant",
+                        "owner"
+                    ]
+                },
+                "title": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "integer"
+                },
+                "visits": {
+                    "description": "Visits are the visits, the latest first (GET /maintenance-contracts/{id}\nonly).",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/maintenance.Visit"
+                    }
+                }
+            }
+        },
+        "maintenance.ContractInput": {
+            "type": "object",
+            "properties": {
+                "asset_id": {
+                    "type": "string"
+                },
+                "contractor_id": {
+                    "type": "string"
+                },
+                "document_id": {
+                    "description": "DocumentID is the contract signed with the contractor, if any.",
+                    "type": "string"
+                },
+                "end_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "first_due_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "interval_months": {
+                    "description": "IntervalMonths defaults to the legal rhythm of a boiler or a chimney\n(maintenance.recurring) and may not exceed it; it is required for\nother.",
+                    "type": "integer"
+                },
+                "kind": {
+                    "description": "Kind is boiler (yearly servicing), chimney (sweeping) or other.",
+                    "type": "string",
+                    "enum": [
+                        "boiler",
+                        "chimney",
+                        "other"
+                    ]
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "responsible": {
+                    "description": "Responsible is who must have it done, tenant or owner; it defaults to\nthe kind's (maintenance.recurring) and is required for other.",
+                    "type": "string",
+                    "enum": [
+                        "tenant",
+                        "owner"
+                    ]
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Entretien de la chaudière"
+                }
+            }
+        },
+        "maintenance.Contractor": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "contact@plomberie.example"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Plomberie Exemple"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "04 00 00 00 00"
+                },
+                "trade": {
+                    "type": "string",
+                    "example": "plombier"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "maintenance.ContractorInput": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "contact@plomberie.example"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Plomberie Exemple"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "04 00 00 00 00"
+                },
+                "trade": {
+                    "type": "string",
+                    "example": "plombier"
+                }
+            }
+        },
+        "maintenance.Incident": {
+            "type": "object",
+            "properties": {
+                "asset_id": {
+                    "type": "string"
+                },
+                "cancel_reason": {
+                    "type": "string"
+                },
+                "channel": {
+                    "type": "string",
+                    "enum": [
+                        "email",
+                        "phone",
+                        "letter",
+                        "portal",
+                        "visit"
+                    ]
+                },
+                "charge_id": {
+                    "description": "ChargeID is the repairs charge a repair's invoice created.",
+                    "type": "string"
+                },
+                "contractor_id": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "done_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "invoice_cents": {
+                    "type": "integer"
+                },
+                "invoice_document_id": {
+                    "type": "string"
+                },
+                "lease_id": {
+                    "type": "string"
+                },
+                "paid_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "photo_document_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "quote_cents": {
+                    "type": "integer"
+                },
+                "quote_document_id": {
+                    "type": "string"
+                },
+                "reported_by": {
+                    "description": "ReportedBy is tenant or owner (works the owner starts); Channel how it\ncame: email, phone, letter, portal or visit.",
+                    "type": "string",
+                    "enum": [
+                        "tenant",
+                        "owner"
+                    ]
+                },
+                "reported_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "reporter_name": {
+                    "type": "string"
+                },
+                "scheduled_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "status": {
+                    "enum": [
+                        "new",
+                        "quoted",
+                        "scheduled",
+                        "done",
+                        "invoiced",
+                        "cancelled"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/maintenance.Status"
+                        }
+                    ]
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Fuite sous l’évier"
+                },
+                "treatment": {
+                    "type": "string",
+                    "enum": [
+                        "repair",
+                        "improvement"
+                    ]
+                },
+                "urgency": {
+                    "type": "string",
+                    "enum": [
+                        "low",
+                        "normal",
+                        "urgent"
+                    ]
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "maintenance.IncidentInput": {
+            "type": "object",
+            "properties": {
+                "asset_id": {
+                    "type": "string"
+                },
+                "channel": {
+                    "type": "string",
+                    "enum": [
+                        "email",
+                        "phone",
+                        "letter",
+                        "portal",
+                        "visit"
+                    ]
+                },
+                "description": {
+                    "type": "string"
+                },
+                "lease_id": {
+                    "type": "string"
+                },
+                "photo_document_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "reported_by": {
+                    "description": "ReportedBy is tenant or owner (works the owner starts); Channel how it\ncame: email, phone, letter, portal or visit.",
+                    "type": "string",
+                    "enum": [
+                        "tenant",
+                        "owner"
+                    ]
+                },
+                "reported_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "reporter_name": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Fuite sous l’évier"
+                },
+                "urgency": {
+                    "type": "string",
+                    "enum": [
+                        "low",
+                        "normal",
+                        "urgent"
+                    ]
+                }
+            }
+        },
+        "maintenance.Status": {
+            "type": "string",
+            "enum": [
+                "new",
+                "quoted",
+                "scheduled",
+                "done",
+                "invoiced",
+                "cancelled"
+            ],
+            "x-enum-varnames": [
+                "StatusNew",
+                "StatusQuoted",
+                "StatusScheduled",
+                "StatusDone",
+                "StatusInvoiced",
+                "StatusCancelled"
+            ]
+        },
+        "maintenance.TransitionInput": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "enum": [
+                        "quote",
+                        "schedule",
+                        "done",
+                        "invoice",
+                        "cancel"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/maintenance.Action"
+                        }
+                    ]
+                },
+                "contractor_id": {
+                    "type": "string"
+                },
+                "done_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "invoice_cents": {
+                    "type": "integer"
+                },
+                "invoice_document_id": {
+                    "type": "string"
+                },
+                "paid_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "quote_cents": {
+                    "type": "integer"
+                },
+                "quote_document_id": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "scheduled_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "treatment": {
+                    "description": "Treatment of the invoice: repair (a deductible repairs charge) or\nimprovement (capitalised, never deducted).",
+                    "type": "string",
+                    "enum": [
+                        "repair",
+                        "improvement"
+                    ]
+                }
+            }
+        },
+        "maintenance.Visit": {
+            "type": "object",
+            "properties": {
+                "document_id": {
+                    "type": "string"
+                },
+                "done_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                }
+            }
+        },
+        "maintenance.VisitInput": {
+            "type": "object",
+            "properties": {
+                "document_id": {
+                    "description": "DocumentID is the certificate the contractor gave (attestation).",
+                    "type": "string"
+                },
+                "done_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "notes": {
+                    "type": "string"
                 }
             }
         },

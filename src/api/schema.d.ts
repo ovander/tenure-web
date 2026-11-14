@@ -3026,6 +3026,250 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/contractors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Contractors
+         * @description The owner's directory of contractors, by name (RENT-SPEC-015, Q-130).
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["maintenance.Contractor"][];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Record a contractor */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: components["requestBodies"]["maintenance.ContractorInput"];
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["maintenance.Contractor"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/contractors/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Change a contractor */
+        put: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description current version */
+                    "If-Match": string;
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description contractor id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: components["requestBodies"]["maintenance.ContractorInput"];
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["maintenance.Contractor"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Failed */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Required */
+                428: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/dashboard": {
         parameters: {
             query?: never;
@@ -4333,6 +4577,485 @@ export interface paths {
                 };
                 /** @description Service Unavailable */
                 503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/incidents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Incidents
+         * @description The scope's incidents and works, the latest reported first; of one asset with asset_id, in one status with status, or still open (neither invoiced nor cancelled) with open=true (RENT-SPEC-015, Q-130).
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description asset */
+                    asset_id?: string;
+                    /** @description open incidents only */
+                    open?: boolean;
+                    /** @description status */
+                    status?: "new" | "quoted" | "scheduled" | "done" | "invoiced" | "cancelled";
+                };
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["maintenance.Incident"][];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Report an incident
+         * @description An incident reported by the tenant, or works the owner starts, on an asset, optionally under one of its leases, with photos uploaded beforehand as documents. It starts in status new.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: components["requestBodies"]["maintenance.IncidentInput"];
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["maintenance.Incident"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/incidents/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** An incident */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description incident id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["maintenance.Incident"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        /**
+         * Change an incident's report
+         * @description Replaces the report (not its asset) while the works are not done: in status new, quoted or scheduled; otherwise 409 maintenance/transition.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description current version */
+                    "If-Match": string;
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description incident id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: components["requestBodies"]["maintenance.IncidentInput"];
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["maintenance.Incident"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Failed */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Required */
+                428: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/incidents/{id}/transitions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Move an incident
+         * @description quote (a contractor and the quote's amount, optionally its document), schedule (the day of the works, a contractor), done (the day they ended), invoice (the amount, the treatment, optionally the invoice's document and the day it was paid) or cancel (an optional reason). A repair's invoice creates a confirmed repairs charge, deductible on line 224 of the tax summary; an improvement's is capitalised on the asset and never deducted (Q-130). 409 maintenance/transition from a status that does not allow the action; 409 ledger/period-locked for a repair charged in a closed year.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description current version */
+                    "If-Match": string;
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description incident id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description action */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["maintenance.TransitionInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["maintenance.Incident"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Failed */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Required */
+                428: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -10356,6 +11079,463 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/maintenance-contracts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Maintenance contracts
+         * @description The scope's recurring maintenance (boiler, chimney, other), of one asset with asset_id, each with its latest visit and the next one due (RENT-SPEC-015, Q-131).
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description asset */
+                    asset_id?: string;
+                };
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["maintenance.Contract"][];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Record a maintenance contract
+         * @description A recurring maintenance of an asset. For a boiler or a chimney, the interval and who must have it done default to the legal rhythm in legal_params (maintenance.recurring), and a longer interval is refused; for other, both are required. The first visit is due on first_due_on, each next one its interval after the latest visit; the obligations calendar shows it (maintenance_due).
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: components["requestBodies"]["maintenance.ContractInput"];
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["maintenance.Contract"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/maintenance-contracts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A maintenance contract and its visits */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description contract id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["maintenance.Contract"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        /**
+         * Change a maintenance contract
+         * @description Replaces it, not its asset, checked as for POST /maintenance-contracts; set end_on to end it.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description current version */
+                    "If-Match": string;
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description contract id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: components["requestBodies"]["maintenance.ContractInput"];
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["maintenance.Contract"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Failed */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Required */
+                428: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/maintenance-contracts/{id}/visits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record a maintenance visit
+         * @description A visit done (not in the future), with the certificate the contractor gave, uploaded beforehand as a document. The next visit is due its interval after the latest one. A visit is never changed.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description contract's current version */
+                    "If-Match": string;
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description contract id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description visit */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["maintenance.VisitInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["maintenance.Contract"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Failed */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Required */
+                428: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/me": {
         parameters: {
             query?: never;
@@ -13225,16 +14405,25 @@ export interface components {
         };
         "calendar.Item": {
             asset_id?: string;
+            /** @description ContractID is the maintenance contract of a maintenance_due item. */
+            contract_id?: string;
             /** @enum {string} */
-            kind?: "diagnostic_expiry" | "irl_revision" | "notice_end" | "term_end" | "insurance_certificate" | "completion_window" | "deposit_deadline";
+            kind?: "diagnostic_expiry" | "irl_revision" | "notice_end" | "term_end" | "insurance_certificate" | "completion_window" | "deposit_deadline" | "maintenance_due";
             lease_id?: string;
             /** Format: date */
             on?: string;
             /**
              * @description Ref is what the item is about within its kind: the diagnostic kind,
-             *     or the completion window (ten_day, heating).
+             *     the completion window (ten_day, heating), or the maintenance kind
+             *     (boiler, chimney, other).
              */
             ref?: string;
+            /**
+             * @description Responsible is who must have a maintenance_due visit done: tenant or
+             *     owner.
+             * @enum {string}
+             */
+            responsible?: "tenant" | "owner";
             /** @enum {string} */
             status?: "upcoming" | "overdue";
         };
@@ -14716,7 +15905,7 @@ export interface components {
             /** @enum {string} */
             journal?: "BQ" | "OD";
             /** @enum {string} */
-            kind?: "payment" | "charge" | "instalment" | "deposit" | "settlement";
+            kind?: "payment" | "charge" | "instalment" | "deposit" | "settlement" | "improvement";
             label?: string;
             lines?: components["schemas"]["ledger.Line"][];
             source?: string;
@@ -14810,6 +15999,193 @@ export interface components {
             /** @description RemainingCents is the principal still owed at the year's end. */
             remaining_cents?: number;
             year?: number;
+        };
+        /** @enum {string} */
+        "maintenance.Action": "quote" | "schedule" | "done" | "invoice" | "cancel";
+        "maintenance.Contract": {
+            asset_id?: string;
+            contractor_id?: string;
+            document_id?: string;
+            /** Format: date */
+            end_on?: string;
+            /** Format: date */
+            first_due_on?: string;
+            id?: string;
+            interval_months?: number;
+            /** @enum {string} */
+            kind?: "boiler" | "chimney" | "other";
+            /** Format: date */
+            last_done_on?: string;
+            /**
+             * Format: date
+             * @description NextDueOn is the next visit's day; null once the contract has ended
+             *     before it.
+             */
+            next_due_on?: string;
+            notes?: string;
+            /** @enum {string} */
+            responsible?: "tenant" | "owner";
+            title?: string;
+            version?: number;
+            /**
+             * @description Visits are the visits, the latest first (GET /maintenance-contracts/{id}
+             *     only).
+             */
+            visits?: components["schemas"]["maintenance.Visit"][];
+        };
+        "maintenance.ContractInput": {
+            asset_id?: string;
+            contractor_id?: string;
+            /** @description DocumentID is the contract signed with the contractor, if any. */
+            document_id?: string;
+            /** Format: date */
+            end_on?: string;
+            /** Format: date */
+            first_due_on?: string;
+            /**
+             * @description IntervalMonths defaults to the legal rhythm of a boiler or a chimney
+             *     (maintenance.recurring) and may not exceed it; it is required for
+             *     other.
+             */
+            interval_months?: number;
+            /**
+             * @description Kind is boiler (yearly servicing), chimney (sweeping) or other.
+             * @enum {string}
+             */
+            kind?: "boiler" | "chimney" | "other";
+            notes?: string;
+            /**
+             * @description Responsible is who must have it done, tenant or owner; it defaults to
+             *     the kind's (maintenance.recurring) and is required for other.
+             * @enum {string}
+             */
+            responsible?: "tenant" | "owner";
+            /** @example Entretien de la chaudière */
+            title?: string;
+        };
+        "maintenance.Contractor": {
+            /** @example contact@plomberie.example */
+            email?: string;
+            id?: string;
+            /** @example Plomberie Exemple */
+            name?: string;
+            notes?: string;
+            /** @example 04 00 00 00 00 */
+            phone?: string;
+            /** @example plombier */
+            trade?: string;
+            version?: number;
+        };
+        "maintenance.ContractorInput": {
+            /** @example contact@plomberie.example */
+            email?: string;
+            /** @example Plomberie Exemple */
+            name?: string;
+            notes?: string;
+            /** @example 04 00 00 00 00 */
+            phone?: string;
+            /** @example plombier */
+            trade?: string;
+        };
+        "maintenance.Incident": {
+            asset_id?: string;
+            cancel_reason?: string;
+            /** @enum {string} */
+            channel?: "email" | "phone" | "letter" | "portal" | "visit";
+            /** @description ChargeID is the repairs charge a repair's invoice created. */
+            charge_id?: string;
+            contractor_id?: string;
+            description?: string;
+            /** Format: date */
+            done_on?: string;
+            id?: string;
+            invoice_cents?: number;
+            invoice_document_id?: string;
+            lease_id?: string;
+            /** Format: date */
+            paid_on?: string;
+            photo_document_ids?: string[];
+            quote_cents?: number;
+            quote_document_id?: string;
+            /**
+             * @description ReportedBy is tenant or owner (works the owner starts); Channel how it
+             *     came: email, phone, letter, portal or visit.
+             * @enum {string}
+             */
+            reported_by?: "tenant" | "owner";
+            /** Format: date */
+            reported_on?: string;
+            reporter_name?: string;
+            /** Format: date */
+            scheduled_on?: string;
+            /** @enum {unknown} */
+            status?: "new" | "quoted" | "scheduled" | "done" | "invoiced" | "cancelled";
+            /** @example Fuite sous l’évier */
+            title?: string;
+            /** @enum {string} */
+            treatment?: "repair" | "improvement";
+            /** @enum {string} */
+            urgency?: "low" | "normal" | "urgent";
+            version?: number;
+        };
+        "maintenance.IncidentInput": {
+            asset_id?: string;
+            /** @enum {string} */
+            channel?: "email" | "phone" | "letter" | "portal" | "visit";
+            description?: string;
+            lease_id?: string;
+            photo_document_ids?: string[];
+            /**
+             * @description ReportedBy is tenant or owner (works the owner starts); Channel how it
+             *     came: email, phone, letter, portal or visit.
+             * @enum {string}
+             */
+            reported_by?: "tenant" | "owner";
+            /** Format: date */
+            reported_on?: string;
+            reporter_name?: string;
+            /** @example Fuite sous l’évier */
+            title?: string;
+            /** @enum {string} */
+            urgency?: "low" | "normal" | "urgent";
+        };
+        /** @enum {string} */
+        "maintenance.Status": "new" | "quoted" | "scheduled" | "done" | "invoiced" | "cancelled";
+        "maintenance.TransitionInput": {
+            /** @enum {unknown} */
+            action?: "quote" | "schedule" | "done" | "invoice" | "cancel";
+            contractor_id?: string;
+            /** Format: date */
+            done_on?: string;
+            invoice_cents?: number;
+            invoice_document_id?: string;
+            /** Format: date */
+            paid_on?: string;
+            quote_cents?: number;
+            quote_document_id?: string;
+            reason?: string;
+            /** Format: date */
+            scheduled_on?: string;
+            /**
+             * @description Treatment of the invoice: repair (a deductible repairs charge) or
+             *     improvement (capitalised, never deducted).
+             * @enum {string}
+             */
+            treatment?: "repair" | "improvement";
+        };
+        "maintenance.Visit": {
+            document_id?: string;
+            /** Format: date */
+            done_on?: string;
+            id?: string;
+            notes?: string;
+        };
+        "maintenance.VisitInput": {
+            /** @description DocumentID is the certificate the contractor gave (attestation). */
+            document_id?: string;
+            /** Format: date */
+            done_on?: string;
+            notes?: string;
         };
         "params.Entry": {
             /** Format: date */
@@ -15373,6 +16749,24 @@ export interface components {
         "loan.Input": {
             content: {
                 "application/json": components["schemas"]["loan.Input"];
+            };
+        };
+        /** @description contract */
+        "maintenance.ContractInput": {
+            content: {
+                "application/json": components["schemas"]["maintenance.ContractInput"];
+            };
+        };
+        /** @description contractor */
+        "maintenance.ContractorInput": {
+            content: {
+                "application/json": components["schemas"]["maintenance.ContractorInput"];
+            };
+        };
+        /** @description report */
+        "maintenance.IncidentInput": {
+            content: {
+                "application/json": components["schemas"]["maintenance.IncidentInput"];
             };
         };
         /** @description payment */

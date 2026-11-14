@@ -674,3 +674,35 @@ reading:
 - **Percentages** are formatted from the API's basis points; occupancy is computed in integers.
 - **The CSV export** is a step-up action like the other exports, saved through a Blob.
 - **Not built yet:** charts per asset, a trailing twelve months, comparing several years.
+
+**Q-W40 The maintenance screen — Open (#80, tenure-api Q-130, Q-131).** RENT-FE-001 has no
+maintenance screen; RENT-SPEC-015 tracks incidents and works « from report to invoice » and the
+recurring maintenance on the calendar. Provisional reading:
+
+- **Where.** An « Entretien » entry in the navigation opens `/maintenance` with three tabs:
+  incidents, recurring maintenance and contractors. Every role reads; the owner writes.
+- **Incidents.**
+  - The open ones by default (neither invoiced nor cancelled); a box shows them all.
+  - A card per incident: its status, urgency, asset, who reported it and how, the contractor,
+    the quote, the days scheduled and done, the photos.
+  - The buttons are the steps the API's machine allows from the status. The report can be
+    changed until the works are done.
+  - A quote or an invoice can carry its document; photos and documents are uploaded as
+    supporting documents of the asset.
+- **The invoice** asks whether the works are a repair or an improvement, with a help tip and a
+  line saying what follows:
+  - a repair becomes a deductible charge, and the card links to the charges;
+  - an improvement is capitalised and never deducted.
+
+  The amount starts from the quote.
+- **Recurring maintenance.**
+  - One row per contract: its kind, asset, interval, who must have it done, the last visit and
+    the next one, red when overdue and orange within 30 days. The 30 days are a display choice,
+    not a legal delay.
+  - For a boiler or a chimney the interval and who is responsible may be left empty: the API
+    fills the legal rhythm and refuses a longer interval. The screen holds no legal value.
+  - A visit is recorded with its certificate.
+- **The calendar** names the `maintenance_due` items (boiler, chimney, other) and links them to
+  the recurring maintenance tab.
+- **Not built yet:** an incident tab on the asset hub, the incident's lease, viewing a photo
+  from the card, and the visits' history in the row.
