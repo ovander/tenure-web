@@ -710,3 +710,26 @@ recurring maintenance on the calendar. Provisional reading:
   the recurring maintenance tab.
 - **Not built yet:** an incident tab on the asset hub, the incident's lease, viewing a photo
   from the card, and the visits' history in the row.
+
+**Q-W41 The furnished-letting screens — Open (#86, tenure-api Q-132).** RENT-FE-001 has no
+screen for LMNP under the réel. Provisional reading:
+
+- **The asset's « Meublé » tab** shows its component grid:
+  - until one is recorded, the API's proposal (its legal parameters), marked « proposée »;
+  - recording it asks for the day first let furnished, the price and the acquisition costs,
+    capitalised unless expensed, and a share and a duration per component;
+  - shares are typed as percentages and read by string, never through a float; a total that is
+    not 100 % is refused before it is sent;
+  - a version after the first needs its reason; a version is never changed, and once a
+    declaration has used the grid it is frozen and the edit button goes away.
+- **Furniture and works.** The treatment is the API's rule by default (the threshold applies
+  to furniture only; works by their nature). Forcing the other one needs a reason, and the row
+  says « forcé ». The default duration of furniture is the API's.
+- **The depreciation of a year** per component and item, with the amount expensed that year.
+- **`/bic/{year}`**: the réel (receipts, charges, depreciation within the art. 39 C room and the
+  carry, the result, the deficits) beside the micro-BIC, closed when the API says so, and the
+  lower regime. Issuing the year's declaration goes through a confirmation and the step-up; a
+  declared year shows its regime and no longer offers to issue.
+- **The screen holds no legal value**: no threshold, rate, duration or abatement is coded.
+- **Not built yet:** the 2033 forms (their line mapping waits for the accountant, tenure-api
+  Q-132), a document attached to an item, and the per-asset detail of the result.
