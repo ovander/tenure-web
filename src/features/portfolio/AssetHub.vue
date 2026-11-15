@@ -19,6 +19,7 @@ import AssetLeases from '@/features/lease/AssetLeases.vue'
 import ChargesLedger from '@/features/charges/ChargesLedger.vue'
 import DocumentsView from '@/features/documents/DocumentsView.vue'
 import AssetLoans from '@/features/loans/AssetLoans.vue'
+import AssetBIC from '@/features/bic/AssetBIC.vue'
 
 const route = useRoute()
 const store = useAssets()
@@ -30,7 +31,7 @@ const tab = computed(() => (route.params.tab as string) || 'overview')
 // Audit events are readable by the owner and the accountant (tenure-api
 // GuardAuditReaders; Q-W8).
 const tabs = computed(() =>
-  (['overview', 'leases', 'charges', 'loans', 'documents', 'deadlines', 'activity'] as const).filter((x) => x !== 'activity' || s.role !== 'co_owner'),
+  (['overview', 'leases', 'charges', 'loans', 'furnished', 'documents', 'deadlines', 'activity'] as const).filter((x) => x !== 'activity' || s.role !== 'co_owner'),
 )
 
 async function load(): Promise<void> {
@@ -89,6 +90,7 @@ watch(id, load)
       <ActivityList v-else-if="tab === 'activity'" entity-type="asset" :entity-id="asset.id ?? ''" />
       <ChargesLedger v-else-if="tab === 'charges'" :asset-id="asset.id ?? ''" embedded />
       <AssetLoans v-else-if="tab === 'loans'" :asset-id="asset.id ?? ''" />
+      <AssetBIC v-else-if="tab === 'furnished'" :asset-id="asset.id ?? ''" />
       <DocumentsView v-else-if="tab === 'documents'" :asset-id="asset.id ?? ''" embedded />
       <AssetCalendar v-else-if="tab === 'deadlines'" :asset-id="asset.id ?? ''" />
       <ComingSoonPanel v-else />

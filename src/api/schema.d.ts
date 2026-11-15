@@ -317,6 +317,288 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/assets/{id}/bic-grid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * An asset's component grid
+         * @description The latest version of the asset's grid for furnished letting under the réel; while it has none, the default proposal (version 0, proposed): the lines of bic.components, the acquisition price, the start of its first furnished lease, the acquisition costs as bic.acquisition_costs says (RENT-SPEC-019, Q-132).
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description asset id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["bic.GridView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        /**
+         * Record a version of an asset's component grid
+         * @description Records the next version (If-Match: the version read, 0 for the first). The shares add up to 100 % (10 000 basis points); a line of 0 months is not depreciated (the land). The basis is the price with the acquisition costs unless they are expensed. A version is never changed; a change after the first needs its reason.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description current version (0 for none) */
+                    "If-Match": string;
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description asset id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description grid */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["bic.GridInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["bic.GridView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Failed */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Required */
+                428: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/assets/{id}/depreciation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * An asset's depreciation for a year
+         * @description Straight-line by days from the day first let furnished (an item: put in service), each line closed on its last day, cents half-up (Q-132): one row per component of the latest grid, then per capitalised item; with the cost of the items expensed that year.
+         */
+        get: {
+            parameters: {
+                query: {
+                    /** @description calendar year */
+                    year: number;
+                };
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description asset id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["bic.DepreciationView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/assets/{id}/diagnostics": {
         parameters: {
             query?: never;
@@ -445,6 +727,167 @@ export interface paths {
                 };
                 /** @description Conflict */
                 409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/assets/{id}/fixed-assets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** An asset's furniture and works */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description asset id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["bic.ItemView"][];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Record furniture or works on an asset
+         * @description Expense or fixed asset (Q-132): works of repair are an expense; improvement and construction works are fixed assets; furniture under bic.small_equipment is expensed. A treatment forced against the rule needs its reason, traced. Furniture takes bic.furniture's months unless given; works need theirs.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description asset id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: components["requestBodies"]["bic.ItemInput"];
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["bic.ItemView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -1917,6 +2360,232 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bic/declarations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The BIC declarations issued
+         * @description The scope's owner's declarations of furnished letting, by year, with their figures as issued (Q-132).
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["bic.Declaration"][];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Issue a year's BIC declaration
+         * @description Issues the year under the regime chosen (step_up): its figures, computed from the declarations before it, are stored as they are, and the grid versions they used are frozen; a frozen grid takes no new version (409 bic/grid-frozen). A year is declared once (409 bic/declared), after the years before it (409 bic/declaration-order); the micro is open up to its receipts threshold (422 bic/micro-closed). Under the micro, the year carries no depreciation of its own and passes the earlier carry on (Q-132).
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            /** @description year and regime */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["bic.DeclarationInput"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["bic.Declaration"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bic/result": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The BIC result of furnished letting for a year
+         * @description The scope's owner's furnished letting under the réel (RENT-SPEC-019, Q-132), their shares applied. Receipts are rent, provisions, regularisation and what a deposit statement kept. Charges are the other charges paid (recoverable included), the loan interest and insurance, and the furniture expensed. The depreciation deducted is capped at receipts less those charges (CGI art. 39 C, II); the excess is carried to the next years without time limit. The years from the first one in service are chained to carry it. The micro-BIC figure (bic.micro) and the lower regime are given beside.
+         */
+        get: {
+            parameters: {
+                query: {
+                    /** @description calendar year */
+                    year: number;
+                };
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["bic.ResultView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -4133,6 +4802,125 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/fixed-assets/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Change furniture or works
+         * @description Replaces it, checked as for POST /assets/{id}/fixed-assets; set disposed_on when it leaves the asset.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description current version */
+                    "If-Match": string;
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description item id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: components["requestBodies"]["bic.ItemInput"];
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["bic.ItemView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Failed */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Required */
+                428: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/grants": {
         parameters: {
             query?: never;
@@ -4949,7 +5737,7 @@ export interface paths {
         put?: never;
         /**
          * Move an incident
-         * @description quote (a contractor and the quote's amount, optionally its document), schedule (the day of the works, a contractor), done (the day they ended), invoice (the amount, the treatment, optionally the invoice's document and the day it was paid) or cancel (an optional reason). A repair's invoice creates a confirmed repairs charge, deductible on line 224 of the tax summary; an improvement's is capitalised on the asset and never deducted (Q-130). 409 maintenance/transition from a status that does not allow the action; 409 ledger/period-locked for a repair charged in a closed year.
+         * @description quote (a contractor and the quote's amount, optionally its document), schedule (the day of the works, a contractor), done (the day they ended), invoice (the amount, the treatment, optionally the invoice's document and the day it was paid) or cancel (an optional reason). The invoice of a repair, or of an improvement of an asset whose kind tax.improvement_deductible lists (the dwellings), creates a confirmed repairs charge, deductible on line 224 of the tax summary; construction, reconstruction or enlargement, and the improvement of other premises, are capitalised on the asset and never deducted (Q-130). 409 maintenance/transition from a status that does not allow the action; 409 ledger/period-locked for a repair charged in a closed year.
          */
         post: {
             parameters: {
@@ -14114,6 +14902,234 @@ export interface components {
             owner_id?: string;
             role?: components["schemas"]["auth.Role"];
         };
+        "bic.AssetYear": {
+            asset_id?: string;
+            charges_cents?: number;
+            depreciation_cents?: number;
+            expensed_cents?: number;
+            /**
+             * @description GridVersion is the asset's grid, 0 while it has none (its building is
+             *     then not depreciated).
+             */
+            grid_version?: number;
+            interest_cents?: number;
+            receipts_cents?: number;
+            /** @description ShareBP is the owner's share of the asset. */
+            share_bp?: number;
+        };
+        "bic.Declaration": {
+            assets?: components["schemas"]["bic.AssetYear"][];
+            grids?: components["schemas"]["bic.GridUse"][];
+            id?: string;
+            issued_at?: string;
+            /** @enum {string} */
+            regime?: "reel" | "micro";
+            result?: components["schemas"]["bic.YearResult"];
+            year?: number;
+        };
+        "bic.DeclarationInput": {
+            /** @enum {string} */
+            regime?: "reel" | "micro";
+            year?: number;
+        };
+        "bic.Deficit": {
+            remaining_cents?: number;
+            year?: number;
+        };
+        "bic.DepreciationView": {
+            asset_id?: string;
+            /**
+             * @description ExpensedCents is the cost of the items expensed, put in service in the
+             *     year.
+             */
+            expensed_cents?: number;
+            /**
+             * @description GridVersion is the grid used, 0 when the asset has none yet (only its
+             *     items are depreciated).
+             */
+            grid_version?: number;
+            rows?: components["schemas"]["bic.Row"][];
+            total_cents?: number;
+            year?: number;
+        };
+        "bic.GridInput": {
+            acquisition_costs_cents?: number;
+            /**
+             * @description CostsExpensed expenses the acquisition costs in the first year rather
+             *     than spreading them over the components (an option, traced).
+             */
+            costs_expensed?: boolean;
+            /**
+             * Format: date
+             * @description InServiceOn is the day the asset was first let furnished.
+             */
+            in_service_on?: string;
+            lines?: components["schemas"]["bic.Line"][];
+            price_cents?: number;
+            /** @description Reason says why a version changes the one before. */
+            reason?: string;
+        };
+        "bic.GridUse": {
+            asset_id?: string;
+            grid_id?: string;
+            version?: number;
+        };
+        "bic.GridView": {
+            acquisition_costs_cents?: number;
+            asset_id?: string;
+            /** @description Bases is each line's share of the basis, in the lines' order. */
+            bases?: number[];
+            basis_cents?: number;
+            costs_expensed?: boolean;
+            created_at?: string;
+            frozen?: boolean;
+            /** Format: date */
+            in_service_on?: string;
+            lines?: components["schemas"]["bic.Line"][];
+            price_cents?: number;
+            proposed?: boolean;
+            reason?: string;
+            version?: number;
+        };
+        "bic.ItemInput": {
+            cost_cents?: number;
+            /** Format: date */
+            disposed_on?: string;
+            document_id?: string;
+            /** Format: date */
+            in_service_on?: string;
+            /** @enum {string} */
+            kind?: "furniture" | "works";
+            label?: string;
+            /** @description Months defaults to bic.furniture for furniture; required for works. */
+            months?: number;
+            override_reason?: string;
+            /**
+             * @description Treatment forces asset or expense against the rule (Q-132); the
+             *     reason is then required and traced.
+             * @enum {string}
+             */
+            treatment?: "asset" | "expense";
+            /**
+             * @description Works is the nature of works: repair, improvement or construction.
+             * @enum {string}
+             */
+            works?: "repair" | "improvement" | "construction";
+        };
+        "bic.ItemView": {
+            asset_id?: string;
+            cost_cents?: number;
+            /** Format: date */
+            disposed_on?: string;
+            document_id?: string;
+            id?: string;
+            /** Format: date */
+            in_service_on?: string;
+            /** @enum {string} */
+            kind?: "furniture" | "works";
+            label?: string;
+            months?: number;
+            overridden?: boolean;
+            override_reason?: string;
+            /**
+             * @description Suggested is what the rule gives without an override.
+             * @enum {string}
+             */
+            suggested?: "asset" | "expense";
+            /** @enum {string} */
+            treatment?: "asset" | "expense";
+            version?: number;
+            /** @enum {string} */
+            works?: "repair" | "improvement" | "construction";
+        };
+        "bic.Line": {
+            component?: string;
+            months?: number;
+            share_bp?: number;
+        };
+        "bic.Micro": {
+            abatement_cents?: number;
+            eligible?: boolean;
+            taxable_cents?: number;
+        };
+        "bic.ResultView": {
+            assets?: components["schemas"]["bic.AssetYear"][];
+            chain?: components["schemas"]["bic.YearResult"][];
+            result?: components["schemas"]["bic.YearResult"];
+            year?: number;
+        };
+        "bic.Row": {
+            base_cents?: number;
+            depreciable?: boolean;
+            /** Format: date */
+            end_on?: string;
+            label?: string;
+            months?: number;
+            net_cents?: number;
+            prior_cents?: number;
+            /** @description Ref is the component, or the item's id. */
+            ref?: string;
+            /** Format: date */
+            start_on?: string;
+            year_cents?: number;
+        };
+        "bic.YearResult": {
+            /** @description CarriedInCents is the depreciation carried from earlier years. */
+            carried_in_cents?: number;
+            carried_out_cents?: number;
+            /**
+             * @description ChargesCents is the charges paid (the recoverable part included, the
+             *     provisions being receipts), the loan interest and insurance, and the
+             *     furniture expensed.
+             */
+            charges_cents?: number;
+            /** @description Declared says the year comes from an issued declaration. */
+            declared?: boolean;
+            deducted_cents?: number;
+            /**
+             * @description DeficitUsedCents is the earlier deficits set against a positive réel
+             *     result, the oldest first.
+             */
+            deficit_used_cents?: number;
+            /** @description Deficits are the deficits still open after the year. */
+            deficits?: components["schemas"]["bic.Deficit"][];
+            depreciation_cents?: number;
+            /**
+             * @description Lower is the regime with the lower taxable result: micro or reel; reel
+             *     when micro is not open.
+             * @enum {string}
+             */
+            lower?: "micro" | "reel";
+            micro?: components["schemas"]["bic.Micro"];
+            /**
+             * @description ReceiptsCents is rent, provisions, regularisation and what a deposit
+             *     statement kept.
+             */
+            receipts_cents?: number;
+            /**
+             * @description Regime is the regime of the year: reel (the default) or micro.
+             * @enum {string}
+             */
+            regime?: "reel" | "micro";
+            /**
+             * @description ResultCents is the réel result: receipts − charges − depreciation
+             *     deducted; negative only through the other charges (a deficit).
+             */
+            result_cents?: number;
+            /**
+             * @description RoomCents is what the depreciation may take: receipts less the other
+             *     charges, never below zero (CGI art. 39 C, II).
+             */
+            room_cents?: number;
+            /** @description Stored is the result of a year already declared. */
+            stored?: components["schemas"]["bic.YearResult"];
+            /**
+             * @description TaxableCents is the year's taxable result under its regime: the réel
+             *     result less the deficits used (never below zero), or the micro figure.
+             */
+            taxable_cents?: number;
+            year?: number;
+        };
         "billing.ArrearsItem": {
             billing_document_id?: string;
             days_late?: number;
@@ -16731,6 +17747,12 @@ export interface components {
     responses: never;
     parameters: never;
     requestBodies: {
+        /** @description item */
+        "bic.ItemInput": {
+            content: {
+                "application/json": components["schemas"]["bic.ItemInput"];
+            };
+        };
         /** @description charge */
         "charge.Input": {
             content: {

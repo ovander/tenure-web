@@ -17,6 +17,7 @@ import { depositRoutes } from './mock-deposit.mjs'
 import { bankRoutes } from './mock-bank.mjs'
 import { ledgerRoutes } from './mock-ledger.mjs'
 import { maintenanceRoutes } from './mock-maintenance.mjs'
+import { bicRoutes } from './mock-bic.mjs'
 
 const dist = new URL('../dist/', import.meta.url).pathname
 const port = Number(process.env.PORT ?? 4173)
@@ -76,6 +77,7 @@ const deposit = (...a) => depositRoutes({ state, json, invalid, uuid, record })(
 const bank = (...a) => bankRoutes({ state, json, invalid, uuid, record })(...a)
 const ledger = (...a) => ledgerRoutes({ state, json, invalid, uuid, record })(...a)
 const maintenance = (...a) => maintenanceRoutes({ state, json, invalid, uuid, record })(...a)
+const bicMock = (...a) => bicRoutes({ state, json, invalid, uuid, record })(...a)
 
 const json = (res, status, body, headers = {}) => {
   res.writeHead(status, { 'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json', ...headers })
@@ -146,6 +148,7 @@ async function api(req, res, path) {
   if (bank(req, res, path, entry)) return
   if (ledger(req, res, path, entry)) return
   if (maintenance(req, res, path, entry)) return
+  if (bicMock(req, res, path, entry)) return
   if (billing(req, res, path, entry)) return
   if (charges(req, res, path, entry)) return
   if (tax(req, res, path, entry)) return
