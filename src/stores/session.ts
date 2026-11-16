@@ -35,6 +35,8 @@ export const useSession = defineStore('session', () => {
   )
   const role = computed(() => active.value?.role)
   const canWrite = computed(() => role.value === 'owner')
+  // isSCI is true in an SCI's scope (tenure-api Q-133).
+  const isSCI = computed(() => active.value?.kind === 'sci')
   const displayName = computed(
     () => me.value?.owner?.legal_name || session.value?.user?.name || session.value?.user?.email || '',
   )
@@ -83,5 +85,5 @@ export const useSession = defineStore('session', () => {
     }
   }
 
-  return { session, me, scopes, active, role, canWrite, displayName, stepUpPending, load, refreshMe, selectScope, logout }
+  return { session, me, scopes, active, role, canWrite, isSCI, displayName, stepUpPending, load, refreshMe, selectScope, logout }
 })

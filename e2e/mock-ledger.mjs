@@ -66,7 +66,8 @@ export function ledgerRoutes(ctx) {
       if (!b?.label) return invalid(res, [{ field: 'label', message: 'Un libellé de 1 à 100 caractères est obligatoire.' }])
       const rows = table(b)
       if (!rows) return json(res, 422, { type: 'loan/schedule-invalid', status: 422, title: 'Le tableau d’amortissement de cet emprunt est incohérent.' })
-      const l = { id: uuid(), asset_id: b.asset_id, label: b.label, lender: b.lender, principal_cents: b.principal_cents, annual_rate_ppm: b.annual_rate_ppm ?? null,
+      if (b.kind === 'parts' && state.entities?.some((e) => e.id === entry.scope)) return json(res, 409, { type: 'loan/parts-person-only', status: 409, title: 'Un emprunt pour des parts de SCI est celui d’un associé.' })
+      const l = { id: uuid(), kind: b.kind ?? 'asset', sci_name: b.sci_name, asset_id: b.kind === 'parts' ? null : b.asset_id, label: b.label, lender: b.lender, principal_cents: b.principal_cents, annual_rate_ppm: b.annual_rate_ppm ?? null,
         term_months: rows.length, first_due_on: rows[0]?.due_on, insurance_cents: rows[0]?.insurance_cents ?? 0, source: b.instalments?.length ? 'imported' : 'computed', instalments: rows, version: 1 }
       state.loans.push(l)
       record('loan.create', 'loan', l.id, null, view(l, false))

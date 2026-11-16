@@ -128,6 +128,22 @@ async function exportCSV(): Promise<void> {
             </dl>
             <p class="mt-2 text-xs text-slate-600" data-test="tax-lower">{{ t(`dashboard.lower.${data.tax.lower ?? 'reel'}` as Key) }}</p>
             <RouterLink :to="`/tax/${year}`" class="text-xs text-emerald-800 underline">{{ t('dashboard.taxOpen') }}</RouterLink>
+            <div v-if="(data.tax.sci_shares ?? []).length || (data.tax.parts_loans ?? []).length || data.tax.sci_pending" class="mt-3 border-t border-slate-100 pt-2" data-test="tax-sci">
+              <p class="text-xs font-medium text-slate-600">{{ t('dashboard.sciIncluded') }}</p>
+              <p v-for="x in data.tax.sci_shares ?? []" :key="x.declaration_id" class="text-xs" data-test="tax-sci-share">{{ t('dashboard.sciShare', { sci: x.sci_name ?? '', net: money(x.net_cents ?? 0) }) }}</p>
+              <p v-for="l in data.tax.parts_loans ?? []" :key="l.loan_id" class="text-xs" data-test="tax-parts-loan">{{ t('dashboard.partsLoan', { sci: l.sci_name ?? '', amount: money((l.interest_cents ?? 0) + (l.insurance_cents ?? 0)) }) }}</p>
+              <p v-if="data.tax.sci_pending" class="text-xs text-orange-700" data-test="tax-sci-pending">{{ t('dashboard.sciPending', { n: data.tax.sci_pending }) }}</p>
+              <RouterLink :to="`/shares/${year}`" class="text-xs text-emerald-800 underline">{{ t('dashboard.sharesOpen') }}</RouterLink>
+            </div>
+            <div v-if="data.tax.bic" class="mt-3 border-t border-slate-100 pt-2" data-test="tax-bic">
+              <p class="text-xs font-medium text-slate-600">{{ t('dashboard.bicBeside') }}</p>
+              <p class="text-xs">{{ t(data.tax.bic.declared ? 'dashboard.bicDeclared' : 'dashboard.bicEstimate', { regime: t(`bic.regime.${data.tax.bic.regime ?? 'reel'}` as Key), taxable: money(data.tax.bic.taxable_cents ?? 0) }) }}</p>
+              <RouterLink :to="`/bic/${year}`" class="text-xs text-emerald-800 underline">{{ t('dashboard.bicOpen') }}</RouterLink>
+            </div>
+          </template>
+          <template v-else-if="data.tax?.reason === 'entity/sci'">
+            <p class="text-slate-600" data-test="tax-sci-scope">{{ t('dashboard.sciScope') }}</p>
+            <RouterLink :to="`/sci/2072/${year}`" class="text-xs text-emerald-800 underline">{{ t('dashboard.sci2072Open') }}</RouterLink>
           </template>
           <p v-else class="text-slate-600" data-test="tax-none">{{ t('dashboard.taxNone', { year }) }}</p>
         </div>

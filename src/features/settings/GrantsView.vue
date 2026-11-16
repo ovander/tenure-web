@@ -15,6 +15,7 @@ import FormField from '@/components/FormField.vue'
 import { api, ApiError } from '@/api/client'
 import type { Schemas } from '@/api/types'
 import { withStepUp } from '@/app/stepUp'
+import { useSession } from '@/stores/session'
 import { t, type Key } from '@/i18n'
 import { timestamp } from '@/i18n/format'
 
@@ -22,6 +23,7 @@ type Grant = Schemas['portfolio.GrantView']
 type Role = NonNullable<Grant['role']>
 
 const toast = useToast()
+const session = useSession()
 const rows = ref<Grant[] | null>(null)
 const inviting = ref(false)
 const revoking = ref<Grant | null>(null)
@@ -117,6 +119,7 @@ async function revoke(): Promise<void> {
           <legend class="mb-1 text-sm font-medium">{{ t('grants.roleLabel') }}</legend>
           <div class="flex items-start gap-2"><RadioButton v-model="role" input-id="g_acc" value="accountant" /><label for="g_acc" class="text-sm">{{ t('grants.role.accountant') }} — <span class="text-slate-500">{{ t('grants.accountantHelp') }}</span></label></div>
           <div class="flex items-start gap-2"><RadioButton v-model="role" input-id="g_co" value="co_owner" /><label for="g_co" class="text-sm">{{ t('grants.role.co_owner') }} — <span class="text-slate-500">{{ t('grants.coOwnerHelp') }}</span></label></div>
+          <div v-if="session.isSCI" class="flex items-start gap-2"><RadioButton v-model="role" input-id="g_mgr" value="manager" data-test="role-manager" /><label for="g_mgr" class="text-sm">{{ t('grants.role.manager') }} — <span class="text-slate-500">{{ t('grants.managerHelp') }}</span></label></div>
         </fieldset>
       </div>
       <Message v-if="error" severity="error" :closable="false" class="mt-3" data-test="grant-error">{{ error }}</Message>

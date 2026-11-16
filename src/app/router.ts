@@ -9,6 +9,8 @@ declare module 'vue-router' {
   interface RouteMeta {
     title?: Key
     ownerOnly?: boolean
+    // the route exists in a person's scope only, or an SCI's only (Q-W42).
+    scopeKind?: 'person' | 'sci'
   }
 }
 
@@ -34,13 +36,18 @@ export const routes: RouteRecordRaw[] = [
   { path: '/charges', name: 'charges', component: () => import('@/features/charges/ChargesLedger.vue'), meta: { title: 'nav.charges' } },
   { path: '/reconciliations/:id', name: 'reconciliation', component: () => import('@/features/charges/ReconciliationWizard.vue'), meta: { title: 'nav.charges' } },
   { path: '/tax', redirect: () => `/tax/${Number(currentPeriod().slice(0, 4)) - 1}` },
-  { path: '/tax/:year(\\d{4})', name: 'tax', component: () => import('@/features/tax/TaxYear.vue'), meta: { title: 'nav.tax' } },
+  { path: '/tax/:year(\\d{4})', name: 'tax', component: () => import('@/features/tax/TaxYear.vue'), meta: { title: 'nav.tax', scopeKind: 'person' } },
   { path: '/dashboard', redirect: () => `/dashboard/${currentPeriod().slice(0, 4)}` },
   { path: '/dashboard/:year(\\d{4})', name: 'dashboard', component: () => import('@/features/dashboard/DashboardView.vue'), meta: { title: 'nav.dashboard' } },
   { path: '/ledger', redirect: () => `/ledger/${currentPeriod().slice(0, 4)}` },
   { path: '/ledger/:year(\\d{4})', name: 'ledger', component: () => import('@/features/ledger/LedgerView.vue'), meta: { title: 'nav.ledger' } },
   { path: '/bic', redirect: () => `/bic/${Number(currentPeriod().slice(0, 4)) - 1}` },
-  { path: '/bic/:year(\\d{4})', name: 'bic', component: () => import('@/features/bic/BICView.vue'), meta: { title: 'nav.bic' } },
+  { path: '/bic/:year(\\d{4})', name: 'bic', component: () => import('@/features/bic/BICView.vue'), meta: { title: 'nav.bic', scopeKind: 'person' } },
+  { path: '/shares', redirect: () => `/shares/${Number(currentPeriod().slice(0, 4)) - 1}` },
+  { path: '/shares/:year(\\d{4})', name: 'shares', component: () => import('@/features/sci/SharesView.vue'), meta: { title: 'nav.shares', scopeKind: 'person' } },
+  { path: '/sci', name: 'sci', component: () => import('@/features/sci/SciView.vue'), meta: { title: 'nav.sci', scopeKind: 'sci' } },
+  { path: '/sci/2072', redirect: () => `/sci/2072/${Number(currentPeriod().slice(0, 4)) - 1}` },
+  { path: '/sci/2072/:year(\\d{4})', name: 'sci-2072', component: () => import('@/features/sci/Sci2072View.vue'), meta: { title: 'nav.sci2072', scopeKind: 'sci' } },
   { path: '/maintenance/:tab(incidents|contracts|contractors)?', name: 'maintenance', component: () => import('@/features/maintenance/MaintenanceView.vue'), meta: { title: 'nav.maintenance' } },
   { path: '/documents', name: 'documents', component: () => import('@/features/documents/DocumentsView.vue'), meta: { title: 'nav.documents' } },
   {
@@ -67,5 +74,6 @@ router.beforeEach(async (to) => {
     if (!(await s.load())) return false // on the way to Socrate
   }
   if (to.meta.ownerOnly && !s.canWrite) return { name: 'home' }
+  if (to.meta.scopeKind && to.meta.scopeKind !== (s.isSCI ? 'sci' : 'person')) return { name: 'home' }
   return true
 })

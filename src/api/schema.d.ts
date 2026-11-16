@@ -1295,6 +1295,295 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/associates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The SCI's register
+         * @description Its capital in parts, the parts held on the day asked (today by default, Europe/Paris) and its associates with their holdings, in register order (Q-133). 409 entity/not-sci in a person's scope.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description day (YYYY-MM-DD) */
+                    on?: string;
+                };
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["sci.Register"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Add an associate
+         * @description A name only, or a Tenure person: link self (the caller) or the grant_id of a live grant of the SCI (422 sci/link-grant otherwise; 409 sci/associate-linked when that person is already an associate). Parts come by movements.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: components["requestBodies"]["sci.AssociateInput"];
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["sci.AssociateView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/associates/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Change an associate
+         * @description Their name or link; their holdings change only by movements.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description current version */
+                    "If-Match": string;
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description associate id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: components["requestBodies"]["sci.AssociateInput"];
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["sci.AssociateView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Failed */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Required */
+                428: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/audit/events": {
         parameters: {
             query?: never;
@@ -4802,6 +5091,250 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/entities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create an SCI
+         * @description An SCI at the income tax (Q-133), an owner scope of its own with no Socrate subject; the caller becomes its first manager (a grant of role manager). An SCI at the IS is refused (422 entity/is-unsupported). Its capital in parts is set here and does not change. A step-up route.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: components["requestBodies"]["portfolio.EntityInput"];
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["portfolio.EntityView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The SCI's profile
+         * @description In an SCI's scope; 409 entity/not-sci in a person's.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["portfolio.EntityView"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        /**
+         * Change the SCI's profile
+         * @description Its name, address, SIREN, language and the day its tax regime starts; the regime and the capital in parts do not change.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description current version */
+                    "If-Match": string;
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: components["requestBodies"]["portfolio.EntityInput"];
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["portfolio.EntityView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Failed */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Required */
+                428: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/fixed-assets/{id}": {
         parameters: {
             query?: never;
@@ -4976,7 +5509,7 @@ export interface paths {
         put?: never;
         /**
          * Give a Socrate subject read access to the portfolio
-         * @description As co-owner (reads everything) or accountant (financial data, no tenant contact data). A step-up route.
+         * @description As co-owner (reads everything) or accountant (financial data, no tenant contact data), or, in an SCI's scope only, as manager (gérant), with the owner's rights (Q-133; 422 grant/manager-sci-only elsewhere). A step-up route.
          */
         post: {
             parameters: {
@@ -5078,7 +5611,7 @@ export interface paths {
         post?: never;
         /**
          * Revoke a grant
-         * @description Sets revoked_at; the grantee's next request no longer reaches the scope. A step-up route.
+         * @description Sets revoked_at; the grantee's next request no longer reaches the scope. An SCI's last live manager is not revoked (409 grant/last-manager). A step-up route.
          */
         delete: {
             parameters: {
@@ -13891,6 +14424,494 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/sci/declarations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The SCI's issued 2072s
+         * @description Latest first, each as issued.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["sci.YearView"][];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Issue the SCI's 2072 of a year
+         * @description Once (409 sci/declared), after the year is over (409 sci/year-open), when the parts held on 31 December make up the capital (409 sci/register-incomplete) and the SCI received no furnished rent (409 sci/furnished-receipts). Its figures and each associate's share are stored as they are; no movement of parts is then dated in that year or before (Q-133). A step-up route.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            /** @description year */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["sci.DeclarationInput"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["sci.YearView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sci/movements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The SCI's movements of parts
+         * @description Oldest first, each with the holdings it opened and closed.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["sci.MovementView"][];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Record a movement of parts
+         * @description A subscription gives new parts within the capital (422 sci/capital-exceeded beyond it). A transfer, a gift or a succession moves parts of an open holding to another associate on its day: the holding closes that day, the receiver's opens that day, and what the giver keeps opens again that day (409 sci/holding-closed, 422 sci/holding-parts, 422 sci/same-associate). A movement is not undone (Q-133).
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            /** @description movement */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["sci.MovementInput"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["sci.MovementView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sci/result": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The SCI's 2072 of a year
+         * @description As issued, or computed now: the SCI's income, loan interest and other expenses with the rules of the 2044 réel, the 2044 lines they come from, and each associate's share by the parts held on 31 December, split by largest remainder (Q-133). blockers says what keeps the year from being issued: year_open, furnished_receipts (the SCI received furnished rent: its tax regime is for the accountant), register_incomplete (the parts held on 31 December do not make up the capital), declared.
+         */
+        get: {
+            parameters: {
+                query: {
+                    /** @description income year */
+                    year: number;
+                };
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["sci.YearView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sci/shares": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The person's SCI shares of a year
+         * @description In a person's scope: their shares of the SCIs' issued 2072s that name them (each SCI's name, their parts and figures by nature), which their tax summary adds to their own revenus fonciers; and the SCIs they are a linked associate of whose 2072 of the year does not name them yet (Q-133). An SCI's scope has none.
+         */
+        get: {
+            parameters: {
+                query: {
+                    /** @description income year */
+                    year: number;
+                };
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["sci.SharesView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/tax/summaries": {
         parameters: {
             query?: never;
@@ -14896,9 +15917,19 @@ export interface components {
             scope?: string;
         };
         /** @enum {string} */
-        "auth.Role": "owner" | "co_owner" | "accountant";
+        "auth.Role": "owner" | "co_owner" | "accountant" | "manager";
         "auth.Scope": {
+            /**
+             * @description Kind is the owner's kind: KindPerson, or KindSCI for an SCI (Q-133).
+             * @enum {string}
+             */
+            kind?: "person" | "sci";
             legal_name?: string;
+            /**
+             * @description Manager is true when the caller holds the scope as an SCI's manager:
+             *     their role is then RoleOwner.
+             */
+            manager?: boolean;
             owner_id?: string;
             role?: components["schemas"]["auth.Role"];
         };
@@ -15674,6 +16705,16 @@ export interface components {
             rent_cents?: number;
             vacant_days?: number;
         };
+        "dashboard.BICEstimate": {
+            declared?: boolean;
+            micro_eligible?: boolean;
+            micro_taxable_cents?: number;
+            receipts_cents?: number;
+            /** @enum {string} */
+            regime?: "reel" | "micro";
+            result_cents?: number;
+            taxable_cents?: number;
+        };
         "dashboard.Bucket": {
             cents?: number;
             from_days?: number;
@@ -15716,14 +16757,25 @@ export interface components {
         };
         "dashboard.TaxEstimate": {
             available?: boolean;
+            bic?: components["schemas"]["dashboard.BICEstimate"];
             flags?: number;
             /** @enum {string} */
             lower?: "micro" | "reel";
             micro?: components["schemas"]["tax.Micro"];
             millesime?: number;
             owner_id?: string;
+            parts_loans?: components["schemas"]["tax.PartsLoan"][];
             reason?: string;
             reel?: components["schemas"]["tax.Reel"];
+            sci_pending?: number;
+            /**
+             * @description The consolidation per person (Q-133), each with where it comes from:
+             *     the shares of SCIs' issued 2072s and the loans for SCI parts, already
+             *     in Micro and Reel; the SCIs whose 2072 does not name the owner yet;
+             *     and the owner's furnished letting, a BIC result beside the revenus
+             *     fonciers, never added to them.
+             */
+            sci_shares?: components["schemas"]["tax.SCIShare"][];
         };
         "dashboard.View": {
             /** Format: date */
@@ -16960,12 +18012,20 @@ export interface components {
             instalments?: components["schemas"]["loan.InstalmentInput"][];
             /** @example 2500 */
             insurance_cents?: number;
+            /**
+             * @description Kind is asset (the default: a loan financing an asset of the scope)
+             *     or parts (a loan that financed the owner's parts of an SCI, Q-133:
+             *     no asset, the SCI's name instead).
+             * @enum {string}
+             */
+            kind?: "asset" | "parts";
             /** @example Prêt bancaire */
             label?: string;
             /** @example Banque Exemple */
             lender?: string;
             /** @example 15000000 */
             principal_cents?: number;
+            sci_name?: string;
             /** @example 240 */
             term_months?: number;
         };
@@ -16996,11 +18056,14 @@ export interface components {
             insurance_cents?: number;
             insurance_total_cents?: number;
             interest_cents?: number;
+            /** @enum {string} */
+            kind?: "asset" | "parts";
             label?: string;
             /** Format: date */
             last_due_on?: string;
             lender?: string;
             principal_cents?: number;
+            sci_name?: string;
             /** @enum {string} */
             source?: "computed" | "imported";
             term_months?: number;
@@ -17520,10 +18583,40 @@ export interface components {
             valid_until?: string;
             version?: number;
         };
+        "portfolio.EntityInput": {
+            address?: string;
+            capital_parts?: number;
+            /** @enum {string} */
+            language?: "fr" | "en";
+            legal_name?: string;
+            /** Format: date */
+            regime_from?: string;
+            siren?: string;
+            /** @enum {string} */
+            tax_regime?: "ir";
+        };
+        "portfolio.EntityView": {
+            address?: string;
+            capital_parts?: number;
+            created_at?: string;
+            id?: string;
+            /** @enum {string} */
+            kind?: "sci";
+            /** @enum {string} */
+            language?: "fr" | "en";
+            legal_name?: string;
+            /** Format: date */
+            regime_from?: string;
+            siren?: string;
+            /** @enum {string} */
+            tax_regime?: "ir";
+            updated_at?: string;
+            version?: number;
+        };
         "portfolio.GrantInput": {
             grantee_sub?: string;
             /** @enum {string} */
-            role?: "co_owner" | "accountant";
+            role?: "co_owner" | "accountant" | "manager";
         };
         "portfolio.GrantView": {
             granted_at?: string;
@@ -17532,7 +18625,7 @@ export interface components {
             owner_id?: string;
             revoked_at?: string;
             /** @enum {string} */
-            role?: "co_owner" | "accountant";
+            role?: "co_owner" | "accountant" | "manager";
         };
         "portfolio.MeView": {
             active_scope?: components["schemas"]["auth.Scope"];
@@ -17608,6 +18701,103 @@ export interface components {
             field?: string;
             message?: string;
         };
+        "sci.AllocationView": {
+            associate_id?: string;
+            income_cents?: number;
+            interest_cents?: number;
+            name?: string;
+            net_cents?: number;
+            other_expenses_cents?: number;
+            parts?: number;
+            person_sub?: string;
+        };
+        "sci.AssociateInput": {
+            grant_id?: string;
+            /** @enum {string} */
+            link?: "self";
+            name?: string;
+        };
+        "sci.AssociateView": {
+            created_at?: string;
+            holdings?: components["schemas"]["sci.HoldingView"][];
+            id?: string;
+            me?: boolean;
+            name?: string;
+            parts_on?: number;
+            person_sub?: string;
+            updated_at?: string;
+            version?: number;
+        };
+        "sci.DeclarationInput": {
+            year?: number;
+        };
+        "sci.HoldingView": {
+            /** Format: date */
+            closed_on?: string;
+            /** Format: date */
+            from_on?: string;
+            id?: string;
+            parts?: number;
+        };
+        "sci.MovementInput": {
+            from_holding_id?: string;
+            note?: string;
+            /** Format: date */
+            on_date?: string;
+            parts?: number;
+            /** @enum {string} */
+            reason?: "subscription" | "transfer" | "gift" | "succession";
+            to_associate_id?: string;
+        };
+        "sci.MovementView": {
+            closed?: string[];
+            created_at?: string;
+            from_holding_id?: string;
+            id?: string;
+            note?: string;
+            /** Format: date */
+            on_date?: string;
+            opened?: components["schemas"]["sci.HoldingView"][];
+            parts?: number;
+            /** @enum {string} */
+            reason?: "subscription" | "transfer" | "gift" | "succession";
+            to_associate_id?: string;
+        };
+        "sci.Register": {
+            associates?: components["schemas"]["sci.AssociateView"][];
+            capital_parts?: number;
+            held_parts?: number;
+            /** Format: date */
+            on?: string;
+        };
+        "sci.Result2072": {
+            flags?: components["schemas"]["tax.Flag"][];
+            /**
+             * @description FurnishedReceiptsCents is furnished rent received in the year: when
+             *     positive the 2072 is not issued (Q-133).
+             */
+            furnished_receipts_cents?: number;
+            income_cents?: number;
+            interest_cents?: number;
+            lines?: components["schemas"]["tax.LineAmount"][];
+            net_cents?: number;
+            other_expenses_cents?: number;
+        };
+        "sci.SharesView": {
+            pending?: string[];
+            shares?: components["schemas"]["tax.SCIShare"][];
+            year?: number;
+        };
+        "sci.YearView": {
+            allocations?: components["schemas"]["sci.AllocationView"][];
+            blockers?: ("year_open" | "furnished_receipts" | "register_incomplete" | "declared")[];
+            capital_parts?: number;
+            declared?: boolean;
+            held_parts?: number;
+            issued_at?: string;
+            result?: components["schemas"]["sci.Result2072"];
+            year?: number;
+        };
         "tax.AssetLines": {
             asset_id?: string;
             furnished?: boolean;
@@ -17636,6 +18826,8 @@ export interface components {
             loan_instalments?: number;
             payments?: number;
             prior_year?: number;
+            /** @description SCIShares counts the shares of SCIs' issued 2072s (Q-133). */
+            sci_shares?: number;
         };
         "tax.IssueInput": {
             /** @enum {string} */
@@ -17658,8 +18850,26 @@ export interface components {
             furnished_gross_receipts_cents?: number;
             micro?: components["schemas"]["tax.Micro"];
             owner_id?: string;
+            /**
+             * @description PartsLoans are the owner's loans for SCI parts, their interest and
+             *     insurance counted in Reel (WithShares, Q-133).
+             */
+            parts_loans?: components["schemas"]["tax.PartsLoan"][];
             reel?: components["schemas"]["tax.Reel"];
+            /**
+             * @description SCIShares are the owner's shares of SCIs' issued 2072s, counted in
+             *     Reel and Micro (WithShares, Q-133).
+             */
+            sci_shares?: components["schemas"]["tax.SCIShare"][];
             totals?: components["schemas"]["tax.LineAmount"][];
+        };
+        "tax.PartsLoan": {
+            document_id?: string;
+            insurance_cents?: number;
+            interest_cents?: number;
+            label?: string;
+            loan_id?: string;
+            sci_name?: string;
         };
         "tax.Reel": {
             /** @description CarriedForward are the deficits left for later years, oldest first. */
@@ -17673,6 +18883,16 @@ export interface components {
             other_expenses_cents?: number;
             prior_used?: components["schemas"]["tax.Deficit"][];
             taxable_cents?: number;
+        };
+        "tax.SCIShare": {
+            declaration_id?: string;
+            income_cents?: number;
+            interest_cents?: number;
+            net_cents?: number;
+            other_expenses_cents?: number;
+            parts?: number;
+            sci_name?: string;
+            total_parts?: number;
         };
         "tax.Summary": {
             flags?: components["schemas"]["tax.Flag"][];
@@ -17819,10 +19039,22 @@ export interface components {
                 "application/json": components["schemas"]["portfolio.DiagnosticInput"];
             };
         };
+        /** @description SCI */
+        "portfolio.EntityInput": {
+            content: {
+                "application/json": components["schemas"]["portfolio.EntityInput"];
+            };
+        };
         /** @description tenant */
         "portfolio.TenantInput": {
             content: {
                 "application/json": components["schemas"]["portfolio.TenantInput"];
+            };
+        };
+        /** @description associate */
+        "sci.AssociateInput": {
+            content: {
+                "application/json": components["schemas"]["sci.AssociateInput"];
             };
         };
     };

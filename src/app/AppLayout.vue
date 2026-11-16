@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import Button from 'primevue/button'
 import Select from 'primevue/select'
-import { nav, settings } from './nav'
+import { navFor, settings } from './nav'
 import { useSession } from '@/stores/session'
 import { t, type Key } from '@/i18n'
 
@@ -12,9 +12,12 @@ const route = useRoute()
 const collapsed = ref(false)
 
 // Settings stays visible to everyone: it holds the caller's own profile.
-const items = [...nav, settings]
+const items = computed(() => [...navFor(s.isSCI), settings])
 const scopeOptions = computed(() =>
-  s.scopes.map((sc) => ({ value: sc.owner_id, label: `${sc.legal_name} (${t(`scope.${sc.role}` as Key)})` })),
+  s.scopes.map((sc) => {
+    const role = sc.manager ? t('scope.manager') : t(`scope.${sc.role}` as Key)
+    return { value: sc.owner_id, label: sc.kind === 'sci' ? `${sc.legal_name} (${t('scope.sci')} · ${role})` : `${sc.legal_name} (${role})` }
+  }),
 )
 const scope = computed({
   get: () => s.active?.owner_id,

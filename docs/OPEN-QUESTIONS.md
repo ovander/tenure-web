@@ -733,3 +733,32 @@ screen for LMNP under the réel. Provisional reading:
 - **The screen holds no legal value**: no threshold, rate, duration or abatement is coded.
 - **Not built yet:** the 2033 forms (their line mapping waits for the accountant, tenure-api
   Q-132), a document attached to an item, and the per-asset detail of the result.
+
+**Q-W42 The SCI screens — Open (#88, tenure-api Q-133).** RENT-FE-001 has no screen for an SCI.
+Provisional reading:
+
+- **Creating an SCI** is in Settings › Profile (« Créer une SCI »), behind the step-up: its name,
+  SIREN, the day it is at the income tax and its capital in parts, which does not change later.
+  Only an SCI at the IR is offered. Once created, the app switches to the SCI's scope and opens
+  its page.
+- **The scope selector** names an SCI « (SCI · gérant) » for its manager. In an SCI's scope the
+  navigation shows « SCI » and « 2072 » instead of « Fiscalité » and « Meublé (BIC) », which an
+  SCI does not file; those routes go back home there, and the SCI routes do in a person's scope.
+  The grants of an SCI offer the manager role.
+- **The SCI's page:** its profile; the register on a day (today by default), each associate's
+  parts, share and holdings, the parts held against the capital; an associate is a name only,
+  the caller (« Moi ») or a person with live access to the SCI; the movements of parts
+  (subscription, transfer, gift, succession), recorded in a dialog that lists the open holdings.
+  The API checks the capital, the holdings and the declared years.
+- **The 2072 of a year:** the result by nature, each associate's share and percentage, the
+  blockers in words (year open, furnished rent, register short of the capital, issued), the
+  issue behind a confirmation and the step-up. The 2072's line numbers are not shown: they wait
+  for the accountant.
+- **A person's SCI shares** (`/shares/{year}`): their shares of the issued 2072s and their total,
+  the SCIs still to issue theirs, and their loans for parts, recorded with the loan dialog
+  without an asset and with the SCI's name.
+- **The dashboard** lists, under the 2044 estimate, the SCI shares, the loans for parts and the
+  SCIs pending it holds, and the BIC result beside, never added. In an SCI's scope it says the SCI
+  files the 2072 and links to it.
+- **Not built yet:** undoing a movement, the capital's increase or reduction, the SCI's name in a
+  pending SCI (the associate does not read the SCI's row), and a printed 2072.

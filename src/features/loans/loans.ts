@@ -13,6 +13,10 @@ export type TypedRow = Schemas['loan.InstalmentInput']
 export async function list(assetId: string): Promise<Loan[]> {
   return (await api.get<Loan[]>('/loans', { query: { asset_id: assetId } })).data
 }
+// partsLoans are the scope's loans for SCI parts (Q-W42).
+export async function partsLoans(): Promise<Loan[]> {
+  return (await api.get<Loan[]>('/loans')).data.filter((l) => l.kind === 'parts')
+}
 export async function get(id: string): Promise<Loan> {
   return (await api.get<Loan>(`/loans/${id}`)).data
 }
