@@ -17,6 +17,8 @@ import { useSession } from '@/stores/session'
 import { t } from '@/i18n'
 import { withStepUp } from '@/app/stepUp'
 import { useDocuments, saveJSON } from '@/features/documents/store'
+import EntityDialog from '@/features/sci/EntityDialog.vue'
+import type { Entity } from '@/features/sci/sci'
 
 const s = useSession()
 const toast = useToast()
@@ -31,6 +33,13 @@ const ruleError = ref('')
 const saving = ref(false)
 const owner = computed(() => s.me?.owner)
 const exporting = ref(false)
+const creatingSCI = ref(false)
+// A new SCI is a scope of its own: switch to it and open its page.
+async function sciCreated(e: Entity): Promise<void> {
+  await s.refreshMe()
+  s.selectScope(e.id)
+  location.assign('/sci')
+}
 // The RGPD export of the caller (step_up), saved as a JSON file.
 async function exportMyData(): Promise<void> {
   exporting.value = true
@@ -116,6 +125,12 @@ async function save(): Promise<void> {
     </div>
     <p class="text-sm text-slate-500">{{ t('profile.socrate') }}</p>
     <Button type="submit" :label="owner ? t('profile.save') : t('profile.create')" :loading="saving" data-test="save" />
+    <section class="mt-8 border-t border-slate-200 pt-4" data-test="sci-section">
+      <h2 class="mb-1 flex items-center gap-1 font-medium">{{ t('sci.section') }} <HelpTip id="sci_create" :text="t('help.sci.create')" /></h2>
+      <p class="mb-3 text-sm text-slate-600">{{ t('sci.sectionBody') }}</p>
+      <Button type="button" :label="t('sci.create')" icon="pi pi-plus" severity="secondary" data-test="sci-create" @click="creatingSCI = true" />
+      <EntityDialog v-model:visible="creatingSCI" @saved="sciCreated" />
+    </section>
     <section class="mt-8 border-t border-slate-200 pt-4">
       <h2 class="mb-1 flex items-center gap-1 font-medium">{{ t('profile.myData') }} <HelpTip id="my_data" :text="t('help.profile.myData')" /></h2>
       <p class="mb-3 text-sm text-slate-600">{{ t('profile.myDataBody') }}</p>

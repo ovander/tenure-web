@@ -1,5 +1,7 @@
 <script setup lang="ts">
-// A loan of an asset, recorded or changed (tenure-api Q-126; Q-W38). Two
+// A loan of an asset, recorded or changed (tenure-api Q-126; Q-W38); with
+// no asset, a loan for the owner's parts of an SCI, which names the SCI
+// (tenure-api Q-133; Q-W42). Two
 // ways: computed (a fixed rate repaid in constant monthly instalments,
 // previewed before saving) or the bank's own table pasted from a
 // spreadsheet or its export, which the API checks repays the principal. A
@@ -21,7 +23,9 @@ import { money } from '@/i18n/format'
 import { create, parseRate, parseTable, preview, rate, update, type Input, type Loan } from './loans'
 
 const visible = defineModel<boolean>('visible')
-const props = defineProps<{ assetId: string; loan?: Loan | null }>()
+const props = defineProps<{ assetId?: string; loan?: Loan | null }>()
+const parts = computed(() => !props.assetId)
+const sciName = ref('')
 const emit = defineEmits<{ saved: [l: Loan] }>()
 
 type Mode = 'computed' | 'imported'
@@ -51,6 +55,7 @@ watch(visible, (v) => {
   const l = props.loan
   mode.value = (l?.source as Mode | undefined) ?? 'computed'
   label.value = l?.label ?? ''
+  sciName.value = l?.sci_name ?? ''
   lender.value = l?.lender ?? ''
   principal.value = l?.principal_cents ?? null
   rateText.value = l?.annual_rate_ppm != null ? rate(l.annual_rate_ppm).replace(' %', '') : ''
@@ -71,6 +76,7 @@ function cents(c: number | undefined): string {
 function checks(): Record<string, string> {
   const local: Record<string, string> = {}
   if (!label.value.trim()) local.label = t('loans.labelRequired')
+  if (parts.value && !sciName.value.trim()) local.sci_name = t('loans.sciNameRequired')
   if (!principal.value || principal.value <= 0) local.principal_cents = t('loans.principalRequired')
   if (mode.value === 'computed') {
     const r = parseRate(rateText.value)
@@ -84,7 +90,8 @@ function checks(): Record<string, string> {
 }
 
 function input(): Input {
-  const base: Input = { asset_id: props.assetId, label: label.value.trim(), lender: lender.value.trim() || undefined, principal_cents: principal.value ?? 0 }
+  const base: Input = { label: label.value.trim(), lender: lender.value.trim() || undefined, principal_cents: principal.value ?? 0,
+    ...(parts.value ? { kind: 'parts' as const, sci_name: sciName.value.trim() } : { asset_id: props.assetId }) }
   if (mode.value === 'imported') return { ...base, instalments: table.value.rows }
   return { ...base, annual_rate_ppm: parseRate(rateText.value) ?? 0, term_months: term.value ?? 0, first_due_on: firstDue.value ?? '', insurance_cents: insurance.value ?? 0 }
 }
@@ -119,6 +126,9 @@ async function save(): Promise<void> {
       <div class="grid gap-4 sm:grid-cols-2">
         <FormField id="loan_label" :help="t('help.loans.label')" :label="t('loans.label')" :error="errors.label">
           <InputText id="loan_label" v-model="label" class="w-full" :invalid="!!errors.label" data-test="loan-label" />
+        </FormField>
+        <FormField v-if="parts" id="loan_sci" :help="t('help.loans.sciName')" :label="t('loans.sciName')" :error="errors.sci_name">
+          <InputText id="loan_sci" v-model="sciName" class="w-full" :invalid="!!errors.sci_name" data-test="loan-sci" />
         </FormField>
         <FormField id="loan_lender" :help="t('help.loans.lender')" :label="t('loans.lender')" :hint="t('common.optional')">
           <InputText id="loan_lender" v-model="lender" class="w-full" data-test="loan-lender" />

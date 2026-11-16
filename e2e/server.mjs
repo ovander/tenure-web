@@ -18,6 +18,7 @@ import { bankRoutes } from './mock-bank.mjs'
 import { ledgerRoutes } from './mock-ledger.mjs'
 import { maintenanceRoutes } from './mock-maintenance.mjs'
 import { bicRoutes } from './mock-bic.mjs'
+import { sciRoutes } from './mock-sci.mjs'
 
 const dist = new URL('../dist/', import.meta.url).pathname
 const port = Number(process.env.PORT ?? 4173)
@@ -78,6 +79,7 @@ const bank = (...a) => bankRoutes({ state, json, invalid, uuid, record })(...a)
 const ledger = (...a) => ledgerRoutes({ state, json, invalid, uuid, record })(...a)
 const maintenance = (...a) => maintenanceRoutes({ state, json, invalid, uuid, record })(...a)
 const bicMock = (...a) => bicRoutes({ state, json, invalid, uuid, record })(...a)
+const sciMock = (...a) => sciRoutes({ state, json, invalid, uuid, record })(...a)
 
 const json = (res, status, body, headers = {}) => {
   res.writeHead(status, { 'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json', ...headers })
@@ -101,7 +103,7 @@ const body = async (req) => {
 
 function me() {
   const o = state.owner
-  const own = o ? [{ owner_id: o.id, legal_name: o.legal_name, role: state.role }] : []
+  const own = o ? [{ owner_id: o.id, legal_name: o.legal_name, role: state.role, kind: 'person' }] : []
   const scopes = [...own, ...state.extraScopes]
   return { sub: 'sub-test', admin: !!state.admin, language: o?.language ?? 'fr', scopes, active_scope: scopes[0], owner: o }
 }
@@ -149,6 +151,7 @@ async function api(req, res, path) {
   if (ledger(req, res, path, entry)) return
   if (maintenance(req, res, path, entry)) return
   if (bicMock(req, res, path, entry)) return
+  if (sciMock(req, res, path, entry)) return
   if (billing(req, res, path, entry)) return
   if (charges(req, res, path, entry)) return
   if (tax(req, res, path, entry)) return
