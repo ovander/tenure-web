@@ -16,7 +16,10 @@ concurrency:
 jobs:
   release:
     name: release
-    runs-on: ubuntu-latest
+    # Pinned, not ubuntu-latest: a release runs on the image its CI
+    # validated. ubuntu-26.04 fails e2e/bic.spec.ts (#91); move both
+    # workflows together once it passes there.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
         with:
@@ -48,6 +51,13 @@ jobs:
         run: |
           npx playwright install --with-deps chromium
           npm run e2e
+
+      - uses: actions/upload-artifact@v6
+        if: failure()
+        with:
+          name: playwright
+          path: test-results/
+          retention-days: 7
 
       - name: Package
         run: |
