@@ -12,7 +12,10 @@ jobs:
   # One job named ci: the required status check on main (RENT-BE-001 §9).
   ci:
     name: ci
-    runs-on: ubuntu-latest
+    # Pinned, not ubuntu-latest: a release runs on the image its CI
+    # validated. ubuntu-26.04 fails e2e/bic.spec.ts (#91); move both
+    # workflows together once it passes there.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
         with:
