@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { PhotoQueue, blocking, changed, conditions, fitSize, fresher, hasWorks, headerEditable, itemsEditable, progress, type Photo } from './capture'
+import { PhotoQueue, blocking, changed, conditions, fitSize, fresher, hasWorks, headerEditable, itemsEditable, progress, serialByKey, type Photo } from './capture'
 
 describe('capture', () => {
   it('counts every comparison result but « same » as a change', () => {
@@ -88,3 +88,37 @@ describe('fresher', () => {
     expect(fresher({}, { version: 1 })).toBe(true)
   })
 })
+
+describe('serialByKey', () => {
+  it('runs the saves of one item one after the other, once more with the latest edit', async () => {
+    const log: string[] = []
+    let release: (() => void) | undefined
+    const save = serialByKey(async (key) => {
+      log.push(`start ${key}`)
+      if (!release) await new Promise<void>((r) => { release = r })
+      log.push(`end ${key}`)
+    })
+    const first = save('a')
+    const second = save('a')
+    const third = save('a')
+    const other = save('b')
+    expect(log).toEqual(['start a', 'start b', 'end b'])
+    release?.()
+    await Promise.all([first, second, third, other])
+    // a ran twice (the two later calls collapse into one rerun), b alongside.
+    expect(log.filter((l) => l === 'start a')).toHaveLength(2)
+    expect(log.filter((l) => l === 'start b')).toHaveLength(1)
+    expect(log.indexOf('end a')).toBeLessThan(log.lastIndexOf('start a'))
+  })
+  it('lets a later save run after a failed one', async () => {
+    let n = 0
+    const save = serialByKey(async () => {
+      n++
+      if (n === 1) throw new Error('boom')
+    })
+    await expect(save('a')).rejects.toThrow('boom')
+    await save('a')
+    expect(n).toBe(2)
+  })
+})
+
