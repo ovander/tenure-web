@@ -1,6 +1,6 @@
 {
   "name": "tenure-web",
-  "version": "0.33.2",
+  "version": "0.33.3",
   "private": true,
   "type": "module",
   "description": "Tenure web app (RENT-FE-001), embedded by tenure-api",
