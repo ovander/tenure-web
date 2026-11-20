@@ -32,7 +32,7 @@ import { date } from '@/i18n/format'
 import { categories, type Category } from './layout'
 import {
   PhotoQueue, addItem, blocking, conditions, fresher, getCapture, hasWorks, headerEditable, itemsEditable, keyKinds, meterKinds,
-  photoLink, progress, resize, saveHeader, saveItem, saveKeys, saveMeters, transition, uploadPhoto, worksValues,
+  photoLink, progress, resize, saveHeader, saveItem, saveKeys, saveMeters, serialByKey, transition, uploadPhoto, worksValues,
   type Action, type Capture, type Item, type KeyLine, type MeterInput,
 } from './capture'
 
@@ -98,7 +98,8 @@ function itemAt(itemId: string): Item | undefined {
   for (const r of rooms.value) for (const it of r.items ?? []) if (it.id === itemId) return it
   return undefined
 }
-async function save(itemId: string): Promise<void> {
+const save = serialByKey(saveOnce)
+async function saveOnce(itemId: string): Promise<void> {
   const it = itemAt(itemId)
   const d = drafts[itemId]
   if (!it || !d || !inv.value) return

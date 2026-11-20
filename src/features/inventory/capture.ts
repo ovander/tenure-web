@@ -230,3 +230,33 @@ export async function comparison(id: string): Promise<Comparison> {
 export function changed(result: string | undefined): boolean {
   return !!result && result !== 'same'
 }
+
+// serialByKey runs saves of one key one after the other: a call while a save
+// of the same key is in flight waits for it, and the save runs once more with
+// the latest draft, so two quick edits of one item never send the same
+// version twice (the second would be refused with 412). Different keys run
+// side by side.
+export function serialByKey(run: (key: string) => Promise<void>): (key: string) => Promise<void> {
+  const inFlight = new Map<string, Promise<void>>()
+  const again = new Set<string>()
+  const loop = async (key: string): Promise<void> => {
+    try {
+      do {
+        again.delete(key)
+        await run(key)
+      } while (again.has(key))
+    } finally {
+      inFlight.delete(key)
+    }
+  }
+  return (key: string) => {
+    const running = inFlight.get(key)
+    if (running) {
+      again.add(key)
+      return running
+    }
+    const p = loop(key)
+    inFlight.set(key, p)
+    return p
+  }
+}
