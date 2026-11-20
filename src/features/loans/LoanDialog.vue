@@ -66,7 +66,12 @@ watch(visible, (v) => {
     ? (l.instalments ?? []).map((i) => [i.due_on, cents(i.principal_cents), cents(i.interest_cents), cents(i.insurance_cents)].join(';')).join('\n')
     : ''
 }, { immediate: true })
-watch([mode, principal, rateText, term, firstDue, insurance, pasted], () => (shown.value = null))
+// The preview stays on screen while the figures it was computed from are the
+// ones the dialog holds: a field that commits its value again on blur (or
+// passes through null and back) no longer wipes it, and a real change hides it.
+const shownFor = ref('')
+const previewKey = computed(() => (mode.value === 'computed' ? JSON.stringify(previewInput()) : ''))
+const current = computed(() => (shown.value && shownFor.value === previewKey.value ? shown.value : null))
 
 function cents(c: number | undefined): string {
   const v = c ?? 0
@@ -96,13 +101,21 @@ function input(): Input {
   return { ...base, annual_rate_ppm: parseRate(rateText.value) ?? 0, term_months: term.value ?? 0, first_due_on: firstDue.value ?? '', insurance_cents: insurance.value ?? 0 }
 }
 
+function previewInput() {
+  const i = input()
+  return { principal_cents: i.principal_cents ?? 0, annual_rate_ppm: i.annual_rate_ppm ?? 0, term_months: i.term_months ?? 0,
+    first_due_on: i.first_due_on ?? '', insurance_cents: i.insurance_cents ?? 0 }
+}
+
 async function check(): Promise<void> {
   await submit(async () => {
-    const i = input()
-    shown.value = mode.value === 'computed'
-      ? await preview({ principal_cents: i.principal_cents ?? 0, annual_rate_ppm: i.annual_rate_ppm ?? 0, term_months: i.term_months ?? 0,
-          first_due_on: i.first_due_on ?? '', insurance_cents: i.insurance_cents })
-      : null
+    if (mode.value !== 'computed') {
+      shown.value = null
+      return
+    }
+    const key = previewKey.value
+    shown.value = await preview(previewInput())
+    shownFor.value = key
   }, checks())
 }
 
@@ -158,9 +171,9 @@ async function save(): Promise<void> {
           <span v-if="principal && tablePrincipal !== principal" class="text-orange-700"> · {{ t('loans.tableMismatch', { principal: money(principal) }) }}</span>
         </p>
       </FormField>
-      <div v-if="shown" class="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm" data-test="loan-preview">
-        <p class="font-medium">{{ t('loans.previewInstalment', { amount: money((shown.instalments?.[0]?.principal_cents ?? 0) + (shown.instalments?.[0]?.interest_cents ?? 0)), last: shown.last_due_on ?? '' }) }}</p>
-        <p class="text-slate-600">{{ t('loans.previewTotals', { interest: money(shown.interest_cents ?? 0), insurance: money(shown.insurance_total_cents ?? 0) }) }}</p>
+      <div v-if="current" class="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm" data-test="loan-preview">
+        <p class="font-medium">{{ t('loans.previewInstalment', { amount: money((current.instalments?.[0]?.principal_cents ?? 0) + (current.instalments?.[0]?.interest_cents ?? 0)), last: current.last_due_on ?? '' }) }}</p>
+        <p class="text-slate-600">{{ t('loans.previewTotals', { interest: money(current.interest_cents ?? 0), insurance: money(current.insurance_total_cents ?? 0) }) }}</p>
       </div>
     </div>
     <template #footer>

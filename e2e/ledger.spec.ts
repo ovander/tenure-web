@@ -35,6 +35,16 @@ test('a loan computed, previewed and saved; changed into the bank table; refused
   await d.locator('#loan_first').press('Tab')
   await d.getByTestId('loan-preview-btn').click()
   await expect(d.getByTestId('loan-preview')).toContainText(/866,09\s€/)
+  // A field that commits its value again on blur keeps the preview; a real
+  // change hides it until it is computed again.
+  await d.locator('#loan_insurance').click()
+  await d.getByTestId('loan-label').click()
+  await expect(d.getByTestId('loan-preview')).toBeVisible()
+  await d.getByTestId('loan-rate').fill('3,40')
+  await expect(d.getByTestId('loan-preview')).toHaveCount(0)
+  await d.getByTestId('loan-rate').fill('3,45')
+  await d.getByTestId('loan-preview-btn').click()
+  await expect(d.getByTestId('loan-preview')).toContainText(/866,09\s€/)
   await d.getByTestId('loan-save').click()
   await expect(d).toBeHidden()
 
