@@ -1,8 +1,9 @@
 # Security policy
 
 ## Reporting a vulnerability
-Please do not open a public issue. E-mail the maintainer listed in the repository profile with a description,
-affected version and reproduction steps. You will get an acknowledgement within 72 hours and a fix or mitigation
+Please do not open a public issue: the repository is public. Report it privately through GitHub's
+**Security → Report a vulnerability** on this repository, with a description, the affected version and
+reproduction steps. You will get an acknowledgement within 72 hours and a fix or mitigation
 plan within 14 days for high-severity issues.
 
 ## Scope
