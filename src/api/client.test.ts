@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { ApiError, NetworkError, REQUEST_TIMEOUT_MS, StepUpRequired, TimeoutError, UPLOAD_TIMEOUT_MS, api, loginURL, onUnauthenticated, setCsrf, setScope } from './client'
+import { ApiError, NetworkError, REQUEST_TIMEOUT_MS, StepUpRequired, TimeoutError, TRANSFER_TIMEOUT_MS, api, loginURL, onUnauthenticated, setCsrf, setScope } from './client'
 import { queueByKey } from '@/lib/async'
 
 interface Call { url: URL; init: RequestInit }
@@ -111,13 +111,23 @@ describe('api client', () => {
       expect(e).toBeInstanceOf(NetworkError)
     })
 
-    it('gives an upload the longer UPLOAD_TIMEOUT_MS', async () => {
+    it('gives an upload the longer TRANSFER_TIMEOUT_MS', async () => {
       vi.stubGlobal('fetch', hang())
       let settled = false
       const p = api.upload('/documents', { class: 'supporting' }, new File(['x'], 'x.pdf')).catch((e: unknown) => e).finally(() => (settled = true))
       await vi.advanceTimersByTimeAsync(REQUEST_TIMEOUT_MS)
       expect(settled).toBe(false)
-      await vi.advanceTimersByTimeAsync(UPLOAD_TIMEOUT_MS - REQUEST_TIMEOUT_MS)
+      await vi.advanceTimersByTimeAsync(TRANSFER_TIMEOUT_MS - REQUEST_TIMEOUT_MS)
+      expect(await p).toBeInstanceOf(TimeoutError)
+    })
+
+    it('gives a rendered PDF read with blob() the longer TRANSFER_TIMEOUT_MS', async () => {
+      vi.stubGlobal('fetch', hang())
+      let settled = false
+      const p = api.blob('/documents/d1/content').catch((e: unknown) => e).finally(() => (settled = true))
+      await vi.advanceTimersByTimeAsync(REQUEST_TIMEOUT_MS)
+      expect(settled).toBe(false)
+      await vi.advanceTimersByTimeAsync(TRANSFER_TIMEOUT_MS - REQUEST_TIMEOUT_MS)
       expect(await p).toBeInstanceOf(TimeoutError)
     })
 

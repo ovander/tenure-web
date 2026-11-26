@@ -32,12 +32,13 @@ export class NetworkError extends Error {}
 export class TimeoutError extends NetworkError {}
 
 // REQUEST_TIMEOUT_MS bounds a request, its answer's body included, and
-// UPLOAD_TIMEOUT_MS a multipart upload (a photo or a scan over a slow
-// mobile network). Without a bound a hung request never settles, and the
+// TRANSFER_TIMEOUT_MS one that carries a file either way: a multipart upload
+// (a photo or a scan) or a rendered PDF read with blob(), over a slow
+// mobile network. Without a bound a hung request never settles, and the
 // saves queued behind it for the same record (queueByKey, serialByKey) wait
 // forever. Technical timeouts, not legal values.
 export const REQUEST_TIMEOUT_MS = 30_000
-export const UPLOAD_TIMEOUT_MS = 120_000
+export const TRANSFER_TIMEOUT_MS = 120_000
 
 // send fetches url and reads its answer with read, both within ms: past
 // it, the request is aborted and rejects with a TimeoutError.
@@ -129,7 +130,7 @@ export async function request<T>(method: string, path: string, opts: Options = {
     credentials: 'same-origin',
     redirect: 'error',
   }
-  return send(url, init, multipart ? UPLOAD_TIMEOUT_MS : REQUEST_TIMEOUT_MS, async (res) => {
+  return send(url, init, multipart ? TRANSFER_TIMEOUT_MS : REQUEST_TIMEOUT_MS, async (res) => {
     if (res.ok) {
       const data = res.status === 204 ? (undefined as T) : ((await res.json()) as T)
       return { data, etag: res.headers.get('ETag') ?? undefined, status: res.status }
@@ -166,7 +167,7 @@ async function readProblem(res: Response): Promise<Problem> {
 async function blob(path: string): Promise<Blob> {
   const headers: Record<string, string> = { Accept: 'application/pdf, application/problem+json' }
   if (state.scope) headers['X-Owner-Scope'] = state.scope
-  return send(new URL(`/api/v1${path}`, location.origin), { headers, credentials: 'same-origin', redirect: 'error' }, REQUEST_TIMEOUT_MS, async (res) => {
+  return send(new URL(`/api/v1${path}`, location.origin), { headers, credentials: 'same-origin', redirect: 'error' }, TRANSFER_TIMEOUT_MS, async (res) => {
     if (res.ok) return res.blob()
     throw await failure(res)
   })

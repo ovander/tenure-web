@@ -45,7 +45,7 @@ export const useCharges = defineStore('charges', () => {
   // document of the asset, for the import to read. A file is archived once
   // per asset: when the import fails, its retry reuses it (onceFor).
   const uploaded = onceFor<DocumentMeta>()
-  function upload(assetId: string, file: File): Promise<DocumentMeta> {
+  async function upload(assetId: string, file: File): Promise<DocumentMeta> {
     return uploaded(file, assetId, async () => (await api.upload<DocumentMeta>('/documents', { class: 'supporting', asset_id: assetId }, file)).data)
   }
   async function importSyndic(input: ImportInput): Promise<Charge[]> {

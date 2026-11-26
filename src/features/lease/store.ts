@@ -133,7 +133,7 @@ export const useLeases = defineStore('leases', () => {
   // A file the owner picked is archived once for the same fields: when the
   // write that names it fails, a retry reuses it (onceFor).
   const uploaded = onceFor<DocumentMeta>()
-  function upload(leaseClass: string, lease: Lease, file: File, signs?: string): Promise<DocumentMeta> {
+  async function upload(leaseClass: string, lease: Lease, file: File, signs?: string): Promise<DocumentMeta> {
     const fields = { class: leaseClass, lease_id: lease.id, asset_id: lease.asset_ids?.[0], signs_document_id: signs }
     return uploaded(file, JSON.stringify(fields), async () => (await api.upload<DocumentMeta>('/documents', fields, file)).data)
   }
