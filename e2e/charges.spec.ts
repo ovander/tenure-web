@@ -174,7 +174,7 @@ test('two choices made at once on a line are both saved, one after the other', a
       totals: { exercise_days: 365, total_cents: 71230, recoverable_cents: 71230, non_recoverable_cents: 0, vacancy_days: 0, vacancy_cents: 0, cancellations: [] },
       lines: [{
         id: 'ln1', lease_id: 'l1', days: 365, allocated_cents: 71230, provisions_cents: 60000, balance_cents: 11230, spread: false, instalments: [],
-        proposed_provision_cents: 6000, new_provision_cents: 0, apply_provision: false, settlement: 'fee', version: 1,
+        proposed_provision_cents: 6000, new_provision_cents: 6000, apply_provision: false, settlement: 'fee', version: 1,
       }],
     }],
   })
@@ -198,5 +198,16 @@ test('two choices made at once on a line are both saved, one after the other', a
   await expect(page.getByTestId('recon-error')).toHaveCount(0)
   await expect(line.locator('input[type=checkbox]')).toBeChecked()
   await expect(page.locator('#prov_ln1')).toHaveValue('75,00')
+  // A provision set to 0 stays 0 when another choice of the line is saved.
+  await page.locator('#prov_ln1').fill('0')
+  await line.locator('input[type=checkbox]').uncheck()
+  await expect.poll(async () => (await requests(page)).filter((r) => r.method === 'PUT' && r.path.includes('/lines/')).length).toBe(4)
+  await expect(page.getByText('Enregistrement…')).toHaveCount(0)
+  const zero = (await requests(page)).filter((r) => r.method === 'PUT' && r.path.includes('/lines/')).slice(2)
+  expect(zero.map((r) => r.body)).toEqual([
+    expect.objectContaining({ new_provision_cents: 0, apply_provision: true }),
+    expect.objectContaining({ new_provision_cents: 0, apply_provision: false }),
+  ])
+  await expect(page.locator('#prov_ln1')).toHaveValue('0,00')
   expect(violations).toEqual([])
 })

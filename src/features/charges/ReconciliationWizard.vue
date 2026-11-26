@@ -143,8 +143,10 @@ function saveLine(l: ReconLine, patch: Partial<ReconLine>): Promise<void> {
     }
   })
 }
+// The API starts new_provision_cents at the proposal; a 0 is the owner's
+// choice and stays 0 (|| would put the proposal back).
 function provisionOf(l: ReconLine): number | undefined {
-  return l.new_provision_cents || l.proposed_provision_cents
+  return l.new_provision_cents ?? l.proposed_provision_cents
 }
 function balanceText(cents: number): string {
   if (cents > 0) return t('recon.owes', { amount: money(cents) })
