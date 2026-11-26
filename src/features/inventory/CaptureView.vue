@@ -44,18 +44,43 @@ const inv = ref<Capture | null>(null)
 const denied = ref(false)
 const section = ref<string>('room:0')
 
-async function reload(): Promise<void> {
-  inv.value = await getCapture(id.value)
-  meters.value = (inv.value.meters ?? []).map((m) => ({ id: m.id, kind: m.kind, meter_number: m.meter_number ?? '', reading: m.reading ?? '', unit: m.unit ?? '' }))
-  keys.value = (inv.value.keys ?? []).map((k) => ({ ...k }))
-  header.done_on = inv.value.done_on ?? null
-  header.scheduled_at = localDateTime(inv.value.scheduled_at)
-  header.place = inv.value.place ?? ''
-  header.observations = inv.value.observations ?? ''
-  header.keys_returned_on = inv.value.keys_returned_on ?? null
-  header.tenant_new_address = inv.value.tenant_new_address ?? ''
+// The meters, keys and header forms as a capture fills them.
+function formsOf(c: Capture) {
+  return {
+    meters: (c.meters ?? []).map((m): MeterInput => ({ id: m.id, kind: m.kind, meter_number: m.meter_number ?? '', reading: m.reading ?? '', unit: m.unit ?? '' })),
+    keys: (c.keys ?? []).map((k): KeyLine => ({ ...k })),
+    header: {
+      done_on: c.done_on ?? null, scheduled_at: localDateTime(c.scheduled_at), place: c.place ?? '', observations: c.observations ?? '',
+      keys_returned_on: c.keys_returned_on ?? null, tenant_new_address: c.tenant_new_address ?? '',
+    },
+  }
 }
-const { errors, summary, busy, submit } = useProblemForm(reload)
+// What the server last gave for each form, to tell the owner's edits apart.
+let loaded = { meters: '', keys: '', header: '' }
+function remember(c: Capture): void {
+  const f = formsOf(c)
+  loaded = { meters: JSON.stringify(f.meters), keys: JSON.stringify(f.keys), header: JSON.stringify(f.header) }
+}
+// reload reads the capture again. With keepEdits (a 412 on one item: only its
+// items and versions need refreshing), the meters, keys and header the owner
+// changed and has not saved yet are kept instead of reset; it says whether
+// any was kept.
+async function reload(keepEdits = false): Promise<boolean> {
+  const fresh = await getCapture(id.value)
+  const f = formsOf(fresh)
+  const keepMeters = keepEdits && JSON.stringify(meters.value) !== loaded.meters
+  const keepKeys = keepEdits && JSON.stringify(keys.value) !== loaded.keys
+  const keepHeader = keepEdits && JSON.stringify({ ...header }) !== loaded.header
+  inv.value = fresh
+  if (!keepMeters) meters.value = f.meters
+  if (!keepKeys) keys.value = f.keys
+  if (!keepHeader) Object.assign(header, f.header)
+  remember(fresh)
+  return keepMeters || keepKeys || keepHeader
+}
+const { errors, summary, busy, submit } = useProblemForm(async () => {
+  await reload()
+})
 
 onMounted(async () => {
   try {
@@ -102,18 +127,31 @@ const save = serialByKey(saveOnce)
 async function saveOnce(itemId: string): Promise<void> {
   const it = itemAt(itemId)
   const d = drafts[itemId]
+  if (it && !d) {
+    // Its edit gave way to the server's version after a 412: the card shows
+    // what the server holds, nothing of it is left to save.
+    delete unsaved[itemId]
+    return
+  }
   if (!it || !d || !inv.value) return
   saving[itemId] = true
   try {
     const saved = await saveItem(inv.value.id ?? '', it, { condition: d.condition ?? undefined, works: d.works ?? undefined, quantity: d.quantity ?? 0, comment: d.comment })
-    Object.assign(it, saved)
+    // A reload meanwhile (a 412 on another item) replaced the item: update the
+    // one on screen, unless it was read after this save.
+    const target = itemAt(itemId) ?? it
+    if ((saved.version ?? 0) >= (target.version ?? 0)) Object.assign(target, saved)
     delete unsaved[itemId]
     scheduleChecks()
   } catch (e) {
     if (e instanceof ApiError && e.status === 412) {
       delete drafts[itemId]
-      await reload()
       unsaved[itemId] = t('error.stale')
+      try {
+        if (await reload(true)) toast.add({ severity: 'warn', summary: t('inventory.editsKept'), life: 6000 })
+      } catch {
+        // the item stays « not saved »; the next save shows the network state
+      }
     } else {
       unsaved[itemId] = e instanceof ApiError ? [e.problem.title, ...(e.problem.errors ?? []).map((x) => x.message)].filter(Boolean).join(' ') : t('inventory.notSaved')
     }
@@ -243,12 +281,14 @@ function isoOf(local: string): string | undefined {
 async function saveMeterList(): Promise<void> {
   const ok = await submit(async () => {
     inv.value = await saveMeters(id.value, inv.value?.version ?? 0, meters.value.map((m) => ({ ...m, reading: (m.reading ?? '').trim() })))
+    remember(inv.value)
   })
   if (ok) toast.add({ severity: 'success', summary: t('common.saved'), life: 3000 })
 }
 async function saveKeyList(): Promise<void> {
   const ok = await submit(async () => {
     inv.value = await saveKeys(id.value, inv.value?.version ?? 0, keys.value)
+    remember(inv.value)
   })
   if (ok) toast.add({ severity: 'success', summary: t('common.saved'), life: 3000 })
 }
@@ -258,13 +298,23 @@ async function saveHead(): Promise<void> {
       done_on: header.done_on ?? undefined, scheduled_at: isoOf(header.scheduled_at), place: header.place, observations: header.observations,
       ...(isExit.value ? { keys_returned_on: header.keys_returned_on ?? undefined, tenant_new_address: header.tenant_new_address } : {}),
     })
+    remember(inv.value)
   })
   if (ok) toast.add({ severity: 'success', summary: t('common.saved'), life: 3000 })
 }
 
-// Transitions.
+// Transitions: only once every item is saved. Wait for the saves in flight,
+// retry those that failed, and refuse while one is still not saved.
 async function move(action: Action): Promise<void> {
-  if (unsavedCount.value) await retryAll()
+  await save.idle()
+  if (unsavedCount.value) {
+    await retryAll()
+    await save.idle()
+  }
+  if (unsavedCount.value) {
+    summary.value = t('inventory.unsavedBlocks', { n: unsavedCount.value })
+    return
+  }
   const extraBody = action === 'schedule' ? { scheduled_at: isoOf(header.scheduled_at), place: header.place } : {}
   const ok = await submit(async () => {
     inv.value = await transition(id.value, action, extraBody)

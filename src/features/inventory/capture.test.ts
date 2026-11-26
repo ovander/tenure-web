@@ -120,5 +120,25 @@ describe('serialByKey', () => {
     await save('a')
     expect(n).toBe(2)
   })
+  it('idle waits for every save in flight, failed ones included', async () => {
+    const done: string[] = []
+    let release: (() => void) | undefined
+    const save = serialByKey(async (key) => {
+      if (key === 'a') await new Promise<void>((r) => { release = r })
+      done.push(key)
+      if (key === 'b') throw new Error('boom')
+    })
+    const a = save('a')
+    save('b').catch(() => undefined)
+    let idle = false
+    const waiting = save.idle().then(() => (idle = true))
+    await Promise.resolve()
+    expect(idle).toBe(false)
+    release?.()
+    await waiting
+    await a
+    expect(done.sort()).toEqual(['a', 'b'])
+    await save.idle()
+  })
 })
 

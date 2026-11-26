@@ -288,6 +288,8 @@
   "inventory.unsaved": "{n} modification(s) non enregistrée(s).",
   "inventory.notSaved": "Non enregistré : vérifiez la connexion.",
   "inventory.retry": "Réessayer",
+  "inventory.unsavedBlocks": "{n} modification(s) non enregistrée(s) : enregistrez-les avant de passer à l’étape suivante.",
+  "inventory.editsKept": "L’inventaire a été rechargé ; vos relevés, clés et observations non enregistrés sont conservés.",
   "inventory.saving": "Enregistrement…",
   "inventory.sending": "Envoi…",
   "inventory.sameAsEntry": "Conforme à l’entrée",
