@@ -2,6 +2,7 @@
   "name": "tenure-web",
   "version": "0.33.4",
   "private": true,
+  "license": "Apache-2.0",
   "type": "module",
   "description": "Tenure web app (RENT-FE-001), embedded by tenure-api",
   "engines": {

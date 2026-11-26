@@ -38,4 +38,5 @@ Layout: `src/{app,api,components,stores,i18n,features/<module>}`, as RENT-FE-001
 See [CONTRIBUTING.md](CONTRIBUTING.md). Security reports: [SECURITY.md](SECURITY.md).
 
 ## Licence
-Proprietary — see [LICENSE](LICENSE).
+Copyright © 2026 Olivier Vandermoten. Licensed under the Apache License, Version 2.0; see
+[LICENSE](LICENSE). SPDX-License-Identifier: Apache-2.0
