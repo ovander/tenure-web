@@ -9,7 +9,7 @@
 //   issue       exactly what will be written, then RG-… statements; settle, or
 //               cancel with a reason (a correction)
 // Back never loses data: every choice is saved on the line as it is made.
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
@@ -47,7 +47,10 @@ const busy = ref(false)
 const error = ref('')
 const confirming = ref<ReconAction | null>(null)
 const reason = ref('')
-const savingLine = ref('')
+// Per line: a save in flight, and the problem its last save reported. One
+// line's save never clears another line's problem or busy mark.
+const savingLines = reactive<Record<string, boolean>>({})
+const lineErrors = reactive<Record<string, string>>({})
 const id = computed(() => route.params.id as string)
 const step = computed<Step>(() => (steps as readonly string[]).includes(route.query.step as string) ? (route.query.step as Step) : 'charges')
 const state = computed(() => recon.value?.state ?? 'draft')
@@ -127,8 +130,8 @@ function saveLine(l: ReconLine, patch: Partial<ReconLine>): Promise<void> {
     const r = recon.value
     const cur = r?.lines?.find((x) => x.id === lineId)
     if (!r?.id || !cur) return
-    savingLine.value = lineId
-    error.value = ''
+    savingLines[lineId] = true
+    delete lineErrors[lineId]
     try {
       const input = { apply_provision: patch.apply_provision ?? cur.apply_provision, new_provision_cents: patch.new_provision_cents ?? provisionOf(cur),
         settlement: (patch.settlement ?? cur.settlement) as 'fee' | 'deposit' | 'direct' }
@@ -136,10 +139,10 @@ function saveLine(l: ReconLine, patch: Partial<ReconLine>): Promise<void> {
       const i = recon.value?.lines?.findIndex((x) => x.id === lineId) ?? -1
       if (i >= 0 && recon.value?.lines) recon.value.lines[i] = saved
     } catch (e) {
-      error.value = problem(e)
+      lineErrors[lineId] = problem(e)
       if (e instanceof ApiError && e.status === 412) await load()
     } finally {
-      if (savingLine.value === lineId) savingLine.value = ''
+      delete savingLines[lineId]
     }
   })
 }
@@ -271,7 +274,8 @@ const written = computed(() => lines.value.map((l) => ({ l, provision: l.apply_p
                   />
                 </FormField>
               </div>
-              <p v-if="savingLine === l.id" class="mt-2 text-xs text-slate-500">{{ t('recon.saving') }}</p>
+              <p v-if="savingLines[l.id ?? '']" class="mt-2 text-xs text-slate-500" data-test="line-saving">{{ t('recon.saving') }}</p>
+              <Message v-if="lineErrors[l.id ?? '']" severity="error" :closable="false" class="mt-2" data-test="line-error">{{ lineErrors[l.id ?? ''] }}</Message>
             </div>
           </template>
 
