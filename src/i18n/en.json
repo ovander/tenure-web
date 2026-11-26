@@ -918,6 +918,8 @@
   "layout.addElement": "Add an element",
   "layout.addRoom": "Add a room",
   "layout.unsaved": "Unsaved changes",
+  "layout.staleKept": "The layout changed in the meantime. Your changes are kept: save them to replace the stored version, or discard them.",
+  "layout.discard": "Discard my changes",
   "help.layout": "The layout lists the asset's rooms and their elements, in the order of the visit. Every entry inventory starts from it, and the exit is compared element by element; removing an element does not change the inventories already made.",
   "help.layout.bedrooms": "One « Chambre » room is created per bedroom, numbered.",
   "help.layout.furnished": "A dwelling let furnished must have the furniture listed by decree: it is added to the rooms concerned.",

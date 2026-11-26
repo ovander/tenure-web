@@ -320,8 +320,10 @@ element. Provisional:
   - Rooms and elements are added or removed in place. Removing one does not change the
     inventories already made, since an inventory copies its labels (tenure-api Q-109).
 - **Save.** The whole layout is saved with If-Match on its version; an « unsaved changes »
-  marker shows until then. A field error (an empty room name) shows on its row, and a 412
-  reloads the stored layout and says so.
+  marker shows until then. A field error (an empty room name) shows on its row. A 412 reads
+  the stored layout's version and says so, keeping the owner's unsaved edits on screen: saving
+  again replaces the stored version with them, « Abandonner mes modifications » shows the
+  stored one instead.
 - **Roles.** The co-owner reads without any write control. The accountant gets the API's 403,
   shown as « not available to your role ».
 
