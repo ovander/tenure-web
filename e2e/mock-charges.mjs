@@ -40,9 +40,11 @@ export function chargeRoutes(ctx) {
       const months = Math.round(days / (exDays / 12))
       const provisions = (l.provision_cents ?? 0) * months
       const old = (r.lines ?? []).find((x) => x.lease_id === l.id)
+      // As tenure-api: the new provision starts at the proposal.
+      const proposed = ceilEuro(Math.ceil(allocated / 12))
       return {
         id: old?.id ?? uuid(), lease_id: l.id, days, allocated_cents: allocated, provisions_cents: provisions, balance_cents: allocated - provisions,
-        spread: false, instalments: [], proposed_provision_cents: ceilEuro(Math.ceil(allocated / 12)), new_provision_cents: old?.new_provision_cents ?? 0,
+        spread: false, instalments: [], proposed_provision_cents: proposed, new_provision_cents: old?.new_provision_cents ?? proposed,
         apply_provision: old?.apply_provision ?? false, settlement: old?.settlement ?? (l.state === 'active' || l.state === 'notice' ? 'fee' : 'deposit'), version: (old?.version ?? 0) + 1,
       }
     })
@@ -134,7 +136,7 @@ export function chargeRoutes(ctx) {
         r.lines.forEach((l, i) => Object.assign(l, { number: `RG-00000001-${r.exercise_year + 1}-${String(i + 1).padStart(4, '0')}`, document_id: uuid() }))
         for (const l of r.lines) {
           const lease = state.leases.find((x) => x.id === l.lease_id)
-          if (l.apply_provision && lease) lease.provision_cents = l.new_provision_cents || l.proposed_provision_cents
+          if (l.apply_provision && lease) lease.provision_cents = l.new_provision_cents
         }
         for (const c of state.charges) if (r.charge_ids.includes(c.id)) c.reconciliation_id = r.id
         Object.assign(r, { state: 'issued', issued_at: new Date().toISOString() })
