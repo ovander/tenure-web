@@ -14,6 +14,7 @@ import { ApiError } from '@/api/client'
 import { withStepUp } from '@/app/stepUp'
 import { useSession } from '@/stores/session'
 import { t, type Key } from '@/i18n'
+import { useLatest } from '@/lib/async'
 import { money, timestamp } from '@/i18n/format'
 import { issue2072, sharePercent, year2072, type Year2072 } from './sci'
 
@@ -27,12 +28,17 @@ const confirm = ref(false)
 const busy = ref(false)
 const issueError = ref('')
 
+// Only the answer for the year shown is kept (a quick year change).
+const latest = useLatest()
 async function load(): Promise<void> {
+  const token = latest.next()
   data.value = null
   failure.value = ''
   try {
-    data.value = await year2072(year.value)
+    const res = await year2072(year.value)
+    if (latest.isLatest(token)) data.value = res
   } catch (e) {
+    if (!latest.isLatest(token)) return
     failure.value = e instanceof ApiError ? (e.problem.title ?? t('error.title')) : t('error.network')
   }
 }

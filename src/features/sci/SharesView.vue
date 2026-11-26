@@ -12,6 +12,7 @@ import LoanDialog from '@/features/loans/LoanDialog.vue'
 import { partsLoans, type Loan } from '@/features/loans/loans'
 import { useSession } from '@/stores/session'
 import { t } from '@/i18n'
+import { useLatest } from '@/lib/async'
 import { money } from '@/i18n/format'
 import { shares as getShares, sharePercent, type Shares } from './sci'
 
@@ -24,11 +25,18 @@ const loans = ref<Loan[] | null>(null)
 const loanDialog = ref(false)
 const editing = ref<Loan | null>(null)
 
+// Only the latest answer is kept (a quick year change, two saves in a row).
+const latest = useLatest()
+const latestLoans = useLatest()
 async function load(): Promise<void> {
-  data.value = await getShares(year.value)
+  const token = latest.next()
+  const res = await getShares(year.value)
+  if (latest.isLatest(token)) data.value = res
 }
 async function loadLoans(): Promise<void> {
-  loans.value = await partsLoans()
+  const token = latestLoans.next()
+  const res = await partsLoans()
+  if (latestLoans.isLatest(token)) loans.value = res
 }
 watch(year, load, { immediate: true })
 onMounted(loadLoans)

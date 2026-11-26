@@ -14,6 +14,7 @@ import { useToast } from 'primevue/usetoast'
 import { ApiError } from '@/api/client'
 import { useSession } from '@/stores/session'
 import { t, type Key } from '@/i18n'
+import { useLatest } from '@/lib/async'
 import { currentPeriod, date, money } from '@/i18n/format'
 import { useBilling, type Payment } from './store'
 import { useLeaseNames } from './names'
@@ -40,11 +41,16 @@ const unmatched = computed({
 const leaseFilter = computed(() => props.leaseId ?? (route.query.lease as string | undefined))
 const matchVisible = computed({ get: () => matching.value !== null, set: (v: boolean) => (matching.value = v ? matching.value : null) })
 
+// Only the answer for the filters shown is kept.
+const latest = useLatest()
 async function load(): Promise<void> {
+  const token = latest.next()
   rows.value = null
   try {
-    rows.value = (await store.payments({ lease_id: leaseFilter.value, unmatched: unmatched.value })).items
+    const items = (await store.payments({ lease_id: leaseFilter.value, unmatched: unmatched.value })).items
+    if (latest.isLatest(token)) rows.value = items
   } catch {
+    if (!latest.isLatest(token)) return
     rows.value = []
     toast.add({ severity: 'error', summary: t('error.network'), life: 4000 })
   }

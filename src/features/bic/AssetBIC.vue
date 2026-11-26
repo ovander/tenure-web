@@ -11,6 +11,7 @@ import Skeleton from 'primevue/skeleton'
 import Tag from 'primevue/tag'
 import { useSession } from '@/stores/session'
 import { t, type Key } from '@/i18n'
+import { useLatest } from '@/lib/async'
 import { currentPeriod, date, money } from '@/i18n/format'
 import GridDialog from './GridDialog.vue'
 import ItemDialog from './ItemDialog.vue'
@@ -26,13 +27,26 @@ const gridDialog = ref(false)
 const itemDialog = ref(false)
 const editing = ref<Item | null>(null)
 
+// Only the latest answers are kept: an older asset's grid, or the plan of a
+// year the owner already left, never replaces the one shown.
+const latest = useLatest()
+const latestDep = useLatest()
 async function load(): Promise<void> {
-  ;[grid.value, list.value] = await Promise.all([getGrid(props.assetId), getItems(props.assetId)])
-  dep.value = await depreciation(props.assetId, year.value)
+  const token = latest.next()
+  const [g, l] = await Promise.all([getGrid(props.assetId), getItems(props.assetId)])
+  if (!latest.isLatest(token)) return
+  grid.value = g
+  list.value = l
+  await loadDep()
+}
+async function loadDep(): Promise<void> {
+  const token = latestDep.next()
+  const d = await depreciation(props.assetId, year.value)
+  if (latestDep.isLatest(token)) dep.value = d
 }
 onMounted(load)
 watch(() => props.assetId, load)
-watch(year, async (y) => (dep.value = await depreciation(props.assetId, y)))
+watch(year, loadDep)
 
 const label = (c?: string) => {
   const k = `bic.component.${c}` as Key

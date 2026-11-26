@@ -18,6 +18,7 @@ import FormField from '@/components/FormField.vue'
 import { ApiError } from '@/api/client'
 import { useSession } from '@/stores/session'
 import { t, type Key } from '@/i18n'
+import { useLatest } from '@/lib/async'
 import { date, money } from '@/i18n/format'
 import { useLeaseNames } from '@/features/billing/names'
 import ImportStatementDialog from './ImportStatementDialog.vue'
@@ -53,7 +54,10 @@ function fail(e: unknown): void {
 async function loadAccounts(): Promise<void> {
   accs.value = await listAccounts().catch(() => [])
 }
+// Only the answer for the account and status shown is kept.
+const latest = useLatest()
 async function load(): Promise<void> {
+  const token = latest.next()
   open.value = {}
   if (!account.value) {
     rows.value = []
@@ -61,6 +65,7 @@ async function load(): Promise<void> {
   }
   rows.value = null
   const p = await listLines({ account_id: account.value, status: status.value, size: 100 }).catch(() => ({ items: [], total: 0 }))
+  if (!latest.isLatest(token)) return
   rows.value = p.items ?? []
   total.value = p.total ?? 0
 }
