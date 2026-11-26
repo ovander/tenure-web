@@ -126,6 +126,16 @@ test('an owner captures an entry inventory on site, from draft to completed', as
   await expect(items.nth(0).getByTestId('item-unsaved')).toHaveCount(0)
   const last = (await requests(page)).filter((r) => r.method === 'PUT' && r.path.includes('/items/')).at(-1)
   expect(last?.body).toMatchObject({ condition: 'new' })
+  // Another conflict, and the owner chooses again while its reload is still
+  // running: that choice is kept and saved on the reloaded version.
+  await page.request.post('/__mock/state', { data: { staleItem: 'Carrelage', delay: { [`/inventories/${id}`]: 1500 } } })
+  await items.nth(0).getByTestId('condition').getByText('Bon état').click()
+  await expect(items.nth(0).getByTestId('item-unsaved')).toBeVisible()
+  await items.nth(0).getByTestId('condition').getByText('Neuf').click()
+  await expect(items.nth(0).getByTestId('item-unsaved')).toHaveCount(0)
+  await page.request.post('/__mock/state', { data: { delay: {} } })
+  const kept = (await requests(page)).filter((r) => r.method === 'PUT' && r.path.includes('/items/')).at(-1)
+  expect(kept?.body).toMatchObject({ condition: 'new' })
   // Complete, then reopen is offered.
   await page.getByTestId('complete').click()
   await expect(page.getByTestId('capture-state')).toHaveText('Terminé')

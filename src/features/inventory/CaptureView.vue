@@ -152,6 +152,9 @@ async function saveOnce(itemId: string): Promise<void> {
     if (e instanceof ApiError && e.status === 412) {
       stale[itemId] = true
       unsaved[itemId] = t('error.stale')
+      // What the card held when the conflict came back: an edit made while
+      // the reload runs (edit() queues its own save) is kept, not dropped.
+      const before = JSON.stringify(drafts[itemId])
       try {
         if (await reload(true)) toast.add({ severity: 'warn', summary: t('inventory.editsKept'), life: 6000 })
       } catch {
@@ -159,7 +162,7 @@ async function saveOnce(itemId: string): Promise<void> {
       }
       // Dropped once the server's version is on screen: the card then builds
       // its draft from that version, not from the item this save started on.
-      delete drafts[itemId]
+      if (JSON.stringify(drafts[itemId]) === before) delete drafts[itemId]
     } else {
       unsaved[itemId] = e instanceof ApiError ? [e.problem.title, ...(e.problem.errors ?? []).map((x) => x.message)].filter(Boolean).join(' ') : t('inventory.notSaved')
     }

@@ -63,10 +63,12 @@ const legal = reactive<{ terms?: LeaseTerms; mobility?: Range; caps: Record<stri
 const latestLegal = useLatest()
 async function loadLegal(asOf: string | undefined): Promise<boolean> {
   if (!asOf) {
-    // A cleared date drops any answer still pending for the previous one.
+    // A cleared date drops any answer still pending for the previous one,
+    // and the parameters of that date: the defaults it proposed are
+    // withdrawn, the revision month included.
     latestLegal.next()
-    legal.asOf = undefined
-    return false
+    Object.assign(legal, { asOf: undefined, terms: undefined, mobility: undefined, caps: {} })
+    return true
   }
   if (legal.asOf === asOf) return true
   legal.asOf = asOf
