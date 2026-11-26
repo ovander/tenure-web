@@ -918,6 +918,8 @@
   "layout.addElement": "Ajouter un élément",
   "layout.addRoom": "Ajouter une pièce",
   "layout.unsaved": "Modifications non enregistrées",
+  "layout.staleKept": "Le plan a changé entre-temps. Vos modifications sont conservées : enregistrez-les pour remplacer la version enregistrée, ou abandonnez-les.",
+  "layout.discard": "Abandonner mes modifications",
   "help.layout": "Le plan liste les pièces du bien et leurs éléments, dans l’ordre de la visite. Chaque état des lieux d’entrée part de ce plan, et la sortie se compare élément par élément ; retirer un élément ne change pas les états des lieux déjà établis.",
   "help.layout.bedrooms": "Une pièce « Chambre » est créée par chambre, numérotée.",
   "help.layout.furnished": "Un logement loué meublé doit comporter le mobilier listé par décret : il est ajouté aux pièces concernées.",

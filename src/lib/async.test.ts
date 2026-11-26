@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { queueByKey, useLatest } from './async'
+import { onceFor, queueByKey, useLatest } from './async'
 
 function deferred(): { promise: Promise<void>; resolve: () => void; reject: (e: unknown) => void } {
   let resolve!: () => void
@@ -110,5 +110,21 @@ describe('useLatest', () => {
     b.next()
     b.next()
     expect(a.isLatest(ta)).toBe(true)
+  })
+})
+
+describe('onceFor', () => {
+  it('runs a task once per object and key, and again after it failed', async () => {
+    const once = onceFor<string>()
+    const file = {}
+    let n = 0
+    const task = () => Promise.resolve(`doc-${++n}`)
+    expect(await once(file, 'a1', task)).toBe('doc-1')
+    expect(await once(file, 'a1', task)).toBe('doc-1')
+    expect(await once(file, 'a2', task)).toBe('doc-2')
+    expect(await once({}, 'a1', task)).toBe('doc-3')
+    const other = {}
+    await expect(once(other, 'a1', () => Promise.reject(new Error('refused')))).rejects.toThrow('refused')
+    expect(await once(other, 'a1', task)).toBe('doc-4')
   })
 })

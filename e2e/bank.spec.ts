@@ -105,3 +105,55 @@ test('auto matching, a suggestion taken, a split, a syndic debit, a line ignored
   await page.getByTestId('bank-reopen').click()
   await expect(page.getByTestId('bank-empty')).toBeVisible()
 })
+
+test('a double click on a write sends one request', async ({ page }) => {
+  await mock(page, {
+    bankAccounts: [{ id: 'acc1', label: 'Compte loyers', version: 1 }],
+    bankLines: [line('b1', 80000, 'VIR LEA MARTIN'), line('b2', 65000, 'VIR SEPA LOYER'), line('b4', -35000, 'PRLV SYNDIC'), line('b5', -250, 'FRAIS BANCAIRES')],
+    bankSure: { b1: 'l1' },
+    rentSuggestions: { b2: [{ lease_id: 'l2', billing_document_id: 'c2', number: 'AL-00000001-2026-0011', period: '2026-10', amount_cents: 65000, method: 'transfer', rule: 'amount_period' }] },
+    chargeSuggestions: { b4: [{ rule: 'statement', charges: [{ id: 'ch1', label: 'Charges courantes', amount_cents: 35000 }] }] },
+  })
+  // Every write answers slowly: the second click lands while the first is in flight.
+  await page.route(/\/api\/v1\/bank-(accounts|lines)/, async (r) => {
+    if (r.request().method() !== 'GET') await new Promise((res) => setTimeout(res, 400))
+    await r.continue()
+  })
+  const sent = async (method: string, path: RegExp) =>
+    ((await (await page.request.get('/__mock/requests')).json()) as { method: string; path: string; body?: { dry_run?: boolean } }[])
+      .filter((r) => r.method === method && path.test(r.path))
+  await page.goto('/bank')
+  await expect(page.getByTestId('bank-line')).toHaveCount(4)
+
+  await page.getByTestId('bank-auto').click()
+  await page.getByTestId('auto-run').dblclick()
+  await expect(page.getByTestId('bank-line')).toHaveCount(3)
+  expect((await sent('POST', /^\/bank-lines\/auto$/)).filter((r) => r.body?.dry_run === false)).toHaveLength(1)
+
+  const b2 = page.getByTestId('bank-line').filter({ hasText: 'VIR SEPA LOYER' })
+  await b2.getByTestId('bank-open').click()
+  await b2.getByTestId('rent-take').dblclick()
+  await expect(page.getByTestId('bank-line')).toHaveCount(2)
+  expect(await sent('POST', /\/match$/)).toHaveLength(1)
+
+  const b4 = page.getByTestId('bank-line').filter({ hasText: 'SYNDIC' })
+  await b4.getByTestId('bank-open').click()
+  await b4.getByTestId('charge-take').dblclick()
+  await expect(page.getByTestId('bank-line')).toHaveCount(1)
+  expect(await sent('POST', /\/charges$/)).toHaveLength(1)
+
+  await page.getByTestId('bank-ignore').click()
+  await page.getByTestId('ignore-save').dblclick()
+  await expect(page.getByTestId('bank-empty')).toBeVisible()
+  await page.getByTestId('bank-status').click()
+  await page.getByRole('option', { name: 'Ignorées' }).click()
+  await page.getByTestId('bank-reopen').dblclick()
+  await expect(page.getByTestId('bank-empty')).toBeVisible()
+  expect(await sent('POST', /\/status$/)).toHaveLength(2)
+
+  await page.getByTestId('bank-add-account').click()
+  await page.locator('#acc_label').fill('Compte travaux')
+  await page.getByTestId('account-save').dblclick()
+  await expect(page.getByTestId('account-dialog')).toBeHidden()
+  expect(await sent('POST', /^\/bank-accounts$/)).toHaveLength(1)
+})

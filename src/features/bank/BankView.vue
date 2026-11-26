@@ -51,6 +51,21 @@ function fail(e: unknown): void {
   const msg = e instanceof ApiError ? [e.problem.title, e.problem.detail].filter(Boolean).join(' ') : t('error.network')
   toast.add({ severity: 'error', summary: msg, life: 6000 })
 }
+// One write at a time: while a write's request (and the reload after it) is
+// in flight, the write buttons are disabled and another click does nothing,
+// so a double click sends one request.
+const writing = ref(false)
+async function write(action: () => Promise<void>): Promise<void> {
+  if (writing.value) return
+  writing.value = true
+  try {
+    await action()
+  } catch (e) {
+    fail(e)
+  } finally {
+    writing.value = false
+  }
+}
 async function loadAccounts(): Promise<void> {
   accs.value = await listAccounts().catch(() => [])
 }
@@ -79,15 +94,13 @@ watch([account, status], load)
 const adding = ref(false)
 const accLabel = ref('')
 const accLast4 = ref('')
-async function addAccount(): Promise<void> {
-  try {
+function addAccount(): Promise<void> {
+  return write(async () => {
     const a = await createAccount(accLabel.value.trim(), accLast4.value.trim())
     adding.value = false
     await loadAccounts()
     account.value = a.id ?? ''
-  } catch (e) {
-    fail(e)
-  }
+  })
 }
 
 const importing = ref(false)
@@ -98,22 +111,18 @@ function imported(r: { new?: number; duplicates?: number }): void {
 
 // Automatic matching: a preview first.
 const auto = ref<AutoResult | null>(null)
-async function previewAuto(): Promise<void> {
-  try {
+function previewAuto(): Promise<void> {
+  return write(async () => {
     auto.value = await autoMatch(account.value, true)
-  } catch (e) {
-    fail(e)
-  }
+  })
 }
-async function runAuto(): Promise<void> {
-  try {
+function runAuto(): Promise<void> {
+  return write(async () => {
     const r = await autoMatch(account.value, false)
     auto.value = null
     toast.add({ severity: 'success', summary: t('bank.autoDone', { n: (r.matched ?? []).length }), life: 5000 })
     await load()
-  } catch (e) {
-    fail(e)
-  }
+  })
 }
 
 // A line opened shows its suggestions.
@@ -132,23 +141,19 @@ async function toggle(l: Line): Promise<void> {
     fail(e)
   }
 }
-async function takeRent(l: Line, sg: RentSuggestion): Promise<void> {
-  try {
+function takeRent(l: Line, sg: RentSuggestion): Promise<void> {
+  return write(async () => {
     await matchRent(l, oneLease(l, sg))
     toast.add({ severity: 'success', summary: t('bank.matched'), life: 3000 })
     await load()
-  } catch (e) {
-    fail(e)
-  }
+  })
 }
-async function takeCharges(l: Line, sg: ChargeSuggestion): Promise<void> {
-  try {
+function takeCharges(l: Line, sg: ChargeSuggestion): Promise<void> {
+  return write(async () => {
     await matchCharges(l, (sg.charges ?? []).map((c) => c.id ?? ''))
     toast.add({ severity: 'success', summary: t('bank.matched'), life: 3000 })
     await load()
-  } catch (e) {
-    fail(e)
-  }
+  })
 }
 const splitting = ref<Line | null>(null)
 const splitOpen = computed({ get: () => splitting.value !== null, set: (v) => { if (!v) splitting.value = null } })
@@ -156,23 +161,20 @@ const splitOpen = computed({ get: () => splitting.value !== null, set: (v) => { 
 // Ignoring a line, with a note; reopening it.
 const ignoring = ref<Line | null>(null)
 const note = ref('')
-async function ignore(): Promise<void> {
-  if (!ignoring.value) return
-  try {
-    await setStatus(ignoring.value, 'ignored', note.value.trim())
+function ignore(): Promise<void> {
+  const l = ignoring.value
+  if (!l) return Promise.resolve()
+  return write(async () => {
+    await setStatus(l, 'ignored', note.value.trim())
     ignoring.value = null
     await load()
-  } catch (e) {
-    fail(e)
-  }
+  })
 }
-async function reopen(l: Line): Promise<void> {
-  try {
+function reopen(l: Line): Promise<void> {
+  return write(async () => {
     await setStatus(l, 'unmatched', '')
     await load()
-  } catch (e) {
-    fail(e)
-  }
+  })
 }
 const amountClass = (c?: number) => ((c ?? 0) < 0 ? 'text-red-700' : 'text-emerald-800')
 </script>
@@ -186,7 +188,7 @@ const amountClass = (c?: number) => ((c ?? 0) < 0 ? 'text-red-700' : 'text-emera
       <template v-if="s.canWrite">
         <Button :label="t('bank.addAccount')" icon="pi pi-plus" severity="secondary" size="small" data-test="bank-add-account" @click="adding = true; accLabel = ''; accLast4 = ''" />
         <Button v-if="account" :label="t('bank.import')" icon="pi pi-upload" size="small" data-test="bank-import" @click="importing = true" />
-        <Button v-if="account" :label="t('bank.auto')" icon="pi pi-bolt" severity="secondary" size="small" data-test="bank-auto" @click="previewAuto" />
+        <Button v-if="account" :label="t('bank.auto')" icon="pi pi-bolt" severity="secondary" size="small" data-test="bank-auto" :disabled="writing" @click="previewAuto" />
       </template>
     </div>
     <Message v-if="accs && !accs.length" severity="info" :closable="false" data-test="bank-no-account">{{ t('bank.noAccount') }}</Message>
@@ -205,7 +207,7 @@ const amountClass = (c?: number) => ((c ?? 0) < 0 ? 'text-red-700' : 'text-emera
               <Button :label="t('bank.matchOpen')" size="small" severity="secondary" data-test="bank-open" @click="toggle(l)" />
               <Button :label="t('bank.ignore')" size="small" text data-test="bank-ignore" @click="ignoring = l; note = ''" />
             </template>
-            <Button v-else-if="l.status === 'ignored'" :label="t('bank.reopen')" size="small" text data-test="bank-reopen" @click="reopen(l)" />
+            <Button v-else-if="l.status === 'ignored'" :label="t('bank.reopen')" size="small" text :disabled="writing" data-test="bank-reopen" @click="reopen(l)" />
           </template>
         </div>
         <div v-if="open[l.id ?? '']" class="mt-2 space-y-2 rounded bg-slate-50 p-3 text-sm" data-test="bank-suggestions">
@@ -215,7 +217,7 @@ const amountClass = (c?: number) => ((c ?? 0) < 0 ? 'text-red-700' : 'text-emera
               <Tag :value="t(`bank.rule.${sg.rule}` as Key)" severity="info" />
               <span>{{ sg.number }} · {{ names.label(sg.lease_id) }}</span>
               <span v-if="sg.method === 'caf'" class="text-slate-500">{{ t('payments.method.caf') }}</span>
-              <Button :label="t('bank.match')" size="small" data-test="rent-take" @click="takeRent(l, sg)" />
+              <Button :label="t('bank.match')" size="small" :disabled="writing" data-test="rent-take" @click="takeRent(l, sg)" />
             </div>
             <Button :label="t('bank.split')" icon="pi pi-sitemap" size="small" text data-test="bank-split" @click="splitting = l" />
           </template>
@@ -224,7 +226,7 @@ const amountClass = (c?: number) => ((c ?? 0) < 0 ? 'text-red-700' : 'text-emera
             <div v-for="(sg, i) in open[l.id ?? '']?.charges" :key="i" class="flex flex-wrap items-center gap-2" data-test="charge-suggestion">
               <Tag :value="t(`bank.rule.${sg.rule}` as Key)" severity="info" />
               <span>{{ (sg.charges ?? []).map((c) => `${c.label} (${money(c.amount_cents ?? 0)})`).join(' + ') }}</span>
-              <Button :label="t('bank.match')" size="small" data-test="charge-take" @click="takeCharges(l, sg)" />
+              <Button :label="t('bank.match')" size="small" :disabled="writing" data-test="charge-take" @click="takeCharges(l, sg)" />
             </div>
           </template>
         </div>
@@ -241,21 +243,21 @@ const amountClass = (c?: number) => ((c ?? 0) < 0 ? 'text-red-700' : 'text-emera
       </div>
       <div class="mt-6 flex justify-end gap-2">
         <Button :label="t('common.cancel')" severity="secondary" text @click="adding = false" />
-        <Button :label="t('common.save')" :disabled="!accLabel.trim()" data-test="account-save" @click="addAccount" />
+        <Button :label="t('common.save')" :disabled="!accLabel.trim()" :loading="writing" data-test="account-save" @click="addAccount" />
       </div>
     </Dialog>
     <Dialog :visible="auto !== null" modal :header="t('bank.auto')" class="w-[32rem]" data-test="auto-dialog" @update:visible="(v) => !v && (auto = null)">
       <p class="text-sm" data-test="auto-preview">{{ t('bank.autoPreview', { n: (auto?.matched ?? []).length, left: auto?.left ?? 0 }) }}</p>
       <div class="mt-6 flex justify-end gap-2">
         <Button :label="t('common.cancel')" severity="secondary" text @click="auto = null" />
-        <Button :label="t('bank.autoRun')" :disabled="!(auto?.matched ?? []).length" data-test="auto-run" @click="runAuto" />
+        <Button :label="t('bank.autoRun')" :disabled="!(auto?.matched ?? []).length" :loading="writing" data-test="auto-run" @click="runAuto" />
       </div>
     </Dialog>
     <Dialog :visible="ignoring !== null" modal :header="t('bank.ignore')" class="w-[28rem]" data-test="ignore-dialog" @update:visible="(v) => !v && (ignoring = null)">
       <FormField id="ign_note" :help="t('help.bank.note')" :label="`${t('bank.note')} (${t('common.optional')})`"><InputText id="ign_note" v-model="note" class="w-full" /></FormField>
       <div class="mt-6 flex justify-end gap-2">
         <Button :label="t('common.cancel')" severity="secondary" text @click="ignoring = null" />
-        <Button :label="t('bank.ignore')" data-test="ignore-save" @click="ignore" />
+        <Button :label="t('bank.ignore')" :loading="writing" data-test="ignore-save" @click="ignore" />
       </div>
     </Dialog>
   </div>

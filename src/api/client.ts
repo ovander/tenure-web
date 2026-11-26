@@ -28,6 +28,40 @@ export class StepUpRequired extends ApiError {}
 // NetworkError is a request that got no answer.
 export class NetworkError extends Error {}
 
+// TimeoutError is a request cut because it got no full answer in time.
+export class TimeoutError extends NetworkError {}
+
+// REQUEST_TIMEOUT_MS bounds a request, its answer's body included, and
+// TRANSFER_TIMEOUT_MS one that carries a file either way: a multipart upload
+// (a photo or a scan) or a rendered PDF read with blob(), over a slow
+// mobile network. Without a bound a hung request never settles, and the
+// saves queued behind it for the same record (queueByKey, serialByKey) wait
+// forever. Technical timeouts, not legal values.
+export const REQUEST_TIMEOUT_MS = 30_000
+export const TRANSFER_TIMEOUT_MS = 120_000
+
+// send fetches url and reads its answer with read, both within ms: past
+// it, the request is aborted and rejects with a TimeoutError.
+async function send<T>(url: URL, init: RequestInit, ms: number, read: (res: Response) => Promise<T>): Promise<T> {
+  const ctl = new AbortController()
+  const timer = setTimeout(() => ctl.abort(), ms)
+  try {
+    let res: Response
+    try {
+      res = await fetch(url, { ...init, signal: ctl.signal })
+    } catch (e) {
+      throw ctl.signal.aborted ? new TimeoutError(`no answer in ${ms} ms`) : new NetworkError(String(e))
+    }
+    try {
+      return await read(res)
+    } catch (e) {
+      throw ctl.signal.aborted ? new TimeoutError(`no full answer in ${ms} ms`) : e
+    }
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 interface State {
   csrf?: string
   scope?: string
@@ -87,30 +121,33 @@ export async function request<T>(method: string, path: string, opts: Options = {
   if (scope && !path.startsWith('/bff/')) headers['X-Owner-Scope'] = scope
   if (opts.ifMatch !== undefined) headers['If-Match'] = typeof opts.ifMatch === 'number' ? `W/"${opts.ifMatch}"` : opts.ifMatch
 
-  let res: Response
-  try {
-    res = await fetch(url, {
-      method,
-      headers,
-      // A FormData body is sent as multipart/form-data, the browser setting
-      // its boundary (POST /documents: fields first, the file last).
-      body: opts.body === undefined ? undefined : multipart ? (opts.body as FormData) : JSON.stringify(opts.body),
-      credentials: 'same-origin',
-      redirect: 'error',
-    })
-  } catch (e) {
-    throw new NetworkError(String(e))
+  const init: RequestInit = {
+    method,
+    headers,
+    // A FormData body is sent as multipart/form-data, the browser setting
+    // its boundary (POST /documents: fields first, the file last).
+    body: opts.body === undefined ? undefined : multipart ? (opts.body as FormData) : JSON.stringify(opts.body),
+    credentials: 'same-origin',
+    redirect: 'error',
   }
-  if (res.ok) {
-    const data = res.status === 204 ? (undefined as T) : ((await res.json()) as T)
-    return { data, etag: res.headers.get('ETag') ?? undefined, status: res.status }
-  }
+  return send(url, init, multipart ? TRANSFER_TIMEOUT_MS : REQUEST_TIMEOUT_MS, async (res) => {
+    if (res.ok) {
+      const data = res.status === 204 ? (undefined as T) : ((await res.json()) as T)
+      return { data, etag: res.headers.get('ETag') ?? undefined, status: res.status }
+    }
+    throw await failure(res)
+  })
+}
+
+// failure turns an error answer into the error to throw, sending the user to
+// login on a 401 that is not a step-up.
+async function failure(res: Response): Promise<ApiError> {
   const problem = await readProblem(res)
   if (res.status === 401) {
-    if (problem.type === STEP_UP) throw new StepUpRequired(401, problem)
+    if (problem.type === STEP_UP) return new StepUpRequired(401, problem)
     state.onUnauthenticated()
   }
-  throw new ApiError(res.status, problem)
+  return new ApiError(res.status, problem)
 }
 
 async function readProblem(res: Response): Promise<Problem> {
@@ -130,19 +167,10 @@ async function readProblem(res: Response): Promise<Problem> {
 async function blob(path: string): Promise<Blob> {
   const headers: Record<string, string> = { Accept: 'application/pdf, application/problem+json' }
   if (state.scope) headers['X-Owner-Scope'] = state.scope
-  let res: Response
-  try {
-    res = await fetch(new URL(`/api/v1${path}`, location.origin), { headers, credentials: 'same-origin', redirect: 'error' })
-  } catch (e) {
-    throw new NetworkError(String(e))
-  }
-  if (res.ok) return res.blob()
-  const problem = await readProblem(res)
-  if (res.status === 401) {
-    if (problem.type === STEP_UP) throw new StepUpRequired(401, problem)
-    state.onUnauthenticated()
-  }
-  throw new ApiError(res.status, problem)
+  return send(new URL(`/api/v1${path}`, location.origin), { headers, credentials: 'same-origin', redirect: 'error' }, TRANSFER_TIMEOUT_MS, async (res) => {
+    if (res.ok) return res.blob()
+    throw await failure(res)
+  })
 }
 
 export const api = {

@@ -137,3 +137,36 @@ test('a letter prepared earlier is recorded on reopening; a box keeps its end da
   await page.locator('#notice_by').click()
   await expect(page.getByRole('option', { name: 'le bailleur' })).toHaveAttribute('aria-disabled', 'true')
 })
+
+test('a notice refused once is retried with the letter already uploaded', async ({ page }) => {
+  await mock(page)
+  // The first recording fails; the letter's upload before it succeeded.
+  let refused = false
+  await page.route('**/api/v1/leases/l1/notice', async (r) => {
+    if (!refused && r.request().method() === 'POST' && (r.request().postDataJSON() as { dry_run?: boolean }).dry_run === false) {
+      refused = true
+      await r.fulfill({ status: 503, contentType: 'application/problem+json', body: JSON.stringify({ type: 'about:blank', status: 503, title: 'Service indisponible.' }) })
+      return
+    }
+    await r.continue()
+  })
+  await page.goto('/leases/l1')
+  await page.getByTestId('action-notice').click()
+  await page.locator('#notice_reason').click()
+  await page.getByRole('option', { name: 'Perte d’emploi', exact: true }).click()
+  await page.getByTestId('notice-compute').click()
+  await expect(page.getByTestId('notice-terms')).toBeVisible()
+  await page.getByTestId('file-notice_letter').setInputFiles({ name: 'conge.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.7\n%%EOF\n') })
+  await page.getByTestId('save-notice').click()
+  await expect(page.getByTestId('notice-dialog')).toContainText('Service indisponible.')
+  await page.getByTestId('save-notice').click()
+  await expect(page.getByTestId('notice-dialog')).toBeHidden()
+  await expect(page.getByTestId('lease-state')).toHaveText('congé donné')
+
+  const reqs = await requests(page)
+  const uploads = reqs.filter((r) => r.path === '/documents' && r.method === 'POST')
+  expect(uploads).toHaveLength(1)
+  const saved = reqs.filter((r) => r.path === '/leases/l1/notice' && r.method === 'POST' && r.body?.dry_run === false)
+  expect(saved).toHaveLength(1)
+  expect(saved[0]?.body?.document_id).toEqual(expect.any(String))
+})

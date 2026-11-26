@@ -3,7 +3,9 @@
 // elements, which every inventory starts from. Seeded once from the template
 // of the asset's kind, then edited as a whole and saved with If-Match; a
 // concurrent save reloads it. The co-owner reads; write controls are for the
-// owner only, and an accountant has no access (the API refuses).
+// owner only, and an accountant has no access (the API refuses). A 412 keeps
+// the owner's unsaved edits, which they save over the stored version or
+// discard.
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import Button from 'primevue/button'
@@ -40,13 +42,21 @@ const denied = ref(false)
 const dirty = ref(false)
 const seed = ref({ bedrooms: 1, furnished: false, cellar: false, garage: false, garden: false })
 
-async function reload(): Promise<void> {
+// reload reads the stored layout. With keepEdits (a 412 on save), the
+// owner's unsaved edits stay on screen on top of the stored version, which
+// the next save then replaces; it says whether they were kept.
+async function reload(keepEdits = false): Promise<boolean> {
   const l = await getLayout(id.value)
   version.value = l.version ?? 0
+  if (keepEdits && dirty.value) return true
   rooms.value = toEdit(l)
   dirty.value = false
+  return false
 }
-const { errors, summary, busy, submit } = useProblemForm(reload)
+let kept = false
+const { errors, summary, busy, submit } = useProblemForm(async () => {
+  kept = await reload(true)
+})
 
 onMounted(async () => {
   try {
@@ -102,6 +112,7 @@ async function doSeed(): Promise<void> {
 async function save(): Promise<void> {
   if (!rooms.value) return
   const current = rooms.value
+  kept = false
   const ok = await submit(async () => {
     const l = await saveLayout(id.value, version.value, current)
     version.value = l.version ?? 0
@@ -109,6 +120,11 @@ async function save(): Promise<void> {
     dirty.value = false
   })
   if (ok) toast.add({ severity: 'success', summary: t('common.saved'), life: 3000 })
+  else if (kept) summary.value = t('layout.staleKept')
+}
+// discard drops the owner's edits for the stored layout.
+async function discard(): Promise<void> {
+  await submit(() => reload())
 }
 // A field error names its path (rooms[2].elements[0].label): shown on its row.
 function err(path: string): string | undefined {
@@ -226,6 +242,7 @@ function err(path: string): string | undefined {
         <div v-if="s.canWrite" class="flex flex-wrap items-center gap-3">
           <Button :label="t('layout.addRoom')" icon="pi pi-plus" severity="secondary" data-test="add-room" @click="addRoom" />
           <Button :label="t('common.save')" icon="pi pi-check" :loading="busy" :disabled="!dirty" data-test="save-layout" @click="save" />
+          <Button v-if="dirty" :label="t('layout.discard')" icon="pi pi-undo" severity="secondary" text :disabled="busy" data-test="discard-layout" @click="discard" />
           <span v-if="dirty" class="text-sm text-amber-700" data-test="unsaved">{{ t('layout.unsaved') }}</span>
         </div>
       </template>

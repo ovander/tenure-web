@@ -5,6 +5,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { api } from '@/api/client'
+import { onceFor } from '@/lib/async'
 import type { Page, Schemas } from '@/api/types'
 import { t, type Key } from '@/i18n'
 import { date } from '@/i18n/format'
@@ -129,10 +130,12 @@ export const useLeases = defineStore('leases', () => {
 
   // upload sends a file to the archive (scanned, sniffed, 25 MB) linked to
   // the lease; signs names the generated document it is the signed copy of.
+  // A file the owner picked is archived once for the same fields: when the
+  // write that names it fails, a retry reuses it (onceFor).
+  const uploaded = onceFor<DocumentMeta>()
   async function upload(leaseClass: string, lease: Lease, file: File, signs?: string): Promise<DocumentMeta> {
-    return (
-      await api.upload<DocumentMeta>('/documents', { class: leaseClass, lease_id: lease.id, asset_id: lease.asset_ids?.[0], signs_document_id: signs }, file)
-    ).data
+    const fields = { class: leaseClass, lease_id: lease.id, asset_id: lease.asset_ids?.[0], signs_document_id: signs }
+    return uploaded(file, JSON.stringify(fields), async () => (await api.upload<DocumentMeta>('/documents', fields, file)).data)
   }
   async function uploads(leaseId: string): Promise<DocumentMeta[]> {
     return (await api.get<Page<DocumentMeta>>('/documents', { query: { lease_id: leaseId, page: 1, size: 100 } })).data.items

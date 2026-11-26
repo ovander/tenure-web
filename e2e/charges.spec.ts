@@ -53,8 +53,11 @@ test('flow 3: a syndic statement imported, reconciled, issued, then corrected', 
   await expect(page.getByTestId('drafts-warning')).toContainText('3 charge(s)')
   const imp = (await requests(page)).filter((r) => r.path === '/charges/import/syndic').at(-1)
   expect(imp?.body).toMatchObject({ asset_id: 'a1', exercise_year: 2025, charged_on: '2025-12-31', mapping: { label: 'Libellé', amount: 'Montant', recoverable: 'Récupérable', delimiter: ';' } })
-  const up = (await requests(page)).find((r) => r.method === 'POST' && r.path === '/documents')
-  expect(up?.body).toMatchObject({ class: 'supporting', asset_id: 'a1', file: 'decompte-2025.csv' })
+  const ups = (await requests(page)).filter((r) => r.method === 'POST' && r.path === '/documents')
+  // The retry after the refused import reuses the file archived by the first try.
+  expect(ups).toHaveLength(1)
+  expect(ups[0]?.body).toMatchObject({ class: 'supporting', asset_id: 'a1', file: 'decompte-2025.csv' })
+  expect((await requests(page)).filter((r) => r.path === '/charges/import/syndic').map((r) => r.body?.document_id)).toEqual([imp?.body?.document_id, imp?.body?.document_id])
 
   // A reconciliation cannot start while lines are drafts.
   await expect(page.getByTestId('start-recon')).toBeDisabled()
@@ -110,7 +113,7 @@ test('flow 3: a syndic statement imported, reconciled, issued, then corrected', 
   await expect.poll(async () => (await requests(page)).filter((r) => r.method === 'PUT' && r.path.includes('/lines/')).length).toBe(1)
   await line.locator('.p-select').click()
   await page.getByRole('option', { name: 'Sur le dépôt de garantie' }).click()
-  await expect(page.getByTestId('recon-error')).toContainText('n’est pas possible pour ce bail')
+  await expect(page.getByTestId('line-error')).toContainText('n’est pas possible pour ce bail')
   const lines = (await requests(page)).filter((r) => r.method === 'PUT' && r.path.includes('/lines/'))
   expect(lines.map((r) => r.ifMatch)).toEqual(['W/"1"', 'W/"2"'])
   expect(lines[0]?.body).toMatchObject({ apply_provision: true, new_provision_cents: 6000, settlement: 'fee' })
@@ -210,4 +213,38 @@ test('two choices made at once on a line are both saved, one after the other', a
   ])
   await expect(page.locator('#prov_ln1')).toHaveValue('0,00')
   expect(violations).toEqual([])
+})
+
+test('each line keeps its own busy mark and its own problem', async ({ page }) => {
+  const reconLine = (id: string) => ({
+    id, lease_id: 'l1', days: 365, allocated_cents: 35615, provisions_cents: 30000, balance_cents: 5615, spread: false, instalments: [],
+    proposed_provision_cents: 3000, new_provision_cents: 3000, apply_provision: false, settlement: 'fee', version: 1,
+  })
+  await mock(page, {
+    recons: [{
+      id: 'r1', asset_id: 'a1', exercise_start: '2025-01-01', exercise_end: '2025-12-31', exercise_year: 2025, state: 'allocated', version: 2,
+      totals: { exercise_days: 365, total_cents: 71230, recoverable_cents: 71230, non_recoverable_cents: 0, vacancy_days: 0, vacancy_cents: 0, cancellations: [] },
+      lines: [reconLine('ln1'), reconLine('ln2')],
+    }],
+  })
+  // Line saves answer slowly, the first line's more slowly than the second's.
+  await page.route('**/api/v1/reconciliations/r1/lines/*', async (r) => {
+    await new Promise((res) => setTimeout(res, r.request().url().endsWith('/ln1') ? 1200 : 600))
+    await r.continue()
+  })
+  await page.goto('/reconciliations/r1?step=provisions')
+  const [first, second] = [page.getByTestId('provision-line').nth(0), page.getByTestId('provision-line').nth(1)]
+  // Two lines saving at once: each shows its own busy mark.
+  await first.locator('.p-select').click()
+  await page.getByRole('option', { name: 'Sur le dépôt de garantie' }).click()
+  await second.locator('input[type=checkbox]').check()
+  await expect(first.getByText('Enregistrement…')).toBeVisible()
+  await expect(second.getByText('Enregistrement…')).toBeVisible()
+  // The first is refused; the second line's next save does not clear it.
+  await expect(page.getByText('n’est pas possible pour ce bail')).toBeVisible()
+  await second.locator('input[type=checkbox]').uncheck()
+  await expect.poll(async () => (await requests(page)).filter((r) => r.method === 'PUT' && r.path.endsWith('/lines/ln2')).length).toBe(2)
+  await expect(page.getByText('Enregistrement…')).toHaveCount(0)
+  await expect(page.getByText('n’est pas possible pour ce bail')).toBeVisible()
+  await expect(second.getByTestId('line-error')).toHaveCount(0)
 })

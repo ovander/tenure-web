@@ -69,13 +69,42 @@ test('an empty room name comes back on its field; a concurrent save reloads', as
   await rooms.nth(0).getByTestId('room-label').fill('')
   await page.getByTestId('save-layout').click()
   await expect(page.getByText('Le nom de la pièce est obligatoire.')).toBeVisible()
-  // Someone saved first: the next save is stale, the screen reloads and says so.
+  // Someone saved first: the next save is stale. The screen reads the stored
+  // version and says so, keeping what the owner typed; saving again replaces it.
   const layouts = await (await page.request.get('/api/v1/assets/a1/layout')).json()
   await page.request.post('/__mock/state', { data: { layouts: { a1: { ...layouts, version: 9 } } } })
   await rooms.nth(0).getByTestId('room-label').fill('Hall')
+  await rooms.nth(1).getByTestId('add-element').click()
+  await rooms.nth(1).getByTestId('element-label').last().fill('Cheminée')
   await page.getByTestId('save-layout').click()
   await expect(page.getByTestId('form-error')).toContainText('changé entre-temps')
-  await expect(rooms.nth(0).getByTestId('room-label')).toHaveValue('Entrée')
+  await expect(page.getByTestId('form-error')).toContainText('Vos modifications sont conservées')
+  await expect(rooms.nth(0).getByTestId('room-label')).toHaveValue('Hall')
+  await expect(rooms.nth(1).getByTestId('element-label').last()).toHaveValue('Cheminée')
+  await expect(page.getByTestId('unsaved')).toBeVisible()
+  await page.getByTestId('save-layout').click()
+  await expect(page.getByTestId('unsaved')).toHaveCount(0)
+  const put = (await requests(page)).filter((r) => r.method === 'PUT' && r.path === '/assets/a1/layout').at(-1)
+  expect(put?.ifMatch).toBe('W/"9"')
+  expect(put?.body?.rooms?.[0]?.label).toBe('Hall')
+  expect(put?.body?.rooms?.[1]?.elements.at(-1)?.label).toBe('Cheminée')
+})
+
+test('after a 412 the owner may discard their edits for the stored layout', async ({ page }) => {
+  await mock(page)
+  await page.goto('/assets/a1/layout')
+  await page.getByTestId('seed-layout').click()
+  const rooms = page.getByTestId('room')
+  const layouts = await (await page.request.get('/api/v1/assets/a1/layout')).json()
+  layouts.rooms[0].label = 'Hall d’entrée'
+  await page.request.post('/__mock/state', { data: { layouts: { a1: { ...layouts, version: 9 } } } })
+  await rooms.nth(0).getByTestId('room-label').fill('Hall')
+  await page.getByTestId('save-layout').click()
+  await expect(page.getByTestId('form-error')).toContainText('Vos modifications sont conservées')
+  await page.getByTestId('discard-layout').click()
+  await expect(rooms.nth(0).getByTestId('room-label')).toHaveValue('Hall d’entrée')
+  await expect(page.getByTestId('unsaved')).toHaveCount(0)
+  await expect(page.getByTestId('form-error')).toHaveCount(0)
 })
 
 test('the co-owner reads the layout; an accountant is refused and sees no link', async ({ page }) => {

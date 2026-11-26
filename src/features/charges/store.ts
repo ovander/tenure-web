@@ -3,6 +3,7 @@
 // Server data only; each write returns the API's answer.
 import { defineStore } from 'pinia'
 import { api } from '@/api/client'
+import { onceFor } from '@/lib/async'
 import type { Page, Schemas } from '@/api/types'
 
 export type Charge = Schemas['charge.View']
@@ -41,9 +42,11 @@ export const useCharges = defineStore('charges', () => {
     return (await api.put<Charge>(`/charges/${id}`, input, { ifMatch: version })).data
   }
   // upload archives a statement file (CSV or PDF, scanned) as a supporting
-  // document of the asset, for the import to read.
+  // document of the asset, for the import to read. A file is archived once
+  // per asset: when the import fails, its retry reuses it (onceFor).
+  const uploaded = onceFor<DocumentMeta>()
   async function upload(assetId: string, file: File): Promise<DocumentMeta> {
-    return (await api.upload<DocumentMeta>('/documents', { class: 'supporting', asset_id: assetId }, file)).data
+    return uploaded(file, assetId, async () => (await api.upload<DocumentMeta>('/documents', { class: 'supporting', asset_id: assetId }, file)).data)
   }
   async function importSyndic(input: ImportInput): Promise<Charge[]> {
     return (await api.post<Charge[]>('/charges/import/syndic', input)).data
