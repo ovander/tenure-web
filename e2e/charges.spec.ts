@@ -53,8 +53,11 @@ test('flow 3: a syndic statement imported, reconciled, issued, then corrected', 
   await expect(page.getByTestId('drafts-warning')).toContainText('3 charge(s)')
   const imp = (await requests(page)).filter((r) => r.path === '/charges/import/syndic').at(-1)
   expect(imp?.body).toMatchObject({ asset_id: 'a1', exercise_year: 2025, charged_on: '2025-12-31', mapping: { label: 'Libellé', amount: 'Montant', recoverable: 'Récupérable', delimiter: ';' } })
-  const up = (await requests(page)).find((r) => r.method === 'POST' && r.path === '/documents')
-  expect(up?.body).toMatchObject({ class: 'supporting', asset_id: 'a1', file: 'decompte-2025.csv' })
+  const ups = (await requests(page)).filter((r) => r.method === 'POST' && r.path === '/documents')
+  // The retry after the refused import reuses the file archived by the first try.
+  expect(ups).toHaveLength(1)
+  expect(ups[0]?.body).toMatchObject({ class: 'supporting', asset_id: 'a1', file: 'decompte-2025.csv' })
+  expect((await requests(page)).filter((r) => r.path === '/charges/import/syndic').map((r) => r.body?.document_id)).toEqual([imp?.body?.document_id, imp?.body?.document_id])
 
   // A reconciliation cannot start while lines are drafts.
   await expect(page.getByTestId('start-recon')).toBeDisabled()

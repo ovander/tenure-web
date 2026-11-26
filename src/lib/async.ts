@@ -36,6 +36,29 @@ export function queueByKey(): KeyQueue {
   return Object.assign(run, { idle })
 }
 
+// onceFor runs a task once per object and key: a later call with the same
+// object and key gets the first call's promise instead of running the task
+// again, while a failed task is forgotten, so that a retry runs it again.
+// An action that uploads a file and then writes the record that names it
+// keeps its upload this way: when the write fails and the owner retries,
+// the retry names the document already archived instead of archiving the
+// same file a second time, and sends only the write still pending.
+export type OnceFor<T> = (obj: object, key: string, task: () => Promise<T>) => Promise<T>
+
+export function onceFor<T>(): OnceFor<T> {
+  const done = new WeakMap<object, Map<string, Promise<T>>>()
+  return (obj, key, task) => {
+    let byKey = done.get(obj)
+    if (!byKey) done.set(obj, (byKey = new Map()))
+    const hit = byKey.get(key)
+    if (hit) return hit
+    const p = task()
+    byKey.set(key, p)
+    p.catch(() => byKey.delete(key))
+    return p
+  }
+}
+
 // useLatest guards a screen against answers arriving out of order: take a
 // token when a request starts, and assign its answer only while the token is
 // still the latest one taken (a later watcher run or action supersedes it).
