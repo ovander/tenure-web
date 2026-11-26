@@ -49,8 +49,13 @@ async function load(): Promise<void> {
 }
 async function loadRegister(): Promise<void> {
   const token = latestReg.next()
-  const r = await getRegister(on.value ?? undefined)
-  if (latestReg.isLatest(token)) reg.value = r
+  failure.value = ''
+  try {
+    const r = await getRegister(on.value ?? undefined)
+    if (latestReg.isLatest(token)) reg.value = r
+  } catch {
+    if (latestReg.isLatest(token)) failure.value = t('error.network')
+  }
 }
 onMounted(load)
 watch(on, loadRegister)

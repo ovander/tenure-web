@@ -113,6 +113,10 @@ const categoryOptions = categories.map((c) => ({ value: c, label: t(`element.cat
 interface Draft { condition: Item['condition'] | null; works: Item['works'] | null; quantity: number; comment: string }
 const drafts = reactive<Record<string, Draft>>({})
 const unsaved = reactive<Record<string, string>>({})
+// stale: items whose edit gave way to the server's version after a 412. Only
+// the owner clears it, by acting on the card again; a retry never does, so a
+// transition cannot go ahead over an edit the owner has not seen dropped.
+const stale = reactive<Record<string, boolean>>({})
 const saving = reactive<Record<string, boolean>>({})
 function draft(it: Item): Draft {
   const k = it.id ?? ''
@@ -127,6 +131,7 @@ const save = serialByKey(saveOnce)
 async function saveOnce(itemId: string): Promise<void> {
   const it = itemAt(itemId)
   const d = drafts[itemId]
+  if (stale[itemId]) return
   if (it && !d) {
     // Its edit gave way to the server's version after a 412: the card shows
     // what the server holds, nothing of it is left to save.
@@ -145,13 +150,16 @@ async function saveOnce(itemId: string): Promise<void> {
     scheduleChecks()
   } catch (e) {
     if (e instanceof ApiError && e.status === 412) {
-      delete drafts[itemId]
+      stale[itemId] = true
       unsaved[itemId] = t('error.stale')
       try {
         if (await reload(true)) toast.add({ severity: 'warn', summary: t('inventory.editsKept'), life: 6000 })
       } catch {
         // the item stays « not saved »; the next save shows the network state
       }
+      // Dropped once the server's version is on screen: the card then builds
+      // its draft from that version, not from the item this save started on.
+      delete drafts[itemId]
     } else {
       unsaved[itemId] = e instanceof ApiError ? [e.problem.title, ...(e.problem.errors ?? []).map((x) => x.message)].filter(Boolean).join(' ') : t('inventory.notSaved')
     }
@@ -161,7 +169,14 @@ async function saveOnce(itemId: string): Promise<void> {
 }
 const unsavedCount = computed(() => Object.keys(unsaved).length)
 async function retryAll(): Promise<void> {
-  for (const k of Object.keys(unsaved)) await save(k)
+  for (const k of Object.keys(unsaved)) if (!stale[k]) await save(k)
+}
+// edit saves a card after the owner acted on it, which also acknowledges a
+// stale mark: the card then shows, and saves, what the server holds plus
+// the owner's new choice.
+function edit(itemId: string): Promise<void> {
+  delete stale[itemId]
+  return save(itemId)
 }
 
 // Photos: resized, queued, previewed from blob:, then shown from the archive.
@@ -420,27 +435,27 @@ const stateSeverity: Record<string, string> = { draft: 'secondary', scheduled: '
               </div>
               <p v-if="it.entry" class="flex flex-wrap items-center gap-2 text-sm text-slate-500" data-test="item-entry-row">
                 <span data-test="item-entry">{{ t('inventory.atEntry') }} : {{ entryLabel(it) }}</span>
-                <Button v-if="it.to_check && canEditItems" :label="t('inventory.sameAsEntry')" icon="pi pi-check" size="small" text data-test="same-as-entry" @click="save(it.id ?? '')" />
+                <Button v-if="it.to_check && canEditItems" :label="t('inventory.sameAsEntry')" icon="pi pi-check" size="small" text data-test="same-as-entry" @click="edit(it.id ?? '')" />
               </p>
               <template v-if="canEditItems">
                 <SelectButton
                   v-model="draft(it).condition" :options="conditionOptions" option-label="label" option-value="value" :allow-empty="true"
-                  :aria-label="t('inventory.condition')" class="flex-wrap" data-test="condition" @change="save(it.id ?? '')"
+                  :aria-label="t('inventory.condition')" class="flex-wrap" data-test="condition" @change="edit(it.id ?? '')"
                 />
                 <div class="flex flex-wrap items-end gap-3">
                   <div v-if="hasWorks(it.category)">
                     <span class="mb-1 block text-sm text-slate-600">{{ t('inventory.works') }}</span>
-                    <SelectButton v-model="draft(it).works" :options="worksOptions" option-label="label" option-value="value" :allow-empty="true" data-test="works" @change="save(it.id ?? '')" />
+                    <SelectButton v-model="draft(it).works" :options="worksOptions" option-label="label" option-value="value" :allow-empty="true" data-test="works" @change="edit(it.id ?? '')" />
                   </div>
                   <FormField :id="`qty_${it.id}`" :label="t('inventory.quantity')">
-                    <InputNumber v-model="draft(it).quantity" :input-id="`qty_${it.id}`" :min="0" input-class="w-20" @blur="save(it.id ?? '')" />
+                    <InputNumber v-model="draft(it).quantity" :input-id="`qty_${it.id}`" :min="0" input-class="w-20" @blur="edit(it.id ?? '')" />
                   </FormField>
                   <label class="inline-flex cursor-pointer items-center gap-2 rounded-md border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50" data-test="camera">
                     <i class="pi pi-camera" aria-hidden="true" />{{ t('inventory.photo') }}
                     <input type="file" accept="image/*" capture="environment" multiple class="sr-only" data-test="camera-input" @change="takePhoto({ item_id: it.id }, $event)">
                   </label>
                 </div>
-                <Textarea v-model="draft(it).comment" :aria-label="t('inventory.comment')" :placeholder="t('inventory.comment')" auto-resize rows="1" class="w-full" data-test="comment" @blur="save(it.id ?? '')" />
+                <Textarea v-model="draft(it).comment" :aria-label="t('inventory.comment')" :placeholder="t('inventory.comment')" auto-resize rows="1" class="w-full" data-test="comment" @blur="edit(it.id ?? '')" />
               </template>
               <p v-else class="text-sm" data-test="item-read">
                 {{ it.condition ? t(`inventory.condition.${it.condition}` as Key) : t('inventory.notAssessed') }}

@@ -62,7 +62,13 @@ const legal = reactive<{ terms?: LeaseTerms; mobility?: Range; caps: Record<stri
 // only for such a dropped answer, so the defaults are not proposed from it.
 const latestLegal = useLatest()
 async function loadLegal(asOf: string | undefined): Promise<boolean> {
-  if (!asOf || legal.asOf === asOf) return true
+  if (!asOf) {
+    // A cleared date drops any answer still pending for the previous one.
+    latestLegal.next()
+    legal.asOf = undefined
+    return false
+  }
+  if (legal.asOf === asOf) return true
   legal.asOf = asOf
   const token = latestLegal.next()
   const [terms, mobility, unf, fur, mob] = await Promise.all([
