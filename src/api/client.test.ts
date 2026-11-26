@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { ApiError, NetworkError, StepUpRequired, api, loginURL, onUnauthenticated, setCsrf, setScope } from './client'
+import { ApiError, NetworkError, REQUEST_TIMEOUT_MS, StepUpRequired, TimeoutError, UPLOAD_TIMEOUT_MS, api, loginURL, onUnauthenticated, setCsrf, setScope } from './client'
+import { queueByKey } from '@/lib/async'
 
 interface Call { url: URL; init: RequestInit }
 let calls: Call[]
@@ -86,6 +87,53 @@ describe('api client', () => {
       throw new TypeError('offline')
     }
     await expect(api.get('/me')).rejects.toBeInstanceOf(NetworkError)
+  })
+
+  describe('a request that hangs', () => {
+    // fetch answers nothing until its signal aborts, as a hung server does.
+    const hang = () => vi.fn((_url: URL, init: RequestInit) => new Promise<Response>((_, reject) => {
+      init.signal?.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')))
+    }))
+    beforeEach(() => vi.useFakeTimers())
+    afterEach(() => vi.useRealTimers())
+
+    it('is cut after REQUEST_TIMEOUT_MS with a TimeoutError, a NetworkError', async () => {
+      vi.stubGlobal('fetch', hang())
+      const p = api.put('/leases/l1', {}, { ifMatch: 1 }).catch((e: unknown) => e)
+      await vi.advanceTimersByTimeAsync(REQUEST_TIMEOUT_MS - 1)
+      let settled = false
+      void p.then(() => (settled = true))
+      await Promise.resolve()
+      expect(settled).toBe(false)
+      await vi.advanceTimersByTimeAsync(1)
+      const e = await p
+      expect(e).toBeInstanceOf(TimeoutError)
+      expect(e).toBeInstanceOf(NetworkError)
+    })
+
+    it('gives an upload the longer UPLOAD_TIMEOUT_MS', async () => {
+      vi.stubGlobal('fetch', hang())
+      let settled = false
+      const p = api.upload('/documents', { class: 'supporting' }, new File(['x'], 'x.pdf')).catch((e: unknown) => e).finally(() => (settled = true))
+      await vi.advanceTimersByTimeAsync(REQUEST_TIMEOUT_MS)
+      expect(settled).toBe(false)
+      await vi.advanceTimersByTimeAsync(UPLOAD_TIMEOUT_MS - REQUEST_TIMEOUT_MS)
+      expect(await p).toBeInstanceOf(TimeoutError)
+    })
+
+    it('does not hold the saves queued behind it for the same record', async () => {
+      const f = hang()
+      vi.stubGlobal('fetch', f)
+      const q = queueByKey()
+      const first = q('l1', () => api.put('/leases/l1', {}, { ifMatch: 1 })).catch((e: unknown) => e)
+      const second = q('l1', () => api.put('/leases/l1', {}, { ifMatch: 1 })).catch((e: unknown) => e)
+      await vi.advanceTimersByTimeAsync(REQUEST_TIMEOUT_MS)
+      expect(await first).toBeInstanceOf(TimeoutError)
+      expect(f).toHaveBeenCalledTimes(2)
+      await vi.advanceTimersByTimeAsync(REQUEST_TIMEOUT_MS)
+      expect(await second).toBeInstanceOf(TimeoutError)
+      await q.idle()
+    })
   })
 
   it('builds the login URL with the return path and step-up', () => {

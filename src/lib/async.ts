@@ -8,7 +8,9 @@
 // Each task starts only once the previous one of its key has settled, so it
 // can build its body from the record as the previous save left it. A failed
 // task rejects its own promise and does not stop the next one. Different keys
-// run side by side.
+// run side by side. A task that never settles would hold its key and idle()
+// forever: tasks must settle, which API calls do, since the client cuts a
+// request with no answer in time (REQUEST_TIMEOUT_MS in @/api/client).
 export interface KeyQueue {
   <T>(key: string, task: () => Promise<T>): Promise<T>
   // idle resolves once no task of any key is queued or running, including
