@@ -235,8 +235,13 @@ export function changed(result: string | undefined): boolean {
 // of the same key is in flight waits for it, and the save runs once more with
 // the latest draft, so two quick edits of one item never send the same
 // version twice (the second would be refused with 412). Different keys run
-// side by side.
-export function serialByKey(run: (key: string) => Promise<void>): (key: string) => Promise<void> {
+// side by side. The returned function's idle() resolves once no save of any
+// key is in flight (saves started while it waits included).
+export interface SerialSave {
+  (key: string): Promise<void>
+  idle(): Promise<void>
+}
+export function serialByKey(run: (key: string) => Promise<void>): SerialSave {
   const inFlight = new Map<string, Promise<void>>()
   const again = new Set<string>()
   const loop = async (key: string): Promise<void> => {
@@ -249,7 +254,7 @@ export function serialByKey(run: (key: string) => Promise<void>): (key: string) 
       inFlight.delete(key)
     }
   }
-  return (key: string) => {
+  const save = (key: string) => {
     const running = inFlight.get(key)
     if (running) {
       again.add(key)
@@ -259,4 +264,8 @@ export function serialByKey(run: (key: string) => Promise<void>): (key: string) 
     inFlight.set(key, p)
     return p
   }
+  const idle = async (): Promise<void> => {
+    while (inFlight.size) await Promise.allSettled([...inFlight.values()])
+  }
+  return Object.assign(save, { idle })
 }

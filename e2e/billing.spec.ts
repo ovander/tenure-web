@@ -147,3 +147,30 @@ test('an accountant reads the billing month and payments with no write control',
   for (const id of ['add-payment', 'issue-receipts', 'match']) await expect(page.getByTestId(id)).toHaveCount(0)
   expect(violations).toEqual([])
 })
+
+test('the amount the owner is typing is never replaced by what the lease owes', async ({ page }) => {
+  await mock(page)
+  const violations = await watchCSP(page)
+  // The arrears answer is held until the owner has started typing.
+  let release: () => void = () => undefined
+  const typed = new Promise<void>((r) => (release = r))
+  await page.route('**/api/v1/leases/l1/arrears', async (r) => {
+    await typed
+    await r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ lease_id: 'l1', outstanding_cents: 85000, overdue_cents: 85000, items: [] }) })
+  })
+  await page.goto('/billing/payments')
+  await page.getByTestId('add-payment').click()
+  await page.locator('#pay_lease').click()
+  await page.getByRole('option', { name: /Lilas/ }).click()
+  await page.locator('#pay_amount').fill('100')
+  release()
+  await expect(page.getByTestId('payment-dialog')).toContainText('Le bail doit 850,00')
+  // The owner's 100 stays, as typed or once formatted on commit: never the 850 owed.
+  await expect(page.locator('#pay_amount')).toHaveValue(/^100(,00)?$/)
+  await page.locator('#pay_amount').blur()
+  await page.getByTestId('save-payment').click()
+  await expect(page.getByTestId('payment-dialog')).toBeHidden()
+  const pay = (await requests(page)).filter((r) => r.method === 'POST' && r.path === '/payments').at(-1)
+  expect(pay?.body).toMatchObject({ lease_id: 'l1', amount_cents: 10000 })
+  expect(violations).toEqual([])
+})

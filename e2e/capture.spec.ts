@@ -92,6 +92,11 @@ test('an owner captures an entry inventory on site, from draft to completed', as
   await items.nth(0).getByTestId('comment').fill('Carrelage posé en 2026')
   await items.nth(0).getByTestId('comment').blur()
   await expect(page.getByTestId('capture-progress')).toHaveText('5 éléments évalués sur 5')
+  // Another writer saved the tiles first: the owner's choice gives way (412)
+  // and the card says so until the owner acts on it again.
+  await page.request.post('/__mock/state', { data: { staleItem: 'Carrelage' } })
+  await items.nth(0).getByTestId('condition').getByText('Bon état').click()
+  await expect(items.nth(0).getByTestId('item-unsaved')).toBeVisible()
 
   // Meters and keys, each saved with the inventory's version.
   await page.getByTestId('section-meters').click()
@@ -110,8 +115,28 @@ test('an owner captures an entry inventory on site, from draft to completed', as
   expect(keys.at(-1)?.body).toEqual({ keys: [{ kind: 'key', destination: 'porte d’entrée', quantity: 1, comment: '' }] })
   expect(keys.at(-1)?.ifMatch).toMatch(/^W\/"\d+"$/)
 
-  // Every check cleared: complete, then reopen is offered.
+  // Every check cleared, but the dropped edit was never seen again: a retry
+  // does not clear it, so completing is refused until the owner acts.
   await expect(page.getByTestId('blocking')).toHaveCount(0)
+  await page.getByTestId('complete').click()
+  await expect(page.getByTestId('form-error')).toContainText('1 modification(s) non enregistrée(s)')
+  await expect(page.getByTestId('capture-state')).toHaveText('En cours')
+  await page.getByTestId('section-room').nth(1).click()
+  await items.nth(0).getByTestId('condition').getByText('Neuf').click()
+  await expect(items.nth(0).getByTestId('item-unsaved')).toHaveCount(0)
+  const last = (await requests(page)).filter((r) => r.method === 'PUT' && r.path.includes('/items/')).at(-1)
+  expect(last?.body).toMatchObject({ condition: 'new' })
+  // Another conflict, and the owner chooses again while its reload is still
+  // running: that choice is kept and saved on the reloaded version.
+  await page.request.post('/__mock/state', { data: { staleItem: 'Carrelage', delay: { [`/inventories/${id}`]: 1500 } } })
+  await items.nth(0).getByTestId('condition').getByText('Bon état').click()
+  await expect(items.nth(0).getByTestId('item-unsaved')).toBeVisible()
+  await items.nth(0).getByTestId('condition').getByText('Neuf').click()
+  await expect(items.nth(0).getByTestId('item-unsaved')).toHaveCount(0)
+  await page.request.post('/__mock/state', { data: { delay: {} } })
+  const kept = (await requests(page)).filter((r) => r.method === 'PUT' && r.path.includes('/items/')).at(-1)
+  expect(kept?.body).toMatchObject({ condition: 'new' })
+  // Complete, then reopen is offered.
   await page.getByTestId('complete').click()
   await expect(page.getByTestId('capture-state')).toHaveText('Terminé')
   await expect(page.getByTestId('reopen')).toBeVisible()

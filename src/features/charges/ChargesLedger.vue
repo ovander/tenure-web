@@ -21,6 +21,7 @@ import { ApiError } from '@/api/client'
 import { useSession } from '@/stores/session'
 import { useAssets, assetLabel } from '@/features/portfolio/store'
 import { t, type Key } from '@/i18n'
+import { useLatest } from '@/lib/async'
 import { date, money } from '@/i18n/format'
 import { exercise, totals, useCharges, type Charge, type Recon } from './store'
 import ChargeDialog from './ChargeDialog.vue'
@@ -64,14 +65,19 @@ const statusOptions = [{ value: '', label: t('charges.anyStatus') }, { value: 'd
 const recon = computed(() => (asset.value ? recons.value.find((r) => r.asset_id === asset.value && r.exercise_year === year.value && r.state !== 'cancelled') : undefined))
 const editVisible = computed({ get: () => editing.value !== null, set: (v: boolean) => (editing.value = v ? editing.value : null) })
 
+// Only the answer for the filters shown is kept.
+const latest = useLatest()
 async function load(): Promise<void> {
+  const token = latest.next()
   rows.value = null
   const q = { asset_id: asset.value || undefined, year: year.value, status: status.value || undefined }
   try {
     const [c, r] = await Promise.all([store.list(q), store.recons({ asset_id: asset.value || undefined, year: year.value })])
+    if (!latest.isLatest(token)) return
     rows.value = c.items
     recons.value = r.items
   } catch {
+    if (!latest.isLatest(token)) return
     rows.value = []
     toast.add({ severity: 'error', summary: t('error.network'), life: 4000 })
   }

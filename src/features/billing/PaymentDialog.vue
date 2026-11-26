@@ -45,7 +45,9 @@ watch(visible, async (v) => {
   const only = leases.value.length === 1 ? leases.value[0] : undefined
   if (!form.value.lease_id && only) form.value.lease_id = only.value
 })
-// The amount follows what the chosen lease still owes until the owner types one.
+// The amount follows what the chosen lease still owes until the owner touches
+// the field: focusing it or typing in it is enough, so an arrears answer that
+// lands while the owner types never replaces what they typed.
 watch(
   () => form.value.lease_id,
   async (id) => {
@@ -61,6 +63,9 @@ watch(
     }
   },
 )
+function touch(): void {
+  amountTouched.value = true
+}
 function typed(v: number | null | undefined): void {
   amountTouched.value = true
   form.value.amount_cents = v ?? undefined
@@ -92,7 +97,10 @@ async function save(): Promise<void> {
           id="pay_amount" :help="t('help.payment.amount')" :label="t('payments.amount')" :error="errors.amount_cents"
           :hint="owed != null ? t('payments.owed', { amount: money(owed) }) : undefined"
         >
-          <DecimalInput id="pay_amount" :model-value="form.amount_cents" suffix="€" :invalid="!!errors.amount_cents" @update:model-value="typed" @invalid-input="(b) => (badAmount = b)" />
+          <!-- focusin and input bubble from the field: the amount is the owner's from the first focus or key, before DecimalInput commits on blur. -->
+          <div @focusin="touch" @input="touch">
+            <DecimalInput id="pay_amount" :model-value="form.amount_cents" suffix="€" :invalid="!!errors.amount_cents" @update:model-value="typed" @invalid-input="(b) => (badAmount = b)" />
+          </div>
         </FormField>
         <FormField id="pay_on" :help="t('help.payment.paidOn')" :label="t('payments.paidOn')" :error="errors.paid_on">
           <DayInput id="pay_on" v-model="form.paid_on" :invalid="!!errors.paid_on" />

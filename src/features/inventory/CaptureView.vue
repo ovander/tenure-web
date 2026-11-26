@@ -44,18 +44,43 @@ const inv = ref<Capture | null>(null)
 const denied = ref(false)
 const section = ref<string>('room:0')
 
-async function reload(): Promise<void> {
-  inv.value = await getCapture(id.value)
-  meters.value = (inv.value.meters ?? []).map((m) => ({ id: m.id, kind: m.kind, meter_number: m.meter_number ?? '', reading: m.reading ?? '', unit: m.unit ?? '' }))
-  keys.value = (inv.value.keys ?? []).map((k) => ({ ...k }))
-  header.done_on = inv.value.done_on ?? null
-  header.scheduled_at = localDateTime(inv.value.scheduled_at)
-  header.place = inv.value.place ?? ''
-  header.observations = inv.value.observations ?? ''
-  header.keys_returned_on = inv.value.keys_returned_on ?? null
-  header.tenant_new_address = inv.value.tenant_new_address ?? ''
+// The meters, keys and header forms as a capture fills them.
+function formsOf(c: Capture) {
+  return {
+    meters: (c.meters ?? []).map((m): MeterInput => ({ id: m.id, kind: m.kind, meter_number: m.meter_number ?? '', reading: m.reading ?? '', unit: m.unit ?? '' })),
+    keys: (c.keys ?? []).map((k): KeyLine => ({ ...k })),
+    header: {
+      done_on: c.done_on ?? null, scheduled_at: localDateTime(c.scheduled_at), place: c.place ?? '', observations: c.observations ?? '',
+      keys_returned_on: c.keys_returned_on ?? null, tenant_new_address: c.tenant_new_address ?? '',
+    },
+  }
 }
-const { errors, summary, busy, submit } = useProblemForm(reload)
+// What the server last gave for each form, to tell the owner's edits apart.
+let loaded = { meters: '', keys: '', header: '' }
+function remember(c: Capture): void {
+  const f = formsOf(c)
+  loaded = { meters: JSON.stringify(f.meters), keys: JSON.stringify(f.keys), header: JSON.stringify(f.header) }
+}
+// reload reads the capture again. With keepEdits (a 412 on one item: only its
+// items and versions need refreshing), the meters, keys and header the owner
+// changed and has not saved yet are kept instead of reset; it says whether
+// any was kept.
+async function reload(keepEdits = false): Promise<boolean> {
+  const fresh = await getCapture(id.value)
+  const f = formsOf(fresh)
+  const keepMeters = keepEdits && JSON.stringify(meters.value) !== loaded.meters
+  const keepKeys = keepEdits && JSON.stringify(keys.value) !== loaded.keys
+  const keepHeader = keepEdits && JSON.stringify({ ...header }) !== loaded.header
+  inv.value = fresh
+  if (!keepMeters) meters.value = f.meters
+  if (!keepKeys) keys.value = f.keys
+  if (!keepHeader) Object.assign(header, f.header)
+  remember(fresh)
+  return keepMeters || keepKeys || keepHeader
+}
+const { errors, summary, busy, submit } = useProblemForm(async () => {
+  await reload()
+})
 
 onMounted(async () => {
   try {
@@ -88,6 +113,10 @@ const categoryOptions = categories.map((c) => ({ value: c, label: t(`element.cat
 interface Draft { condition: Item['condition'] | null; works: Item['works'] | null; quantity: number; comment: string }
 const drafts = reactive<Record<string, Draft>>({})
 const unsaved = reactive<Record<string, string>>({})
+// stale: items whose edit gave way to the server's version after a 412. Only
+// the owner clears it, by acting on the card again; a retry never does, so a
+// transition cannot go ahead over an edit the owner has not seen dropped.
+const stale = reactive<Record<string, boolean>>({})
 const saving = reactive<Record<string, boolean>>({})
 function draft(it: Item): Draft {
   const k = it.id ?? ''
@@ -102,18 +131,38 @@ const save = serialByKey(saveOnce)
 async function saveOnce(itemId: string): Promise<void> {
   const it = itemAt(itemId)
   const d = drafts[itemId]
+  if (stale[itemId]) return
+  if (it && !d) {
+    // Its edit gave way to the server's version after a 412: the card shows
+    // what the server holds, nothing of it is left to save.
+    delete unsaved[itemId]
+    return
+  }
   if (!it || !d || !inv.value) return
   saving[itemId] = true
   try {
     const saved = await saveItem(inv.value.id ?? '', it, { condition: d.condition ?? undefined, works: d.works ?? undefined, quantity: d.quantity ?? 0, comment: d.comment })
-    Object.assign(it, saved)
+    // A reload meanwhile (a 412 on another item) replaced the item: update the
+    // one on screen, unless it was read after this save.
+    const target = itemAt(itemId) ?? it
+    if ((saved.version ?? 0) >= (target.version ?? 0)) Object.assign(target, saved)
     delete unsaved[itemId]
     scheduleChecks()
   } catch (e) {
     if (e instanceof ApiError && e.status === 412) {
-      delete drafts[itemId]
-      await reload()
+      stale[itemId] = true
       unsaved[itemId] = t('error.stale')
+      // What the card held when the conflict came back: an edit made while
+      // the reload runs (edit() queues its own save) is kept, not dropped.
+      const before = JSON.stringify(drafts[itemId])
+      try {
+        if (await reload(true)) toast.add({ severity: 'warn', summary: t('inventory.editsKept'), life: 6000 })
+      } catch {
+        // the item stays « not saved »; the next save shows the network state
+      }
+      // Dropped once the server's version is on screen: the card then builds
+      // its draft from that version, not from the item this save started on.
+      if (JSON.stringify(drafts[itemId]) === before) delete drafts[itemId]
     } else {
       unsaved[itemId] = e instanceof ApiError ? [e.problem.title, ...(e.problem.errors ?? []).map((x) => x.message)].filter(Boolean).join(' ') : t('inventory.notSaved')
     }
@@ -123,7 +172,14 @@ async function saveOnce(itemId: string): Promise<void> {
 }
 const unsavedCount = computed(() => Object.keys(unsaved).length)
 async function retryAll(): Promise<void> {
-  for (const k of Object.keys(unsaved)) await save(k)
+  for (const k of Object.keys(unsaved)) if (!stale[k]) await save(k)
+}
+// edit saves a card after the owner acted on it, which also acknowledges a
+// stale mark: the card then shows, and saves, what the server holds plus
+// the owner's new choice.
+function edit(itemId: string): Promise<void> {
+  delete stale[itemId]
+  return save(itemId)
 }
 
 // Photos: resized, queued, previewed from blob:, then shown from the archive.
@@ -243,12 +299,14 @@ function isoOf(local: string): string | undefined {
 async function saveMeterList(): Promise<void> {
   const ok = await submit(async () => {
     inv.value = await saveMeters(id.value, inv.value?.version ?? 0, meters.value.map((m) => ({ ...m, reading: (m.reading ?? '').trim() })))
+    remember(inv.value)
   })
   if (ok) toast.add({ severity: 'success', summary: t('common.saved'), life: 3000 })
 }
 async function saveKeyList(): Promise<void> {
   const ok = await submit(async () => {
     inv.value = await saveKeys(id.value, inv.value?.version ?? 0, keys.value)
+    remember(inv.value)
   })
   if (ok) toast.add({ severity: 'success', summary: t('common.saved'), life: 3000 })
 }
@@ -258,13 +316,23 @@ async function saveHead(): Promise<void> {
       done_on: header.done_on ?? undefined, scheduled_at: isoOf(header.scheduled_at), place: header.place, observations: header.observations,
       ...(isExit.value ? { keys_returned_on: header.keys_returned_on ?? undefined, tenant_new_address: header.tenant_new_address } : {}),
     })
+    remember(inv.value)
   })
   if (ok) toast.add({ severity: 'success', summary: t('common.saved'), life: 3000 })
 }
 
-// Transitions.
+// Transitions: only once every item is saved. Wait for the saves in flight,
+// retry those that failed, and refuse while one is still not saved.
 async function move(action: Action): Promise<void> {
-  if (unsavedCount.value) await retryAll()
+  await save.idle()
+  if (unsavedCount.value) {
+    await retryAll()
+    await save.idle()
+  }
+  if (unsavedCount.value) {
+    summary.value = t('inventory.unsavedBlocks', { n: unsavedCount.value })
+    return
+  }
   const extraBody = action === 'schedule' ? { scheduled_at: isoOf(header.scheduled_at), place: header.place } : {}
   const ok = await submit(async () => {
     inv.value = await transition(id.value, action, extraBody)
@@ -370,27 +438,27 @@ const stateSeverity: Record<string, string> = { draft: 'secondary', scheduled: '
               </div>
               <p v-if="it.entry" class="flex flex-wrap items-center gap-2 text-sm text-slate-500" data-test="item-entry-row">
                 <span data-test="item-entry">{{ t('inventory.atEntry') }} : {{ entryLabel(it) }}</span>
-                <Button v-if="it.to_check && canEditItems" :label="t('inventory.sameAsEntry')" icon="pi pi-check" size="small" text data-test="same-as-entry" @click="save(it.id ?? '')" />
+                <Button v-if="it.to_check && canEditItems" :label="t('inventory.sameAsEntry')" icon="pi pi-check" size="small" text data-test="same-as-entry" @click="edit(it.id ?? '')" />
               </p>
               <template v-if="canEditItems">
                 <SelectButton
                   v-model="draft(it).condition" :options="conditionOptions" option-label="label" option-value="value" :allow-empty="true"
-                  :aria-label="t('inventory.condition')" class="flex-wrap" data-test="condition" @change="save(it.id ?? '')"
+                  :aria-label="t('inventory.condition')" class="flex-wrap" data-test="condition" @change="edit(it.id ?? '')"
                 />
                 <div class="flex flex-wrap items-end gap-3">
                   <div v-if="hasWorks(it.category)">
                     <span class="mb-1 block text-sm text-slate-600">{{ t('inventory.works') }}</span>
-                    <SelectButton v-model="draft(it).works" :options="worksOptions" option-label="label" option-value="value" :allow-empty="true" data-test="works" @change="save(it.id ?? '')" />
+                    <SelectButton v-model="draft(it).works" :options="worksOptions" option-label="label" option-value="value" :allow-empty="true" data-test="works" @change="edit(it.id ?? '')" />
                   </div>
                   <FormField :id="`qty_${it.id}`" :label="t('inventory.quantity')">
-                    <InputNumber v-model="draft(it).quantity" :input-id="`qty_${it.id}`" :min="0" input-class="w-20" @blur="save(it.id ?? '')" />
+                    <InputNumber v-model="draft(it).quantity" :input-id="`qty_${it.id}`" :min="0" input-class="w-20" @blur="edit(it.id ?? '')" />
                   </FormField>
                   <label class="inline-flex cursor-pointer items-center gap-2 rounded-md border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50" data-test="camera">
                     <i class="pi pi-camera" aria-hidden="true" />{{ t('inventory.photo') }}
                     <input type="file" accept="image/*" capture="environment" multiple class="sr-only" data-test="camera-input" @change="takePhoto({ item_id: it.id }, $event)">
                   </label>
                 </div>
-                <Textarea v-model="draft(it).comment" :aria-label="t('inventory.comment')" :placeholder="t('inventory.comment')" auto-resize rows="1" class="w-full" data-test="comment" @blur="save(it.id ?? '')" />
+                <Textarea v-model="draft(it).comment" :aria-label="t('inventory.comment')" :placeholder="t('inventory.comment')" auto-resize rows="1" class="w-full" data-test="comment" @blur="edit(it.id ?? '')" />
               </template>
               <p v-else class="text-sm" data-test="item-read">
                 {{ it.condition ? t(`inventory.condition.${it.condition}` as Key) : t('inventory.notAssessed') }}

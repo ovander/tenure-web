@@ -19,6 +19,7 @@ import { ApiError } from '@/api/client'
 import { useSession } from '@/stores/session'
 import { download } from '@/features/lease/store'
 import { t, type Key } from '@/i18n'
+import { useLatest } from '@/lib/async'
 import { dayOf, money } from '@/i18n/format'
 import { exception, feesTotal, live, shiftPeriod, useBilling, type BillingDoc, type Fee, type RunView } from './store'
 import { useLeaseNames } from './names'
@@ -47,11 +48,18 @@ const monthLabel = computed(() => {
 })
 const issued = computed(() => (docs.value ?? []).filter((d) => d.kind === 'rent_call'))
 
+// Only answers for the month shown are kept: a list or a simulation asked
+// for another month (the owner moved on meanwhile) is dropped.
+const latestDocs = useLatest()
+const latestSim = useLatest()
 async function loadDocs(): Promise<void> {
+  const token = latestDocs.next()
   docs.value = null
   try {
-    docs.value = (await store.documents({ period: period.value })).items
+    const items = (await store.documents({ period: period.value })).items
+    if (latestDocs.isLatest(token)) docs.value = items
   } catch {
+    if (!latestDocs.isLatest(token)) return
     docs.value = []
     toast.add({ severity: 'error', summary: t('error.network'), life: 4000 })
   }
@@ -60,6 +68,7 @@ onMounted(async () => {
   await Promise.all([names.load(), loadDocs()])
 })
 watch(period, () => {
+  latestSim.next()
   simulation.value = null
   error.value = ''
   void loadDocs()
@@ -70,12 +79,14 @@ function problemText(e: unknown): string {
 }
 
 async function simulate(): Promise<void> {
+  const token = latestSim.next()
   busy.value = true
   error.value = ''
   try {
-    simulation.value = await store.run(period.value, true)
+    const sim = await store.run(period.value, true)
+    if (latestSim.isLatest(token)) simulation.value = sim
   } catch (e) {
-    error.value = problemText(e)
+    if (latestSim.isLatest(token)) error.value = problemText(e)
   } finally {
     busy.value = false
   }

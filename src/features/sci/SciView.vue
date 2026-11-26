@@ -11,6 +11,7 @@ import Tag from 'primevue/tag'
 import DayInput from '@/components/DayInput.vue'
 import { useSession } from '@/stores/session'
 import { t, type Key } from '@/i18n'
+import { useLatest } from '@/lib/async'
 import { date } from '@/i18n/format'
 import AssociateDialog from './AssociateDialog.vue'
 import EntityDialog from './EntityDialog.vue'
@@ -28,16 +29,36 @@ const assocDialog = ref(false)
 const assoc = ref<Associate | null>(null)
 const moveDialog = ref(false)
 
+// Only the latest answers are kept: the register as of a day the owner
+// already changed never replaces the one asked for last.
+const latest = useLatest()
+const latestReg = useLatest()
 async function load(): Promise<void> {
+  const token = latest.next()
+  const regToken = latestReg.next()
   failure.value = ''
   try {
-    ;[ent.value, reg.value, moves.value] = await Promise.all([getEntity(), getRegister(on.value ?? undefined), getMovements()])
+    const [e, r, m] = await Promise.all([getEntity(), getRegister(on.value ?? undefined), getMovements()])
+    if (!latest.isLatest(token)) return
+    ent.value = e
+    moves.value = m
+    if (latestReg.isLatest(regToken)) reg.value = r
   } catch {
-    failure.value = t('error.network')
+    if (latest.isLatest(token)) failure.value = t('error.network')
+  }
+}
+async function loadRegister(): Promise<void> {
+  const token = latestReg.next()
+  failure.value = ''
+  try {
+    const r = await getRegister(on.value ?? undefined)
+    if (latestReg.isLatest(token)) reg.value = r
+  } catch {
+    if (latestReg.isLatest(token)) failure.value = t('error.network')
   }
 }
 onMounted(load)
-watch(on, async (d) => (reg.value = await getRegister(d ?? undefined)))
+watch(on, loadRegister)
 const names = computed(() => new Map((reg.value?.associates ?? []).map((a) => [a.id, a.name])))
 const complete = computed(() => reg.value && reg.value.held_parts === reg.value.capital_parts)
 const editAssoc = (a: Associate | null) => {

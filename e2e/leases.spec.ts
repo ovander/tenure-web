@@ -42,8 +42,18 @@ test('flow 1: from a draft to an active lease, then to its close', async ({ page
   await page.getByTestId('save-tenant').click()
   await expect(page.getByTestId('tenant-dialog')).toBeHidden()
 
+  // The revision month follows the start date, and is withdrawn when the
+  // date is cleared.
+  const revision = page.locator('[data-pc-name="select"]').filter({ has: page.locator('#revision_month') })
+  await page.locator('#start_on').fill('01/03/2026')
+  await page.locator('#start_on').press('Tab')
+  await expect(revision).toContainText('mars')
+  await page.locator('#start_on').fill('')
+  await page.locator('#start_on').press('Tab')
+  await expect(revision).not.toContainText('mars')
   await page.locator('#start_on').fill('01/12/2026')
   await page.locator('#start_on').press('Tab')
+  await expect(revision).toContainText('décembre')
   await page.locator('#rent').fill('800')
   await page.locator('#provision').fill('100')
   await page.locator('#deposit').fill('800')

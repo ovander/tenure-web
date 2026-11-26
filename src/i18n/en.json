@@ -288,6 +288,8 @@
   "inventory.unsaved": "{n} change(s) not saved.",
   "inventory.notSaved": "Not saved: check the connection.",
   "inventory.retry": "Retry",
+  "inventory.unsavedBlocks": "{n} change(s) not saved: save them before moving to the next step.",
+  "inventory.editsKept": "The inventory was reloaded; your unsaved meters, keys and observations are kept.",
   "inventory.saving": "Saving…",
   "inventory.sending": "Sending…",
   "inventory.sameAsEntry": "Same as at entry",

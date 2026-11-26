@@ -24,6 +24,7 @@ import { useAssets, assetLabel } from '@/features/portfolio/store'
 import { useCharges, type Charge } from '@/features/charges/store'
 import { useBilling, type Payment } from '@/features/billing/store'
 import { t, type Key } from '@/i18n'
+import { useLatest } from '@/lib/async'
 import { date, money, timestamp } from '@/i18n/format'
 import { categoriesOf, flagsBySource, lineKind, lower, useTax, type LineMap, type OwnerSummary, type Regime, type TaxView } from './store'
 
@@ -56,11 +57,11 @@ const owners = computed<OwnerSummary[]>(() => summary.value?.owners ?? [])
 const mine = computed(() => owners.value.find((o) => o.owner_id === s.active?.owner_id) ?? owners.value[0])
 const flagCounts = computed(() => flags.value.reduce<Record<string, number>>((m, f) => ({ ...m, [f.kind ?? '']: (m[f.kind ?? ''] ?? 0) + 1 }), {}))
 
-// seq numbers loads and computations: a load answered after a newer load or
-// a computation is dropped, so it cannot wipe what that one showed.
-let seq = 0
+// latest numbers loads and computations: a load answered after a newer load
+// or a computation is dropped, so it cannot wipe what that one showed.
+const latest = useLatest()
 async function load(): Promise<void> {
-  const ticket = ++seq
+  const ticket = latest.next()
   view.value = undefined
   error.value = ''
   open.value = {}
@@ -76,7 +77,7 @@ async function load(): Promise<void> {
   if (year.value !== y) return
   map.value = m
   lockYears.value = lock
-  if (ticket !== seq) return
+  if (!latest.isLatest(ticket)) return
   view.value = v ?? null
   regime.value = v?.regime === 'micro' || (mine.value && lower(mine.value) === 'micro') ? 'micro' : 'reel'
 }
@@ -90,7 +91,7 @@ async function compute(): Promise<void> {
   busy.value = true
   error.value = ''
   try {
-    seq++
+    latest.next()
     const v = await withStepUp(() => store.compute(year.value))
     if (v) {
       view.value = v

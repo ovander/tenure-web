@@ -166,3 +166,37 @@ test('an accountant reads the charges ledger with no write control', async ({ pa
   await expect(page.getByTestId('charge-dialog')).toHaveCount(0)
   expect(violations).toEqual([])
 })
+
+test('two choices made at once on a line are both saved, one after the other', async ({ page }) => {
+  await mock(page, {
+    recons: [{
+      id: 'r1', asset_id: 'a1', exercise_start: '2025-01-01', exercise_end: '2025-12-31', exercise_year: 2025, state: 'allocated', version: 2,
+      totals: { exercise_days: 365, total_cents: 71230, recoverable_cents: 71230, non_recoverable_cents: 0, vacancy_days: 0, vacancy_cents: 0, cancellations: [] },
+      lines: [{
+        id: 'ln1', lease_id: 'l1', days: 365, allocated_cents: 71230, provisions_cents: 60000, balance_cents: 11230, spread: false, instalments: [],
+        proposed_provision_cents: 6000, new_provision_cents: 0, apply_provision: false, settlement: 'fee', version: 1,
+      }],
+    }],
+  })
+  const violations = await watchCSP(page)
+  // Each line save answers slowly: the second choice is made while the first is in flight.
+  await page.route('**/api/v1/reconciliations/r1/lines/*', async (r) => {
+    await new Promise((res) => setTimeout(res, 300))
+    await r.continue()
+  })
+  await page.goto('/reconciliations/r1?step=provisions')
+  const line = page.getByTestId('provision-line')
+  await page.locator('#prov_ln1').fill('75')
+  // Ticking the box leaves the amount field: its save and the box's start together.
+  await line.locator('input[type=checkbox]').check()
+  await expect.poll(async () => (await requests(page)).filter((r) => r.method === 'PUT' && r.path.includes('/lines/')).length).toBe(2)
+  await expect(page.getByText('Enregistrement…')).toHaveCount(0)
+  const puts = (await requests(page)).filter((r) => r.method === 'PUT' && r.path.includes('/lines/'))
+  expect(puts.map((r) => r.ifMatch)).toEqual(['W/"1"', 'W/"2"'])
+  expect(puts[0]?.body).toMatchObject({ new_provision_cents: 7500, apply_provision: false, settlement: 'fee' })
+  expect(puts[1]?.body).toMatchObject({ new_provision_cents: 7500, apply_provision: true, settlement: 'fee' })
+  await expect(page.getByTestId('recon-error')).toHaveCount(0)
+  await expect(line.locator('input[type=checkbox]')).toBeChecked()
+  await expect(page.locator('#prov_ln1')).toHaveValue('75,00')
+  expect(violations).toEqual([])
+})
