@@ -165,7 +165,8 @@ test('the amount the owner is typing is never replaced by what the lease owes', 
   await page.locator('#pay_amount').fill('100')
   release()
   await expect(page.getByTestId('payment-dialog')).toContainText('Le bail doit 850,00')
-  await expect(page.locator('#pay_amount')).toHaveValue('100')
+  // The owner's 100 stays, as typed or once formatted on commit: never the 850 owed.
+  await expect(page.locator('#pay_amount')).toHaveValue(/^100(,00)?$/)
   await page.locator('#pay_amount').blur()
   await page.getByTestId('save-payment').click()
   await expect(page.getByTestId('payment-dialog')).toBeHidden()
