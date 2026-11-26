@@ -191,6 +191,8 @@ export function inventoryRoutes(ctx) {
       const it = c.rooms.flatMap((r) => r.items).find((x) => x.id === m[3])
       if (!it) return json(res, 404, { status: 404 })
       if (entry.ifMatch !== `W/"${it.version}"`) return stale(res)
+      // staleItem: another writer saved this item just before, once.
+      if (state.staleItem === it.label) { delete state.staleItem; Object.assign(it, { condition: 'fair', version: it.version + 1 }); return stale(res) }
       if (state.failItem === it.label) { delete state.failItem; return json(res, 503, { type: 'http/unavailable', status: 503, title: 'Service indisponible.' }) }
       Object.assign(it, { condition: b.condition, works: b.works, quantity: b.quantity ?? 0, comment: b.comment ?? '', to_check: false, version: it.version + 1 })
       record('inventory.item.update', 'inventory', c.id, null, it)

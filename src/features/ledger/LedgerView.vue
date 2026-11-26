@@ -14,6 +14,7 @@ import HelpTip from '@/components/HelpTip.vue'
 import { ApiError } from '@/api/client'
 import { withStepUp } from '@/app/stepUp'
 import { t, type Key } from '@/i18n'
+import { useLatest } from '@/lib/async'
 import { date, money } from '@/i18n/format'
 import { byClass, download, journal, type ExportKind, type Journal } from './ledger'
 
@@ -25,12 +26,17 @@ const failure = ref('')
 const exporting = ref<ExportKind | null>(null)
 const exportError = ref('')
 
+// Only the answer for the year shown is kept (a quick year change).
+const latest = useLatest()
 async function load(): Promise<void> {
+  const token = latest.next()
   data.value = null
   failure.value = ''
   try {
-    data.value = await journal(year.value)
+    const res = await journal(year.value)
+    if (latest.isLatest(token)) data.value = res
   } catch (e) {
+    if (!latest.isLatest(token)) return
     failure.value = e instanceof ApiError ? (e.problem.title ?? t('error.title')) + (e.problem.detail ? ` ${e.problem.detail}` : '') : t('error.network')
   }
 }

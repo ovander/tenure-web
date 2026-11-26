@@ -14,6 +14,7 @@ import { ApiError } from '@/api/client'
 import { withStepUp } from '@/app/stepUp'
 import { useSession } from '@/stores/session'
 import { t, type Key } from '@/i18n'
+import { useLatest } from '@/lib/async'
 import { money } from '@/i18n/format'
 import { declarations as getDeclarations, issue, result as getResult, type Declaration, type Regime, type Result } from './bic'
 
@@ -29,12 +30,19 @@ const regime = ref<Regime>('reel')
 const busy = ref(false)
 const issueError = ref('')
 
+// Only the answer for the year shown is kept (a quick year change).
+const latest = useLatest()
 async function load(): Promise<void> {
+  const token = latest.next()
   data.value = null
   failure.value = ''
   try {
-    ;[data.value, done.value] = await Promise.all([getResult(year.value), getDeclarations()])
+    const [res, decl] = await Promise.all([getResult(year.value), getDeclarations()])
+    if (!latest.isLatest(token)) return
+    data.value = res
+    done.value = decl
   } catch (e) {
+    if (!latest.isLatest(token)) return
     failure.value = e instanceof ApiError ? (e.problem.title ?? t('error.title')) : t('error.network')
   }
 }

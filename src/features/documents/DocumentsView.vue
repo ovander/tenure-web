@@ -28,6 +28,7 @@ import { download } from '@/features/lease/store'
 import { useAssets, assetLabel } from '@/features/portfolio/store'
 import { useBilling, live, type BillingDoc } from '@/features/billing/store'
 import { t, type Key } from '@/i18n'
+import { useLatest } from '@/lib/async'
 import { dayOf } from '@/i18n/format'
 import { classes, useDocuments, waitExport, type ArchiveDoc, type ExportView } from './store'
 
@@ -66,13 +67,18 @@ const assetOptions = computed(() => [{ value: '', label: t('charges.allAssets') 
 const classOptions = computed(() => [{ value: '', label: t('docs.allClasses') }, ...classes.map((c) => ({ value: c, label: t(`docs.class.${c}` as Key) }))])
 const cancelVisible = computed({ get: () => cancelling.value !== null, set: (v: boolean) => (cancelling.value = v ? cancelling.value : null) })
 
+// Only the answer for the filters shown is kept.
+const latest = useLatest()
 async function load(): Promise<void> {
+  const token = latest.next()
   rows.value = null
   try {
     const p = await store.list({ asset_id: asset.value || undefined, year: year.value ?? undefined, class: cls.value || undefined, number: q('number') || undefined })
+    if (!latest.isLatest(token)) return
     rows.value = p.items
     total.value = p.total
   } catch {
+    if (!latest.isLatest(token)) return
     rows.value = []
     toast.add({ severity: 'error', summary: t('error.network'), life: 4000 })
   }

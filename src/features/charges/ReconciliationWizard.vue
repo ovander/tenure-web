@@ -28,6 +28,7 @@ import { useSession } from '@/stores/session'
 import { useAssets, assetLabel } from '@/features/portfolio/store'
 import { useLeaseNames } from '@/features/billing/names'
 import { t, type Key } from '@/i18n'
+import { queueByKey } from '@/lib/async'
 import { date, money } from '@/i18n/format'
 import { settlements, steps, totals, useCharges, type Charge, type Recon, type ReconAction, type ReconLine, type Step } from './store'
 
@@ -114,22 +115,33 @@ function ask(a: ReconAction): void {
 const confirmVisible = computed({ get: () => confirming.value !== null, set: (v: boolean) => (confirming.value = v ? confirming.value : null) })
 
 // Each choice on a line is saved as it is made, with the line's version.
-async function saveLine(l: ReconLine, patch: Partial<ReconLine>): Promise<void> {
-  if (!recon.value?.id || !l.id) return
-  savingLine.value = l.id
-  error.value = ''
-  try {
-    const input = { apply_provision: patch.apply_provision ?? l.apply_provision, new_provision_cents: patch.new_provision_cents ?? provisionOf(l),
-      settlement: (patch.settlement ?? l.settlement) as 'fee' | 'deposit' | 'direct' }
-    const saved = await store.saveLine(recon.value.id, l, input)
-    const i = lines.value.findIndex((x) => x.id === l.id)
-    if (i >= 0 && recon.value.lines) recon.value.lines[i] = saved
-  } catch (e) {
-    error.value = problem(e)
-    if (e instanceof ApiError && e.status === 412) await load()
-  } finally {
-    savingLine.value = ''
-  }
+// Several controls of one line (provision, apply, settlement) may save at
+// once: the saves of a line run one after the other, each built from the line
+// as the previous save left it (its version and its other choices), so none
+// is refused with 412 and none is lost.
+const lineSaves = queueByKey()
+function saveLine(l: ReconLine, patch: Partial<ReconLine>): Promise<void> {
+  if (!l.id) return Promise.resolve()
+  const lineId = l.id
+  return lineSaves(lineId, async () => {
+    const r = recon.value
+    const cur = r?.lines?.find((x) => x.id === lineId)
+    if (!r?.id || !cur) return
+    savingLine.value = lineId
+    error.value = ''
+    try {
+      const input = { apply_provision: patch.apply_provision ?? cur.apply_provision, new_provision_cents: patch.new_provision_cents ?? provisionOf(cur),
+        settlement: (patch.settlement ?? cur.settlement) as 'fee' | 'deposit' | 'direct' }
+      const saved = await store.saveLine(r.id, cur, input)
+      const i = recon.value?.lines?.findIndex((x) => x.id === lineId) ?? -1
+      if (i >= 0 && recon.value?.lines) recon.value.lines[i] = saved
+    } catch (e) {
+      error.value = problem(e)
+      if (e instanceof ApiError && e.status === 412) await load()
+    } finally {
+      if (savingLine.value === lineId) savingLine.value = ''
+    }
+  })
 }
 function provisionOf(l: ReconLine): number | undefined {
   return l.new_provision_cents || l.proposed_provision_cents

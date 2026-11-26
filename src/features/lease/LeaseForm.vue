@@ -25,6 +25,7 @@ import { Suggestions, depositFor, firstOfNextMonth, monthOf, termFor } from './d
 import { latestIRL, param, type LeaseTerms, type Range } from '@/features/params/store'
 import { useLeases, toLeaseInput, tenantName, vettedClauses, mobilityReasons, type Lease, type LeaseInput, type LeaseKind, type Tenant } from './store'
 import { t, type Key } from '@/i18n'
+import { useLatest } from '@/lib/async'
 
 const route = useRoute()
 const router = useRouter()
@@ -56,9 +57,22 @@ const { errors, summary, busy, submit } = useProblemForm(reload)
 // start date, never from code.
 const suggest = new Suggestions<LeaseInput>()
 const legal = reactive<{ terms?: LeaseTerms; mobility?: Range; caps: Record<string, number | undefined>; asOf?: string }>({ caps: {} })
-async function loadLegal(asOf: string | undefined): Promise<void> {
-  if (!asOf || legal.asOf === asOf) return
+// Only the parameters of the latest start date are kept: those of a date the
+// owner already changed are dropped when they answer late. It resolves false
+// only for such a dropped answer, so the defaults are not proposed from it.
+const latestLegal = useLatest()
+async function loadLegal(asOf: string | undefined): Promise<boolean> {
+  if (!asOf) {
+    // A cleared date drops any answer still pending for the previous one,
+    // and the parameters of that date: the defaults it proposed are
+    // withdrawn, the revision month included.
+    latestLegal.next()
+    Object.assign(legal, { asOf: undefined, terms: undefined, mobility: undefined, caps: {} })
+    return true
+  }
+  if (legal.asOf === asOf) return true
   legal.asOf = asOf
+  const token = latestLegal.next()
   const [terms, mobility, unf, fur, mob] = await Promise.all([
     param<LeaseTerms>('lease_term_months', asOf),
     param<Range>('mobility_term_months', asOf),
@@ -66,7 +80,9 @@ async function loadLegal(asOf: string | undefined): Promise<void> {
     param<number>('deposit_max_months.furnished', asOf),
     param<number>('deposit_max_months.mobility', asOf),
   ])
+  if (!latestLegal.isLatest(token)) return false
   Object.assign(legal, { terms, mobility, caps: { unfurnished: unf, furnished: fur, mobility: mob } })
+  return true
 }
 function proposeLegal(): void {
   if (id.value) return
@@ -76,8 +92,7 @@ function proposeLegal(): void {
 }
 const termHelp = computed(() => (termFor(form.kind, legal.terms, legal.mobility) === undefined && !id.value ? t('help.lease.termNone') : t('help.lease.term')))
 watch(() => form.start_on, async (d) => {
-  await loadLegal(d ?? undefined)
-  proposeLegal()
+  if (await loadLegal(d ?? undefined)) proposeLegal()
 })
 watch(() => [form.kind, form.rent_cents], proposeLegal)
 
