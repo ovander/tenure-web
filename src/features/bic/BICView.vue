@@ -111,7 +111,9 @@ async function doIssue(): Promise<void> {
             <dt>{{ t('bic.abatement') }}</dt><dd class="amount">− {{ money(r.micro?.abatement_cents ?? 0) }}</dd>
             <dt class="font-semibold">{{ t('bic.taxable') }}</dt><dd class="amount font-semibold" data-test="bic-micro-taxable">{{ money(r.micro?.taxable_cents ?? 0) }}</dd>
           </dl>
-          <p class="mt-3 text-sm" data-test="bic-lower">{{ t('bic.lower', { regime: t(`bic.regime.${r.lower ?? 'reel'}` as Key) }) }}</p>
+          <p class="mt-3 text-sm" data-test="bic-lower">
+            {{ (r.taxable_cents ?? 0) === (r.micro?.taxable_cents ?? 0) ? t('bic.equal') : t('bic.lower', { regime: t(`bic.regime.${r.lower ?? 'reel'}` as Key) }) }}
+          </p>
         </article>
       </div>
 

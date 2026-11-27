@@ -31,7 +31,10 @@ const tab = computed(() => (route.params.tab as string) || 'overview')
 // Audit events are readable by the owner and the accountant (tenure-api
 // GuardAuditReaders; Q-W8).
 const tabs = computed(() =>
-  (['overview', 'leases', 'charges', 'loans', 'furnished', 'documents', 'deadlines', 'activity'] as const).filter((x) => x !== 'activity' || s.role !== 'co_owner'),
+  (['overview', 'leases', 'charges', 'loans', 'furnished', 'documents', 'deadlines', 'activity'] as const)
+    .filter((x) => x !== 'activity' || s.role !== 'co_owner')
+    // The furnished tab only on a furnished asset (its BIC grid and depreciation).
+    .filter((x) => x !== 'furnished' || !!asset.value?.furnished),
 )
 
 async function load(): Promise<void> {

@@ -19,6 +19,7 @@ export function taxRoutes(ctx) {
         return json(res, 200, { items, total: items.length, page: 1, size: 10 })
       }
       if (state.role !== 'owner') return json(res, 403, { type: 'auth/forbidden', status: 403, title: 'Accès refusé.' })
+      if (state.stepUpNoMFA) return json(res, 403, { type: 'auth/mfa-required', status: 403, title: 'Cette action exige une connexion avec double authentification : activez-la sur votre compte Socrate, puis recommencez.' })
       if (!state.stepUpFresh) return json(res, 401, { type: 'auth/step-up-required', status: 401, title: 'Une authentification forte récente est nécessaire.' })
       let v = state.taxSummaries.find((x) => x.tax_year === b.year)
       if (v?.state === 'issued') return json(res, 409, { type: 'tax/already-issued', status: 409, title: 'Ce récapitulatif est déjà émis.' })

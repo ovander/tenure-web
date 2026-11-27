@@ -182,7 +182,7 @@ async function cancel(): Promise<void> {
           <Select v-model="asset" input-id="d_asset" :options="assetOptions" option-label="label" option-value="value" class="w-60" />
         </FormField>
         <FormField id="d_year" :label="t('docs.year')">
-          <InputNumber v-model="year" input-id="d_year" :use-grouping="false" :min="1990" :max="2100" show-buttons class="w-32" />
+          <InputNumber v-model="year" input-id="d_year" :use-grouping="false" :min="1990" :max="2100" show-buttons class="w-32" input-class="w-full min-w-0" />
         </FormField>
         <FormField id="d_class" :label="t('billing.kindLabel')">
           <Select v-model="cls" input-id="d_class" :options="classOptions" option-label="label" option-value="value" class="w-56" />

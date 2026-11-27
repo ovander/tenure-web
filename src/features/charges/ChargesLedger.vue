@@ -137,7 +137,7 @@ function assetName(id: string | undefined): string {
           <Select v-model="asset" input-id="f_asset" :options="assetOptions" option-label="label" option-value="value" class="w-64" />
         </FormField>
         <FormField id="f_year" :label="t('charges.exercise')">
-          <InputNumber v-model="year" input-id="f_year" :use-grouping="false" :min="1990" :max="2100" show-buttons class="w-32" />
+          <InputNumber v-model="year" input-id="f_year" :use-grouping="false" :min="1990" :max="2100" show-buttons class="w-32" input-class="w-full min-w-0" />
         </FormField>
         <FormField id="f_status" :label="t('charges.statusLabel')">
           <Select v-model="status" input-id="f_status" :options="statusOptions" option-label="label" option-value="value" class="w-40" />

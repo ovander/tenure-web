@@ -39,6 +39,8 @@ test('flow 2: a month reviewed, issued, corrected, paid and receipted', async ({
   await expect(page.getByTestId('docs-empty')).toBeVisible()
   // Review before issue: nothing can be issued before the dry run.
   await expect(page.getByTestId('issue')).toBeDisabled()
+  // Why, in words under the buttons, not only on hover.
+  await expect(page.getByTestId('issue-hint')).toHaveText('Lancez d’abord la simulation pour vérifier les montants.')
 
   await page.getByTestId('simulate').click()
   const sim = page.getByTestId('simulation')

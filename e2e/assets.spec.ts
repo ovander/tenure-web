@@ -176,6 +176,8 @@ test('a diagnostic shows its effective expiry, tabs and job runs are in words', 
   await expect(page.getByTestId('diag-expires')).toHaveText('30/11/2026')
   await expect(page.getByTestId('diag-legal-cap')).toContainText('31/12/2030')
   await expect(page.getByTestId('tab-deadlines')).toHaveText('Échéances')
+  // An unfurnished asset has no furnished tab.
+  await expect(page.getByTestId('tab-furnished')).toHaveCount(0)
   await page.goto('/')
   await expect(page.getByTestId('run-job').first()).toHaveText('Appels de loyer du mois')
   expect(violations).toEqual([])
