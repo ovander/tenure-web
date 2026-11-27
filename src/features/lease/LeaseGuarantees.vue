@@ -51,7 +51,7 @@ async function act(f: () => Promise<unknown>): Promise<void> {
     toast.add({ severity: 'success', summary: t('common.saved'), life: 3000 })
     await changed()
   } catch (e) {
-    error.value = e instanceof ApiError ? [e.problem.title, e.problem.detail].filter(Boolean).join(' ') : t('error.network')
+    error.value = e instanceof ApiError ? (e.problem.title || t('error.title')) : t('error.network')
   }
 }
 const settle = (g: Guarantee) =>

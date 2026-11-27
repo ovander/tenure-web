@@ -81,7 +81,13 @@ const details = computed(() => {
             </template>
           </Column>
           <Column :header="t('diag.validUntil')">
-            <template #body="{ data }">{{ date(data.valid_until) }}</template>
+            <template #body="{ data }">
+              <!-- expires_on: the earlier of the report's date and the legal validity (tenure-api #258). -->
+              <span data-test="diag-expires">{{ date(data.expires_on ?? data.valid_until) }}</span>
+              <small v-if="data.valid_until && data.expires_on && data.valid_until > data.expires_on" class="block text-xs text-slate-500" data-test="diag-legal-cap">
+                {{ t('diag.legalCap', { date: date(data.valid_until) }) }}
+              </small>
+            </template>
           </Column>
           <Column field="result" :header="t('diag.result')" />
           <Column v-if="s.canWrite" class="w-16">

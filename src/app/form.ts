@@ -38,7 +38,6 @@ export function useProblemForm(onStale?: () => Promise<void>) {
         summary.value = t('error.stale')
       } else {
         summary.value = e.problem.errors?.length ? t('error.form') : e.problem.title || t('error.title')
-        if (e.problem.detail && !e.problem.errors?.length) summary.value += ` ${e.problem.detail}`
       }
       return false
     } finally {

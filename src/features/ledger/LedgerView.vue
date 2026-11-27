@@ -37,7 +37,7 @@ async function load(): Promise<void> {
     if (latest.isLatest(token)) data.value = res
   } catch (e) {
     if (!latest.isLatest(token)) return
-    failure.value = e instanceof ApiError ? (e.problem.title ?? t('error.title')) + (e.problem.detail ? ` ${e.problem.detail}` : '') : t('error.network')
+    failure.value = e instanceof ApiError ? (e.problem.title ?? t('error.title')) : t('error.network')
   }
 }
 watch(year, load, { immediate: true })

@@ -164,7 +164,7 @@ async function saveOnce(itemId: string): Promise<void> {
       // its draft from that version, not from the item this save started on.
       if (JSON.stringify(drafts[itemId]) === before) delete drafts[itemId]
     } else {
-      unsaved[itemId] = e instanceof ApiError ? [e.problem.title, ...(e.problem.errors ?? []).map((x) => x.message)].filter(Boolean).join(' ') : t('inventory.notSaved')
+      unsaved[itemId] = e instanceof ApiError ? ([e.problem.title, ...(e.problem.errors ?? []).map((x) => x.message)].filter(Boolean).join(' ') || t('error.title')) : t('inventory.notSaved')
     }
   } finally {
     saving[itemId] = false
@@ -375,6 +375,7 @@ const stateSeverity: Record<string, string> = { draft: 'secondary', scheduled: '
 
       <!-- The next step for the owner. -->
       <div v-if="s.canWrite" class="rounded-md border border-slate-200 bg-white p-4" data-test="next-step">
+        <p v-if="inv.state === 'draft' || inv.state === 'scheduled'" class="mb-3 text-sm text-slate-600" data-test="inventory-steps">{{ t('inventory.steps') }}</p>
         <div v-if="inv.state === 'draft'" class="grid items-end gap-3 md:grid-cols-[14rem_1fr_auto]">
           <FormField id="cap_when" :label="t('inventory.scheduledAt')" :error="errors.scheduled_at">
             <InputText id="cap_when" v-model="header.scheduled_at" type="datetime-local" data-test="scheduled-at" />

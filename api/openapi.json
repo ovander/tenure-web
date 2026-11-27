@@ -2208,6 +2208,173 @@
                 }
             }
         },
+        "/bank-lines/{id}/payment-suggestions": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Payments entered by hand that name no bank line yet, of at most the credit's amount, paid within bank.matching's window of the line's day; the exact amount first, then the nearest day. Linking one instead of matching the line to rent keeps a payment from being recorded twice. A debit, or a line already matched or ignored, has none.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payment"
+                ],
+                "summary": "The payments already recorded that a bank credit may be",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "bank line id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/payment.View"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/bank-lines/{id}/payments": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The credit is payments the owner already entered by hand: payments of the scope that name no bank line, adding up to exactly its amount, now name it, and no payment is recorded. The line becomes matched.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payment"
+                ],
+                "summary": "Link a bank credit to payments already recorded",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "bank line id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "payments",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/payment.LinkPaymentsInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "owner scope",
+                        "name": "X-Owner-Scope",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/payment.MatchLineResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "412": {
+                        "description": "Precondition Failed",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/problem.Body"
+                        }
+                    }
+                }
+            }
+        },
         "/bank-lines/{id}/status": {
             "post": {
                 "security": [
@@ -2422,7 +2589,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Issues the year under the regime chosen (step_up): its figures, computed from the declarations before it, are stored as they are, and the grid versions they used are frozen; a frozen grid takes no new version (409 bic/grid-frozen). A year is declared once (409 bic/declared), after the years before it (409 bic/declaration-order); the micro is open up to its receipts threshold (422 bic/micro-closed). Under the micro, the year carries no depreciation of its own and passes the earlier carry on (Q-132).",
+                "description": "Issues the year under the regime chosen (step_up): its figures, computed from the declarations before it, are stored as they are, and the grid versions they used are frozen; a frozen grid takes no new version (409 bic/grid-frozen). A year is declared after it is over (409 bic/year-open), a single time (409 bic/declared), and after the years before it (409 bic/declaration-order); the micro is open up to its receipts threshold (422 bic/micro-closed). Under the micro, the year carries no depreciation of its own and passes the earlier carry on (Q-132).",
                 "consumes": [
                     "application/json"
                 ],
@@ -2810,7 +2977,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "dry_run returns the computed fees without issuing; otherwise rent calls are issued, archived and e-mailed. A second run of the same period issues nothing new.",
+                "description": "dry_run returns the computed fees without issuing; otherwise rent calls are issued, archived and e-mailed, and fees lists those issued by this run. A second run of the same period issues only the rent calls still missing (a lease activated since); while one runs, it is returned (200).",
                 "consumes": [
                     "application/json"
                 ],
@@ -20871,6 +21038,20 @@
                 }
             }
         },
+        "payment.LinkPaymentsInput": {
+            "type": "object",
+            "properties": {
+                "payment_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
         "payment.MatchInput": {
             "type": "object",
             "properties": {
@@ -21283,6 +21464,11 @@
                     "type": "string"
                 },
                 "done_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "expires_on": {
+                    "description": "ExpiresOn is the last day the diagnostic is valid, when it expires:\nthe earlier of valid_until and its legal validity from legal_params\n(an ERP is valid 6 months whatever its report says), as the lease\nblockers and the calendar read it.",
                     "type": "string",
                     "format": "date"
                 },
@@ -22132,6 +22318,13 @@
                 },
                 "reel": {
                     "$ref": "#/definitions/tax.Reel"
+                },
+                "sci_lines": {
+                    "description": "SCILines are the 2044 lines of the shares and the loans for parts\n(gross income, expenses, interest, result), in the form's section for\npartnerships (WithShares, Q-135).",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/tax.LineAmount"
+                    }
                 },
                 "sci_shares": {
                     "description": "SCIShares are the owner's shares of SCIs' issued 2072s, counted in\nReel and Micro (WithShares, Q-133).",

@@ -72,7 +72,7 @@ test('S01 says so when nothing needs attention', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByTestId('todos-none')).toBeVisible()
   await expect(page.getByTestId('next-none')).toBeVisible()
-  await expect(page.getByTestId('runs')).toContainText('billing.monthly')
+  await expect(page.getByTestId('runs')).toContainText('Appels de loyer du mois')
 })
 
 test('S01 for a read role shows the same items, and the lease hub has its activity', async ({ page }) => {

@@ -78,7 +78,7 @@ async function save(): Promise<void> {
   } catch (e) {
     if (e instanceof ApiError) {
       for (const f of e.problem.errors ?? []) if (f.field) errors.value[f.field] = f.message ?? ''
-      ruleError.value = e.problem.errors?.length ? t('error.form') : (e.problem.detail || e.problem.title || t('error.title'))
+      ruleError.value = e.problem.errors?.length ? t('error.form') : (e.problem.title || t('error.title'))
       if (e.status === 412 || e.status === 409) await s.refreshMe()
     } else {
       ruleError.value = t('error.network')

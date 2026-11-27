@@ -24,8 +24,8 @@ import { useLeaseNames } from '@/features/billing/names'
 import ImportStatementDialog from './ImportStatementDialog.vue'
 import SplitDialog from './SplitDialog.vue'
 import {
-  accounts as listAccounts, autoMatch, chargeSuggestions, createAccount, lines as listLines, matchCharges, matchRent, oneLease, rentSuggestions, setStatus,
-  type Account, type AutoResult, type ChargeSuggestion, type Line, type RentSuggestion,
+  accounts as listAccounts, autoMatch, chargeSuggestions, createAccount, lines as listLines, linkPayments, matchCharges, matchRent, oneLease, paymentSuggestions, rentSuggestions, setStatus,
+  type Account, type AutoResult, type ChargeSuggestion, type Line, type RecordedPayment, type RentSuggestion,
 } from './bank'
 
 const s = useSession()
@@ -48,7 +48,7 @@ const statusOptions = ['unmatched', 'matched', 'ignored'].map((x) => ({ value: x
 const accountOptions = computed(() => (accs.value ?? []).map((a) => ({ value: a.id ?? '', label: a.iban_last4 ? `${a.label} ··${a.iban_last4}` : a.label ?? '' })))
 
 function fail(e: unknown): void {
-  const msg = e instanceof ApiError ? [e.problem.title, e.problem.detail].filter(Boolean).join(' ') : t('error.network')
+  const msg = e instanceof ApiError ? (e.problem.title || t('error.title')) : t('error.network')
   toast.add({ severity: 'error', summary: msg, life: 6000 })
 }
 // One write at a time: while a write's request (and the reload after it) is
@@ -126,7 +126,7 @@ function runAuto(): Promise<void> {
 }
 
 // A line opened shows its suggestions.
-const open = ref<Record<string, { rent?: RentSuggestion[]; charges?: ChargeSuggestion[] }>>({})
+const open = ref<Record<string, { rent?: RentSuggestion[]; payments?: RecordedPayment[]; charges?: ChargeSuggestion[] }>>({})
 async function toggle(l: Line): Promise<void> {
   const id = l.id ?? ''
   if (open.value[id]) {
@@ -136,7 +136,15 @@ async function toggle(l: Line): Promise<void> {
     return
   }
   try {
-    open.value = { ...open.value, [id]: (l.amount_cents ?? 0) > 0 ? { rent: await rentSuggestions(id) } : { charges: await chargeSuggestions(id) } }
+    if ((l.amount_cents ?? 0) > 0) {
+      // The recorded payments only help: their failure leaves the rent
+      // suggestions, which the line can still be matched to.
+      const [payments, rent] = await Promise.all([paymentSuggestions(id).catch((): RecordedPayment[] => []), rentSuggestions(id)])
+      open.value = { ...open.value, [id]: { payments, rent } }
+      picked.value = { ...picked.value, [id]: [] }
+    } else {
+      open.value = { ...open.value, [id]: { charges: await chargeSuggestions(id) } }
+    }
   } catch (e) {
     fail(e)
   }
@@ -145,6 +153,27 @@ function takeRent(l: Line, sg: RentSuggestion): Promise<void> {
   return write(async () => {
     await matchRent(l, oneLease(l, sg))
     toast.add({ severity: 'success', summary: t('bank.matched'), life: 3000 })
+    await load()
+  })
+}
+// Several recorded payments may make one credit (a rent paid in two
+// transfers): the owner ticks them, and the selection links once it adds up
+// to the credit exactly.
+const picked = ref<Record<string, string[]>>({})
+function pickedSum(l: Line): number {
+  const ids = picked.value[l.id ?? ''] ?? []
+  return (open.value[l.id ?? '']?.payments ?? []).filter((p) => ids.includes(p.id ?? '')).reduce((s, p) => s + (p.amount_cents ?? 0), 0)
+}
+function takePicked(l: Line): Promise<void> {
+  return linkIds(l, picked.value[l.id ?? ''] ?? [])
+}
+function takePayment(l: Line, p: RecordedPayment): Promise<void> {
+  return linkIds(l, [p.id ?? ''])
+}
+function linkIds(l: Line, ids: string[]): Promise<void> {
+  return write(async () => {
+    await linkPayments(l, ids)
+    toast.add({ severity: 'success', summary: t('bank.linked'), life: 3000 })
     await load()
   })
 }
@@ -212,6 +241,20 @@ const amountClass = (c?: number) => ((c ?? 0) < 0 ? 'text-red-700' : 'text-emera
         </div>
         <div v-if="open[l.id ?? '']" class="mt-2 space-y-2 rounded bg-slate-50 p-3 text-sm" data-test="bank-suggestions">
           <template v-if="open[l.id ?? '']?.rent">
+            <div v-if="open[l.id ?? '']?.payments?.length" class="space-y-2 border-b border-slate-200 pb-2" data-test="recorded-payments">
+              <p class="font-medium">{{ t('bank.recorded') }}</p>
+              <p class="text-xs text-slate-500">{{ t('bank.recordedHelp') }}</p>
+              <div v-for="p in open[l.id ?? '']?.payments" :key="p.id" class="flex flex-wrap items-center gap-2" data-test="recorded-payment">
+                <input v-model="picked[l.id ?? '']" type="checkbox" :value="p.id" :aria-label="t('bank.link')" data-test="payment-pick" />
+                <span>{{ date(p.paid_on) }} · {{ names.label(p.lease_id) }} · {{ money(p.amount_cents ?? 0) }}</span>
+                <span class="text-slate-500">{{ t(`payments.method.${p.method}` as Key) }}</span>
+                <Button v-if="p.amount_cents === l.amount_cents" :label="t('bank.link')" size="small" :disabled="writing" data-test="payment-link" @click="takePayment(l, p)" />
+              </div>
+              <Button
+                v-if="(open[l.id ?? '']?.payments?.length ?? 0) > 1" :label="t('bank.linkSelected', { sum: money(pickedSum(l)), amount: money(l.amount_cents ?? 0) })" size="small" severity="secondary"
+                :disabled="writing || pickedSum(l) !== l.amount_cents" data-test="payment-link-picked" @click="takePicked(l)"
+              />
+            </div>
             <p v-if="!open[l.id ?? '']?.rent?.length" class="text-slate-500">{{ t('bank.noRentSuggestion') }}</p>
             <div v-for="sg in open[l.id ?? '']?.rent" :key="sg.billing_document_id" class="flex flex-wrap items-center gap-2" data-test="rent-suggestion">
               <Tag :value="t(`bank.rule.${sg.rule}` as Key)" severity="info" />

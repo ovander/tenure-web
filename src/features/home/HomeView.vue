@@ -28,6 +28,12 @@ const leases = useLeases()
 const assets = useAssets()
 const billing = useBilling()
 const runs = ref<JobRun[] | null>(null)
+// jobName is a run's job in words; an unknown job shows its technical name.
+function jobName(job: string | undefined): string {
+  const key = `job.${job}` as Key
+  const name = t(key)
+  return name === key ? (job ?? '') : name
+}
 const items = ref<Todo[] | null>(null)
 const next = ref<NextDate[]>([])
 // The API's calendar (Q-W32); the leases' own dates when it cannot be read
@@ -159,7 +165,9 @@ const hasItems = computed(() => (items.value ?? []).length > 0)
         </div>
         <DataTable v-else :value="runs" size="small" data-test="runs">
           <template #empty>{{ t('home.runs.empty') }}</template>
-          <Column field="job" :header="t('home.runs.job')" />
+          <Column :header="t('home.runs.job')">
+            <template #body="{ data }"><span data-test="run-job">{{ jobName(data.job) }}</span></template>
+          </Column>
           <Column field="period" :header="t('home.runs.period')" />
           <Column :header="t('home.runs.status')">
             <template #body="{ data }"><StatusTag :status="data.status" /></template>

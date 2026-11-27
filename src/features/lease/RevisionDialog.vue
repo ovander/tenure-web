@@ -23,7 +23,7 @@ const loading = ref(false)
 const busy = ref(false)
 const error = ref('')
 
-const problem = (e: unknown) => (e instanceof ApiError ? [e.problem.title, e.problem.detail].filter(Boolean).join(' ') : t('error.network'))
+const problem = (e: unknown) => (e instanceof ApiError ? (e.problem.title || t('error.title')) : t('error.network'))
 
 watch(visible, async (v) => {
   if (!v || !props.lease.id) return

@@ -75,7 +75,7 @@ watch(period, () => {
 })
 
 function problemText(e: unknown): string {
-  return e instanceof ApiError ? [e.problem.title, e.problem.detail].filter(Boolean).join(' ') : t('error.network')
+  return e instanceof ApiError ? (e.problem.title || t('error.title')) : t('error.network')
 }
 
 async function simulate(): Promise<void> {

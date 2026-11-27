@@ -161,3 +161,22 @@ test('an unknown asset says so', async ({ page }) => {
   await page.goto('/assets/00000000-0000-7000-8000-00000000dead')
   await expect(page.getByTestId('asset-missing')).toBeVisible()
 })
+
+// Test install findings (tenure-api #258): a diagnostic shows its effective
+// expiry, the earlier of the report's date and the legal validity; the
+// deadlines tab has its title; the home names the jobs in words.
+test('a diagnostic shows its effective expiry, tabs and job runs are in words', async ({ page }) => {
+  await mock(page, {
+    assets: [{ id: 'a1', kind: 'apartment', address: '5 quai Perrache, Lyon', surface_hundredths_m2: 3000, version: 1, shares: [] }],
+    diagnostics: [{ id: 'g1', asset_id: 'a1', kind: 'erp', done_on: '2026-06-01', valid_until: '2030-12-31', expires_on: '2026-11-30', version: 1 }],
+    runs: [{ id: 'r1', job: 'billing.monthly', period: '2026-11', status: 'succeeded', finished_at: '2026-11-01T05:04:00Z' }],
+  })
+  const violations = await watchCSP(page)
+  await page.goto('/assets/a1')
+  await expect(page.getByTestId('diag-expires')).toHaveText('30/11/2026')
+  await expect(page.getByTestId('diag-legal-cap')).toContainText('31/12/2030')
+  await expect(page.getByTestId('tab-deadlines')).toHaveText('Échéances')
+  await page.goto('/')
+  await expect(page.getByTestId('run-job').first()).toHaveText('Appels de loyer du mois')
+  expect(violations).toEqual([])
+})

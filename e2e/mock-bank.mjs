@@ -4,7 +4,7 @@
 //   accounts      state.bankAccounts
 //   import        state.bankStatements[uploaded file name] = lines read; a
 //                 line already held (same key) counts as a duplicate
-//   suggestions   state.rentSuggestions / state.chargeSuggestions[line id]
+//   suggestions   state.rentSuggestions / state.chargeSuggestions / state.paymentSuggestions[line id]
 //   auto          the lines listed in state.bankSure[line id] = lease id
 export function bankRoutes(ctx) {
   const { state, json, invalid, uuid, record } = ctx
@@ -48,12 +48,13 @@ export function bankRoutes(ctx) {
       if (!b?.dry_run) for (const [id] of sure) Object.assign(state.bankLines.find((l) => l.id === id), { status: 'matched' })
       return json(res, 200, { matched: sure.map(([id, lease]) => ({ line_id: id, suggestion: { lease_id: lease, rule: 'name_amount' } })), left })
     }
-    const m = /^\/bank-lines\/([^/]+)\/(suggestions|charge-suggestions|match|charges|status)$/.exec(path)
+    const m = /^\/bank-lines\/([^/]+)\/(suggestions|charge-suggestions|payment-suggestions|match|charges|payments|status)$/.exec(path)
     if (!m) return false
     const l = state.bankLines.find((x) => x.id === m[1])
     if (!l) return notFound(res)
     if (m[2] === 'suggestions') return json(res, 200, l.status === 'unmatched' ? state.rentSuggestions?.[l.id] ?? [] : [])
     if (m[2] === 'charge-suggestions') return json(res, 200, l.status === 'unmatched' ? state.chargeSuggestions?.[l.id] ?? [] : [])
+    if (m[2] === 'payment-suggestions') return json(res, 200, l.status === 'unmatched' ? state.paymentSuggestions?.[l.id] ?? [] : [])
     if (b?.version !== l.version) return json(res, 412, { type: 'http/stale', status: 412, title: 'Version périmée.' })
     if (m[2] === 'status') {
       if (l.status === 'matched') return json(res, 409, { type: 'payment/bank-line-state', status: 409, title: 'Cette ligne bancaire est déjà rapprochée.' })
@@ -66,6 +67,12 @@ export function bankRoutes(ctx) {
       if (sum !== l.amount_cents) return json(res, 422, { type: 'payment/bank-allocation-invalid', status: 422, title: 'La répartition doit couvrir exactement le montant de la ligne bancaire.' })
       state.bankMatches ??= []
       state.bankMatches.push({ line: l.id, allocations: b.allocations })
+    } else if (m[2] === 'payments') {
+      const linked = (state.bankLinks ?? []).flatMap((x) => x.payment_ids)
+      const ps = (state.paymentSuggestions?.[l.id] ?? []).filter((p) => (b.payment_ids ?? []).includes(p.id) && !linked.includes(p.id))
+      if (ps.length !== (b.payment_ids ?? []).length) return json(res, 422, { type: 'payment/bank-payments-invalid', status: 422, title: 'Choisissez des paiements déjà saisis, sans ligne bancaire, dont le total fait exactement le montant du crédit.' })
+      if (!ps.length || ps.reduce((s, p) => s + p.amount_cents, 0) !== l.amount_cents) return json(res, 422, { type: 'payment/bank-payments-invalid', status: 422, title: 'Choisissez des paiements déjà saisis, sans ligne bancaire, dont le total fait exactement le montant du crédit.' })
+      state.bankLinks = [...(state.bankLinks ?? []), { line: l.id, payment_ids: b.payment_ids }]
     } else state.bankCharges = [...(state.bankCharges ?? []), { line: l.id, charge_ids: b.charge_ids }]
     Object.assign(l, { status: 'matched', version: l.version + 1 })
     record('payment.bank_match', 'bank_line', l.id, null, l)

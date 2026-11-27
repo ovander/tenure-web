@@ -13,6 +13,7 @@ export type RentSuggestion = Schemas['payment.Suggestion']
 export type ChargeSuggestion = Schemas['charge.Suggestion']
 export type AutoResult = Schemas['payment.AutoMatchResult']
 export type Allocation = Schemas['payment.Allocation']
+export type RecordedPayment = Schemas['payment.View']
 interface Page<T> { items?: T[]; total?: number }
 
 export async function accounts(): Promise<Account[]> {
@@ -32,6 +33,14 @@ export async function lines(query: { account_id?: string; status?: string; page?
 }
 export async function rentSuggestions(line: string): Promise<RentSuggestion[]> {
   return (await api.get<RentSuggestion[]>(`/bank-lines/${line}/suggestions`)).data
+}
+// paymentSuggestions are the payments already recorded by hand that a credit
+// may be (tenure-api #256): linked, nothing is recorded twice.
+export async function paymentSuggestions(line: string): Promise<RecordedPayment[]> {
+  return (await api.get<RecordedPayment[]>(`/bank-lines/${line}/payment-suggestions`)).data
+}
+export async function linkPayments(l: Line, paymentIds: string[]): Promise<unknown> {
+  return (await api.post(`/bank-lines/${l.id}/payments`, { payment_ids: paymentIds, version: l.version })).data
 }
 export async function chargeSuggestions(line: string): Promise<ChargeSuggestion[]> {
   return (await api.get<ChargeSuggestion[]>(`/bank-lines/${line}/charge-suggestions`)).data
