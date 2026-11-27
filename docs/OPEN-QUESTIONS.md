@@ -764,3 +764,22 @@ Provisional reading:
   files the 2072 and links to it.
 - **Not built yet:** undoing a movement, the capital's increase or reduction, the SCI's name in a
   pending SCI (the associate does not read the SCI's row), and a printed 2072.
+
+**Q-W43 Test install findings (v0.33.7) — Provisional (#109).** The first test install of
+tenure v0.1.40 showed screens that misled the owner:
+- **Error messages** show the problem's translated `title` and its field errors, never its
+  `detail`: tenure-api keeps the detail for logs and tests, in English (a lease state, an id),
+  as `internal/invariant` documents. The two import dialogs keep it, since it names the row
+  and the column of the file that could not be read.
+- **A diagnostic** shows `expires_on`, the earlier of the report's date and the legal validity
+  (tenure-api #258), with the report's date beside it when the law shortens it.
+- **A bank credit** first lists the payments already recorded by hand that it may be
+  (tenure-api #256). Only one of exactly the credit's amount links in one click; several
+  payments summing to the credit are not offered yet.
+- **The BIC of an open year** is an estimate to date: no declaration is offered before the year
+  is over (tenure-api #258, `bic/year-open`).
+- **A lease past its draft** is not edited on the form: its address goes back to the hub, where
+  amendments are.
+- **A charge saved for another exercise** switches the ledger to that exercise.
+- **The inventory capture** names its four steps while the appointment is not started.
+- **The home's job runs** name each job in words; an unknown job keeps its technical name.

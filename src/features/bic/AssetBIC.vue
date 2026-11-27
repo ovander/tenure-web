@@ -87,7 +87,7 @@ const canEditGrid = computed(() => s.canWrite && !grid.value?.frozen)
         <Button v-if="canEditGrid" :label="grid.proposed ? t('bic.gridRecord') : t('bic.gridEdit')" icon="pi pi-pencil" size="small" severity="secondary" data-test="grid-edit" @click="gridDialog = true" />
       </div>
       <Message v-if="grid.proposed" severity="info" :closable="false" class="mt-3" data-test="grid-proposal-hint">{{ t('bic.proposalHint') }}</Message>
-      <table class="mt-3 w-full text-sm">
+      <table class="mt-3 w-full text-sm [&_td]:px-2 [&_th]:px-2">
         <thead class="text-left text-xs text-slate-500"><tr><th class="py-1">{{ t('bic.component') }}</th><th>{{ t('bic.share') }}</th><th class="amount">{{ t('bic.base') }}</th><th>{{ t('bic.duration') }}</th></tr></thead>
         <tbody>
           <tr v-for="(l, i) in grid.lines ?? []" :key="l.component" class="border-t border-slate-100" data-test="grid-row">
@@ -103,7 +103,7 @@ const canEditGrid = computed(() => s.canWrite && !grid.value?.frozen)
         <Button v-if="s.canWrite" :label="t('bic.itemAdd')" icon="pi pi-plus" size="small" data-test="item-add" @click="editItem(null)" />
       </div>
       <Message v-if="list && !list.length" severity="secondary" :closable="false" class="mt-3" data-test="items-empty">{{ t('bic.itemsEmpty') }}</Message>
-      <table v-else-if="list" class="mt-3 w-full text-sm">
+      <table v-else-if="list" class="mt-3 w-full text-sm [&_td]:px-2 [&_th]:px-2">
         <thead class="text-left text-xs text-slate-500"><tr><th class="py-1">{{ t('bic.label') }}</th><th class="amount">{{ t('bic.cost') }}</th><th>{{ t('bic.inServiceItem') }}</th><th>{{ t('bic.duration') }}</th><th>{{ t('bic.treatmentLabel') }}</th><th /></tr></thead>
         <tbody>
           <tr v-for="i in list" :key="i.id" class="border-t border-slate-100" data-test="item">
@@ -124,9 +124,9 @@ const canEditGrid = computed(() => s.canWrite && !grid.value?.frozen)
     <article class="rounded-md border border-slate-200 bg-white p-4" data-test="depreciation">
       <div class="flex items-center justify-between gap-3">
         <h3 class="font-semibold">{{ t('bic.depreciation') }}</h3>
-        <InputNumber v-model="year" :use-grouping="false" :min="1970" :max="9999" input-id="dep_year" class="w-28" show-buttons data-test="dep-year" />
+        <InputNumber v-model="year" :use-grouping="false" :min="1970" :max="9999" input-id="dep_year" class="w-32" input-class="w-full min-w-0" show-buttons data-test="dep-year" />
       </div>
-      <table v-if="dep" class="mt-3 w-full text-sm">
+      <table v-if="dep" class="mt-3 w-full text-sm [&_td]:px-2 [&_th]:px-2">
         <thead class="text-left text-xs text-slate-500"><tr><th class="py-1">{{ t('bic.line') }}</th><th class="amount">{{ t('bic.base') }}</th><th class="amount">{{ t('bic.prior') }}</th><th class="amount">{{ t('bic.yearAmount') }}</th><th class="amount">{{ t('bic.net') }}</th></tr></thead>
         <tbody>
           <tr v-for="r in dep.rows ?? []" :key="r.ref" class="border-t border-slate-100" data-test="dep-row">

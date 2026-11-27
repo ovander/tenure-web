@@ -2369,6 +2369,209 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/bank-lines/{id}/payment-suggestions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The payments already recorded that a bank credit may be
+         * @description Payments entered by hand that name no bank line yet, of at most the credit's amount, paid within bank.matching's window of the line's day; the exact amount first, then the nearest day. Linking one instead of matching the line to rent keeps a payment from being recorded twice. A debit, or a line already matched or ignored, has none.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description bank line id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["payment.View"][];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bank-lines/{id}/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Link a bank credit to payments already recorded
+         * @description The credit is payments the owner already entered by hand: payments of the scope that name no bank line, adding up to exactly its amount, now name it, and no payment is recorded. The line becomes matched.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description owner scope */
+                    "X-Owner-Scope"?: string;
+                };
+                path: {
+                    /** @description bank line id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description payments */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["payment.LinkPaymentsInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["payment.MatchLineResult"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Precondition Failed */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["problem.Body"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/bank-lines/{id}/status": {
         parameters: {
             query?: never;
@@ -2710,7 +2913,7 @@ export interface paths {
         put?: never;
         /**
          * Issue a year's BIC declaration
-         * @description Issues the year under the regime chosen (step_up): its figures, computed from the declarations before it, are stored as they are, and the grid versions they used are frozen; a frozen grid takes no new version (409 bic/grid-frozen). A year is declared once (409 bic/declared), after the years before it (409 bic/declaration-order); the micro is open up to its receipts threshold (422 bic/micro-closed). Under the micro, the year carries no depreciation of its own and passes the earlier carry on (Q-132).
+         * @description Issues the year under the regime chosen (step_up): its figures, computed from the declarations before it, are stored as they are, and the grid versions they used are frozen; a frozen grid takes no new version (409 bic/grid-frozen). A year is declared once it is over (409 bic/year-open), once (409 bic/declared), after the years before it (409 bic/declaration-order); the micro is open up to its receipts threshold (422 bic/micro-closed). Under the micro, the year carries no depreciation of its own and passes the earlier carry on (Q-132).
          */
         post: {
             parameters: {
@@ -3169,7 +3372,7 @@ export interface paths {
         put?: never;
         /**
          * Run the monthly billing of the scope for a period
-         * @description dry_run returns the computed fees without issuing; otherwise rent calls are issued, archived and e-mailed. A second run of the same period issues nothing new.
+         * @description dry_run returns the computed fees without issuing; otherwise rent calls are issued, archived and e-mailed, and fees lists those issued by this run. A second run of the same period issues only the rent calls still missing (a lease activated since); while one runs, it is returned (200).
          */
         post: {
             parameters: {
@@ -18420,6 +18623,10 @@ export interface components {
             status?: "unmatched" | "matched" | "ignored";
             version?: number;
         };
+        "payment.LinkPaymentsInput": {
+            payment_ids?: string[];
+            version?: number;
+        };
         "payment.MatchInput": {
             auto?: boolean;
             matches?: components["schemas"]["payment.MatchLine"][];
@@ -18565,6 +18772,14 @@ export interface components {
             document_id?: string;
             /** Format: date */
             done_on?: string;
+            /**
+             * Format: date
+             * @description ExpiresOn is the last day the diagnostic is valid, when it expires:
+             *     the earlier of valid_until and its legal validity from legal_params
+             *     (an ERP is valid 6 months whatever its report says), as the lease
+             *     blockers and the calendar read it.
+             */
+            expires_on?: string;
             id?: string;
             /** @enum {unknown} */
             kind?: "dpe" | "erp" | "electricity" | "gas" | "lead" | "asbestos";
@@ -18856,6 +19071,12 @@ export interface components {
              */
             parts_loans?: components["schemas"]["tax.PartsLoan"][];
             reel?: components["schemas"]["tax.Reel"];
+            /**
+             * @description SCILines are the 2044 lines of the shares and the loans for parts
+             *     (gross income, expenses, interest, result), in the form's section for
+             *     partnerships (WithShares, Q-135).
+             */
+            sci_lines?: components["schemas"]["tax.LineAmount"][];
             /**
              * @description SCIShares are the owner's shares of SCIs' issued 2072s, counted in
              *     Reel and Micro (WithShares, Q-133).

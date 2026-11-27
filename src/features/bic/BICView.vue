@@ -15,13 +15,15 @@ import { withStepUp } from '@/app/stepUp'
 import { useSession } from '@/stores/session'
 import { t, type Key } from '@/i18n'
 import { useLatest } from '@/lib/async'
-import { money } from '@/i18n/format'
+import { currentPeriod, money } from '@/i18n/format'
 import { declarations as getDeclarations, issue, result as getResult, type Declaration, type Regime, type Result } from './bic'
 
 const route = useRoute()
 const router = useRouter()
 const s = useSession()
 const year = computed(() => Number(route.params.year))
+// A year is declared once it is over (tenure-api #258, 409 bic/year-open).
+const open = computed(() => year.value >= Number(currentPeriod().slice(0, 4)))
 const data = ref<Result | null>(null)
 const done = ref<Declaration[]>([])
 const failure = ref('')
@@ -113,7 +115,8 @@ async function doIssue(): Promise<void> {
         </article>
       </div>
 
-      <div v-if="s.canWrite && !declared" class="flex flex-wrap gap-2" data-test="bic-issue">
+      <Message v-if="s.canWrite && !declared && open" severity="info" :closable="false" data-test="bic-year-open">{{ t('bic.yearOpen') }}</Message>
+      <div v-else-if="s.canWrite && !declared" class="flex flex-wrap gap-2" data-test="bic-issue">
         <Button :label="t('bic.issueReel')" icon="pi pi-send" data-test="issue-reel" @click="ask('reel')" />
         <Button :label="t('bic.issueMicro')" icon="pi pi-send" severity="secondary" :disabled="!r.micro?.eligible" data-test="issue-micro" @click="ask('micro')" />
       </div>

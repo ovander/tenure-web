@@ -45,7 +45,7 @@ const revoked = computed(() => (rows.value ?? []).filter((g) => g.revoked_at))
 const revokeVisible = computed({ get: () => revoking.value !== null, set: (v: boolean) => (revoking.value = v ? revoking.value : null) })
 
 function problem(e: unknown): string {
-  return e instanceof ApiError ? [e.problem.title, e.problem.detail, ...(e.problem.errors ?? []).map((x) => x.message)].filter(Boolean).join(' ') : t('error.network')
+  return e instanceof ApiError ? [e.problem.title, ...(e.problem.errors ?? []).map((x) => x.message)].filter(Boolean).join(' ') : t('error.network')
 }
 function askInvite(): void {
   sub.value = ''

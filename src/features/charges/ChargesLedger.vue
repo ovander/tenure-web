@@ -88,9 +88,13 @@ onMounted(async () => {
 })
 watch(() => [route.query.asset, route.query.year, route.query.status, props.assetId], load)
 
-function saved(): void {
+// saved shows the exercise of the charge just saved: a charge of another
+// year than the one listed would otherwise seem to vanish.
+function saved(c?: Charge): void {
   toast.add({ severity: 'success', summary: t('common.saved'), life: 3000 })
-  void load()
+  const y = c?.exercise_year ?? Number(c?.charged_on?.slice(0, 4))
+  if (y && y !== year.value) year.value = y
+  else void load()
 }
 function imported(list: Charge[]): void {
   toast.add({ severity: 'success', summary: t('charges.imported', { n: list.length }), life: 5000 })
@@ -113,7 +117,7 @@ async function startRecon(): Promise<void> {
     starting.value = false
     await router.push(`/reconciliations/${r.id}`)
   } catch (e) {
-    error.value = e instanceof ApiError ? [e.problem.title, e.problem.detail].filter(Boolean).join(' ') : t('error.network')
+    error.value = e instanceof ApiError ? [e.problem.title].filter(Boolean).join(' ') : t('error.network')
   } finally {
     busy.value = false
   }

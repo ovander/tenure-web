@@ -47,6 +47,12 @@ const breakdown = reactive<Record<string, number | null | undefined>>({})
 async function reload(): Promise<void> {
   if (!id.value) return
   existing.value = await leases.get(id.value)
+  // Only a draft is edited here; a lease past it changes by amendment, from
+  // its hub (the API refuses the save with lease/not-editable).
+  if (existing.value.state && existing.value.state !== 'draft') {
+    await router.replace(`/leases/${id.value}`)
+    return
+  }
   Object.assign(form, toLeaseInput(existing.value))
   for (const r of existing.value.rent_breakdown ?? []) if (r.asset_id) breakdown[r.asset_id] = r.rent_cents
 }

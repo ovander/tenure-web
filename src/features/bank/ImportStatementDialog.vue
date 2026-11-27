@@ -84,7 +84,7 @@ async function run(dryRun: boolean): Promise<void> {
     <Message v-if="summary" severity="error" :closable="false" class="mb-3" data-test="form-error">{{ summary }}</Message>
     <p class="mb-4 text-sm text-slate-600">{{ t('bank.importBody') }}</p>
     <FormField id="st_file" :help="t('help.bank.file')" :label="t('bank.file')" :error="errors.file">
-      <FilePicker id="st_file" v-model="file" accept=".csv,.ofx,.qfx,text/csv" />
+      <FilePicker id="st_file" v-model="file" accept=".csv,.ofx,.qfx,text/csv" :label="t('upload.chooseStatement')" />
     </FormField>
     <fieldset v-if="format === 'csv'" class="mt-4 rounded-md border border-slate-200 p-3" data-test="statement-mapping">
       <legend class="px-1 text-sm font-medium">{{ t('bank.mapping') }}</legend>

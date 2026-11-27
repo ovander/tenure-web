@@ -51,7 +51,7 @@ async function uploadSigned(): Promise<void> {
     await load()
     emit('changed')
   } catch (e) {
-    error.value = e instanceof ApiError ? [e.problem.title, e.problem.detail].filter(Boolean).join(' ') : t('error.network')
+    error.value = e instanceof ApiError ? [e.problem.title].filter(Boolean).join(' ') : t('error.network')
   } finally {
     busy.value = false
   }
@@ -81,7 +81,7 @@ async function uploadSigned(): Promise<void> {
     <section v-if="uploads.length">
       <h2 class="mb-3 font-medium">{{ t('contract.signedCopies') }}</h2>
       <div class="space-y-2">
-        <DocumentCard v-for="u in uploads" :key="u.id" :label="u.original_name ?? ''" :issued-at="u.issued_at" :sha256="u.sha256" :document-id="u.id" />
+        <DocumentCard v-for="u in uploads" :key="u.id" :label="u.original_name || u.number || t(`docs.class.${u.class}` as Key)" :issued-at="u.issued_at" :sha256="u.sha256" :document-id="u.id" />
       </div>
     </section>
     <AmendmentDialog v-if="amending" v-model:visible="amending" :lease="lease" @saved="amended" />

@@ -157,3 +157,27 @@ test('a double click on a write sends one request', async ({ page }) => {
   await expect(page.getByTestId('account-dialog')).toBeHidden()
   expect(await sent('POST', /^\/bank-accounts$/)).toHaveLength(1)
 })
+
+test('a credit already recorded by hand is linked to its payment, not recorded twice', async ({ page }) => {
+  await mock(page, {
+    bankAccounts: [{ id: 'acc1', label: 'Compte loyers', version: 1 }],
+    bankLines: [line('k1', 80000, 'VIR LEA MARTIN')],
+    paymentSuggestions: { k1: [
+      { id: 'p1', lease_id: 'l1', paid_on: '2026-10-05', amount_cents: 80000, method: 'transfer', version: 1 },
+      { id: 'p2', lease_id: 'l2', paid_on: '2026-10-03', amount_cents: 30000, method: 'cheque', version: 1 },
+    ] },
+  })
+  const violations = await watchCSP(page)
+  await page.goto('/bank')
+  const k1 = page.getByTestId('bank-line').filter({ hasText: 'VIR LEA MARTIN' })
+  await k1.getByTestId('bank-open').click()
+  await expect(k1.getByTestId('recorded-payment')).toHaveCount(2)
+  // Only the payment of exactly the credit links in one click.
+  await expect(k1.getByTestId('payment-link').nth(1)).toBeDisabled()
+  await k1.getByTestId('payment-link').first().click()
+  await expect(page.getByText('Ligne rattachée au paiement déjà saisi.')).toBeVisible()
+  const sent = ((await (await page.request.get('/__mock/requests')).json()) as { method: string; path: string; body?: { payment_ids?: string[] } }[])
+  expect(sent.filter((r) => r.method === 'POST' && r.path === '/bank-lines/k1/payments').map((r) => r.body?.payment_ids)).toEqual([['p1']])
+  expect(sent.filter((r) => r.method === 'POST' && r.path === '/bank-lines/k1/match')).toHaveLength(0)
+  expect(violations).toEqual([])
+})

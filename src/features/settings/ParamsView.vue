@@ -82,7 +82,7 @@ async function add(): Promise<void> {
       await load()
     }
   } catch (e) {
-    error.value = e instanceof ApiError ? [e.problem.title, e.problem.detail, ...(e.problem.errors ?? []).map((x) => x.message)].filter(Boolean).join(' ') : t('error.network')
+    error.value = e instanceof ApiError ? [e.problem.title, ...(e.problem.errors ?? []).map((x) => x.message)].filter(Boolean).join(' ') : t('error.network')
   } finally {
     busy.value = false
   }

@@ -147,6 +147,12 @@ test('flow 1: from a draft to an active lease, then to its close', async ({ page
   await confirm(page)
   await expect(page.getByTestId('lease-state')).toHaveText('en cours')
   await expect(page.getByTestId('edit-lease')).toHaveCount(0)
+  // Its edit page, reached by its address, goes back to the hub: an active
+  // lease changes by amendment only.
+  const hub = page.url()
+  await page.goto(`${new URL(hub).pathname.replace(/\/(overview|contract|guarantees|billing|inventories|deposit|activity)$/, '')}/edit`)
+  await expect(page.getByTestId('lease-state')).toHaveText('en cours')
+  await expect(page).not.toHaveURL(/\/edit$/)
   await page.getByTestId('action-notice').click()
   await page.getByTestId('save-notice').click()
   await expect(page.getByTestId('notice-dialog')).toBeHidden()

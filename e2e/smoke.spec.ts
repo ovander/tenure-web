@@ -19,7 +19,7 @@ test('a signed-in owner sees home, styled, with no CSP violation', async ({ page
   const violations = await watchCSP(page)
   await page.goto('/')
   await expect(page.getByTestId('welcome')).toHaveText('Bonjour Bailleur Test')
-  await expect(page.getByTestId('runs')).toContainText('billing.monthly')
+  await expect(page.getByTestId('runs')).toContainText('Appels de loyer du mois')
   await expect(page.getByTestId('runs')).toContainText('réussi')
   await expect(page.getByTestId('runs')).toContainText('01/11/2026 06:00')
   // PrimeVue's theme reached the page through the nonce: the tag is coloured.

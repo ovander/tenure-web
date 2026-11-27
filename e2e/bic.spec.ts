@@ -160,6 +160,11 @@ test('the BIC result beside the micro-BIC, issued behind the step-up; the grid f
   await expect(page.getByTestId('bic-declared')).toHaveText('Déclarée au Régime réel')
   await expect(page.getByTestId('bic-issue')).toHaveCount(0)
 
+  // The current year is not over: no declaration offered, an estimate to date (tenure-api #258).
+  await page.goto(`/bic/${new Date().getFullYear()}`)
+  await expect(page.getByTestId('bic-year-open')).toBeVisible()
+  await expect(page.getByTestId('issue-reel')).toHaveCount(0)
+
   // The grid the declaration used no longer changes.
   await page.goto('/assets/a1/furnished')
   await expect(page.getByTestId('grid-frozen')).toBeVisible()

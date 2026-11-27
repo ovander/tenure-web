@@ -89,7 +89,7 @@ async function run(): Promise<void> {
           <InputNumber v-model="exYear" input-id="im_year" :use-grouping="false" :min="1990" :max="2100" />
         </FormField>
         <FormField id="im_csv" :help="t('help.import.csv')" :label="t('charges.csv')">
-          <FilePicker id="im_csv" v-model="csv" accept=".csv,text/csv" />
+          <FilePicker id="im_csv" v-model="csv" accept=".csv,text/csv" :label="t('upload.chooseCsv')" />
         </FormField>
         <FormField id="im_pdf" :help="t('help.import.pdf')" :label="`${t('charges.pdf')} (${t('common.optional')})`">
           <FilePicker id="im_pdf" v-model="pdf" accept="application/pdf" />

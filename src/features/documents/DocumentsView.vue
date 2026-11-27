@@ -105,7 +105,7 @@ async function open(d: ArchiveDoc): Promise<void> {
   }
 }
 function problem(e: unknown): string {
-  return e instanceof ApiError ? [e.problem.title, e.problem.detail].filter(Boolean).join(' ') : t('error.network')
+  return e instanceof ApiError ? [e.problem.title].filter(Boolean).join(' ') : t('error.network')
 }
 
 // Export: a year or an asset, step_up, then polled until its link is ready.
