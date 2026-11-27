@@ -164,7 +164,7 @@ async function saveOnce(itemId: string): Promise<void> {
       // its draft from that version, not from the item this save started on.
       if (JSON.stringify(drafts[itemId]) === before) delete drafts[itemId]
     } else {
-      unsaved[itemId] = e instanceof ApiError ? [e.problem.title, ...(e.problem.errors ?? []).map((x) => x.message)].filter(Boolean).join(' ') : t('inventory.notSaved')
+      unsaved[itemId] = e instanceof ApiError ? ([e.problem.title, ...(e.problem.errors ?? []).map((x) => x.message)].filter(Boolean).join(' ') || t('error.title')) : t('inventory.notSaved')
     }
   } finally {
     saving[itemId] = false

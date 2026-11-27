@@ -117,7 +117,7 @@ async function startRecon(): Promise<void> {
     starting.value = false
     await router.push(`/reconciliations/${r.id}`)
   } catch (e) {
-    error.value = e instanceof ApiError ? [e.problem.title].filter(Boolean).join(' ') : t('error.network')
+    error.value = e instanceof ApiError ? (e.problem.title || t('error.title')) : t('error.network')
   } finally {
     busy.value = false
   }

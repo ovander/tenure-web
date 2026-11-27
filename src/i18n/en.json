@@ -1935,5 +1935,6 @@
   "bank.recordedHelp": "This credit may be a payment already recorded by hand: link it rather than record it a second time.",
   "bank.link": "Link",
   "bank.linked": "Line linked to the payment already recorded.",
-  "inventory.steps": "Steps: 1. schedule the appointment; 2. start it on site; 3. finish the capture; 4. review and sign. You can fill in the rooms now."
+  "inventory.steps": "Steps: 1. schedule the appointment; 2. start it on site; 3. finish the capture; 4. review and sign. You can fill in the rooms now.",
+  "bank.linkSelected": "Link the selection ({sum} of {amount})"
 }

@@ -51,7 +51,7 @@ async function uploadSigned(): Promise<void> {
     await load()
     emit('changed')
   } catch (e) {
-    error.value = e instanceof ApiError ? [e.problem.title].filter(Boolean).join(' ') : t('error.network')
+    error.value = e instanceof ApiError ? (e.problem.title || t('error.title')) : t('error.network')
   } finally {
     busy.value = false
   }

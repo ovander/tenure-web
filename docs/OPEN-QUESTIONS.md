@@ -774,8 +774,10 @@ tenure v0.1.40 showed screens that misled the owner:
 - **A diagnostic** shows `expires_on`, the earlier of the report's date and the legal validity
   (tenure-api #258), with the report's date beside it when the law shortens it.
 - **A bank credit** first lists the payments already recorded by hand that it may be
-  (tenure-api #256). Only one of exactly the credit's amount links in one click; several
-  payments summing to the credit are not offered yet.
+  (tenure-api #256). One of exactly the credit's amount links in one click; several, ticked,
+  link once they add up to the credit exactly. Their lookup failing leaves the rent
+  suggestions.
+- **A problem with no title** shows « Erreur » rather than an empty message.
 - **The BIC of an open year** is an estimate to date: no declaration is offered before the year
   is over (tenure-api #258, `bic/year-open`).
 - **A lease past its draft** is not edited on the form: its address goes back to the hub, where

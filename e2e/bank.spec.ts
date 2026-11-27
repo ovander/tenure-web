@@ -172,12 +172,44 @@ test('a credit already recorded by hand is linked to its payment, not recorded t
   const k1 = page.getByTestId('bank-line').filter({ hasText: 'VIR LEA MARTIN' })
   await k1.getByTestId('bank-open').click()
   await expect(k1.getByTestId('recorded-payment')).toHaveCount(2)
-  // Only the payment of exactly the credit links in one click.
-  await expect(k1.getByTestId('payment-link').nth(1)).toBeDisabled()
+  // Only the payment of exactly the credit links in one click; the other is ticked with others.
+  await expect(k1.getByTestId('payment-link')).toHaveCount(1)
+  await expect(k1.getByTestId('payment-link-picked')).toBeDisabled()
   await k1.getByTestId('payment-link').first().click()
   await expect(page.getByText('Ligne rattachée au paiement déjà saisi.')).toBeVisible()
   const sent = ((await (await page.request.get('/__mock/requests')).json()) as { method: string; path: string; body?: { payment_ids?: string[] } }[])
   expect(sent.filter((r) => r.method === 'POST' && r.path === '/bank-lines/k1/payments').map((r) => r.body?.payment_ids)).toEqual([['p1']])
   expect(sent.filter((r) => r.method === 'POST' && r.path === '/bank-lines/k1/match')).toHaveLength(0)
   expect(violations).toEqual([])
+})
+
+test('two recorded payments make one credit; their lookup failing leaves the rent suggestions', async ({ page }) => {
+  await mock(page, {
+    bankAccounts: [{ id: 'acc1', label: 'Compte loyers', version: 1 }],
+    bankLines: [line('k2', 80000, 'VIR LEA MARTIN'), line('k3', 65000, 'VIR SEPA LOYER')],
+    paymentSuggestions: { k2: [
+      { id: 'p3', lease_id: 'l1', paid_on: '2026-10-04', amount_cents: 50000, method: 'transfer', version: 1 },
+      { id: 'p4', lease_id: 'l1', paid_on: '2026-10-05', amount_cents: 30000, method: 'transfer', version: 1 },
+    ] },
+    rentSuggestions: { k3: [{ lease_id: 'l2', billing_document_id: 'c2', number: 'AL-00000001-2026-0011', period: '2026-10', amount_cents: 65000, method: 'transfer', rule: 'amount_period' }] },
+  })
+  await page.goto('/bank')
+  const k2 = page.getByTestId('bank-line').filter({ hasText: 'VIR LEA MARTIN' })
+  await k2.getByTestId('bank-open').click()
+  await expect(k2.getByTestId('payment-link')).toHaveCount(0)
+  const both = k2.getByTestId('payment-link-picked')
+  await k2.getByTestId('payment-pick').first().check()
+  await expect(both).toBeDisabled()
+  await k2.getByTestId('payment-pick').nth(1).check()
+  await both.click()
+  await expect(page.getByText('Ligne rattachée au paiement déjà saisi.')).toBeVisible()
+  const sent = ((await (await page.request.get('/__mock/requests')).json()) as { method: string; path: string; body?: { payment_ids?: string[] } }[])
+  expect(sent.filter((r) => r.method === 'POST' && r.path === '/bank-lines/k2/payments').map((r) => r.body?.payment_ids?.sort())).toEqual([['p3', 'p4']])
+
+  // The recorded payments failing to load, the rent suggestions still show.
+  await page.route(/\/api\/v1\/bank-lines\/k3\/payment-suggestions/, (r) => r.fulfill({ status: 500, contentType: 'application/problem+json', body: '{"status":500}' }))
+  const k3 = page.getByTestId('bank-line').filter({ hasText: 'VIR SEPA LOYER' })
+  await k3.getByTestId('bank-open').click()
+  await expect(k3.getByTestId('rent-suggestion')).toHaveCount(1)
+  await expect(k3.getByTestId('recorded-payments')).toHaveCount(0)
 })

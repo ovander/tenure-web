@@ -68,7 +68,9 @@ export function bankRoutes(ctx) {
       state.bankMatches ??= []
       state.bankMatches.push({ line: l.id, allocations: b.allocations })
     } else if (m[2] === 'payments') {
-      const ps = Object.values(state.paymentSuggestions ?? {}).flat().filter((p) => (b.payment_ids ?? []).includes(p.id))
+      const linked = (state.bankLinks ?? []).flatMap((x) => x.payment_ids)
+      const ps = (state.paymentSuggestions?.[l.id] ?? []).filter((p) => (b.payment_ids ?? []).includes(p.id) && !linked.includes(p.id))
+      if (ps.length !== (b.payment_ids ?? []).length) return json(res, 422, { type: 'payment/bank-payments-invalid', status: 422, title: 'Choisissez des paiements déjà saisis, sans ligne bancaire, dont le total fait exactement le montant du crédit.' })
       if (!ps.length || ps.reduce((s, p) => s + p.amount_cents, 0) !== l.amount_cents) return json(res, 422, { type: 'payment/bank-payments-invalid', status: 422, title: 'Choisissez des paiements déjà saisis, sans ligne bancaire, dont le total fait exactement le montant du crédit.' })
       state.bankLinks = [...(state.bankLinks ?? []), { line: l.id, payment_ids: b.payment_ids }]
     } else state.bankCharges = [...(state.bankCharges ?? []), { line: l.id, charge_ids: b.charge_ids }]
