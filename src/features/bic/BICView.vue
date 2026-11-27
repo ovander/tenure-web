@@ -51,6 +51,16 @@ async function load(): Promise<void> {
 watch(year, load, { immediate: true })
 
 const r = computed(() => data.value?.result)
+// The comparison of the two regimes: equal only when the micro is open and
+// gives the same taxable result; otherwise the lower, from the API, or from
+// the two amounts when it sends none.
+const comparison = computed(() => {
+  const reel = r.value?.taxable_cents ?? 0
+  const micro = r.value?.micro
+  if (micro?.eligible && (micro.taxable_cents ?? 0) === reel) return t('bic.equal')
+  const lower = r.value?.lower ?? (micro?.eligible && (micro.taxable_cents ?? 0) < reel ? 'micro' : 'reel')
+  return t('bic.lower', { regime: t(`bic.regime.${lower}` as Key) })
+})
 const declared = computed(() => done.value.find((d) => d.year === year.value))
 function ask(x: Regime): void {
   regime.value = x
@@ -111,7 +121,9 @@ async function doIssue(): Promise<void> {
             <dt>{{ t('bic.abatement') }}</dt><dd class="amount">− {{ money(r.micro?.abatement_cents ?? 0) }}</dd>
             <dt class="font-semibold">{{ t('bic.taxable') }}</dt><dd class="amount font-semibold" data-test="bic-micro-taxable">{{ money(r.micro?.taxable_cents ?? 0) }}</dd>
           </dl>
-          <p class="mt-3 text-sm" data-test="bic-lower">{{ t('bic.lower', { regime: t(`bic.regime.${r.lower ?? 'reel'}` as Key) }) }}</p>
+          <p class="mt-3 text-sm" data-test="bic-lower">
+            {{ comparison }}
+          </p>
         </article>
       </div>
 

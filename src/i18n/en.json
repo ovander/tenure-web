@@ -1937,5 +1937,6 @@
   "bank.linked": "Line linked to the payment already recorded.",
   "inventory.steps": "Steps: 1. schedule the appointment; 2. start it on site; 3. finish the capture; 4. review and sign. You can fill in the rooms now.",
   "bank.linkSelected": "Link the selection ({sum} of {amount})",
-  "job.irl.cache": "IRL indices loaded"
+  "job.irl.cache": "IRL indices loaded",
+  "bic.equal": "Both regimes give the same taxable result this year."
 }

@@ -1937,5 +1937,6 @@
   "bank.linked": "Ligne rattachée au paiement déjà saisi.",
   "inventory.steps": "Étapes : 1. planifier le rendez-vous ; 2. le démarrer sur place ; 3. terminer la saisie ; 4. relire et signer. Vous pouvez remplir les pièces dès maintenant.",
   "bank.linkSelected": "Rattacher la sélection ({sum} sur {amount})",
-  "job.irl.cache": "Chargement des indices IRL"
+  "job.irl.cache": "Chargement des indices IRL",
+  "bic.equal": "Les deux régimes donnent le même résultat imposable cette année."
 }

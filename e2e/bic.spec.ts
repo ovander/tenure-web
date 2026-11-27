@@ -15,7 +15,7 @@ const line = (component: string, share_bp: number, months: number) => ({ compone
 async function mock(page: Page): Promise<void> {
   await page.request.post('/__mock/reset')
   await page.request.post('/__mock/state', { data: {
-    assets: [{ id: 'a1', kind: 'apartment', address: '12 rue des Lilas, Lyon', version: 1, shares: [{ owner_id: owner, bp: 10000 }] }],
+    assets: [{ id: 'a1', kind: 'apartment', address: '12 rue des Lilas, Lyon', furnished: true, version: 1, shares: [{ owner_id: owner, bp: 10000 }] }],
     bicProposal: { asset_id: 'a1', price_cents: 0, acquisition_costs_cents: 0, costs_expensed: false, basis_cents: 0, bases: [0, 0, 0],
       lines: [line('land', 2000, 0), line('structure', 5000, 600), line('fittings', 3000, 180)] },
     bicThreshold: 70000,

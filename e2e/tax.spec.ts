@@ -128,3 +128,18 @@ test('a computation made while the year is still loading stays on screen', async
   await expect(page.getByTestId('micro-taxable')).toHaveText(/6\s720,00\s€/)
   expect(violations).toEqual([])
 })
+
+// An account with no second factor: a fresh sign-in still has no mfa, so the
+// API answers auth/mfa-required (tenure-api #262), shown as it is, with no
+// new trip to Socrate (the loop of the test install).
+test('a sign-in without a second factor says MFA is needed, without looping to Socrate', async ({ page }) => {
+  await mock(page)
+  await page.request.post('/__mock/state', { data: { stepUpNoMFA: true } })
+  const violations = await watchCSP(page)
+  await page.goto('/tax/2025')
+  await page.getByTestId('compute').click()
+  await expect(page.getByText('activez-la dans votre compte Socrate')).toBeVisible()
+  await expect(page.getByTestId('step-up')).toHaveCount(0)
+  expect((await requests(page)).filter((r) => r.path === '/bff/login')).toHaveLength(0)
+  expect(violations).toEqual([])
+})

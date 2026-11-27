@@ -163,6 +163,7 @@ function lineLabel(kind: string | undefined): string {
         </span>
       </div>
     </div>
+    <p v-if="s.canWrite && !simulation" class="-mt-2 text-right text-xs text-slate-500" data-test="issue-hint">{{ t('billing.simulateFirst') }}</p>
 
     <Message v-if="error && !confirmIssue && !cancelling" severity="error" :closable="false" data-test="billing-error">{{ error }}</Message>
 

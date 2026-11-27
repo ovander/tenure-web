@@ -785,3 +785,13 @@ tenure v0.1.40 showed screens that misled the owner:
 - **A charge saved for another exercise** switches the ledger to that exercise.
 - **The inventory capture** names its four steps while the appointment is not started.
 - **The home's job runs** name each job in words; an unknown job keeps its technical name.
+
+**Q-W44 Second test pass (v0.33.8) — Provisional (#111).** The second pass of the test install:
+- **A step-up without a second factor** is answered 403 `auth/mfa-required` (tenure-api #262):
+  its title, asking to turn MFA on in Socrate, shows like any refusal, and the app does not
+  send the owner to Socrate again, where the loop came from.
+- **« Émettre »** says why it waits, under the buttons, before the simulation.
+- **The BIC comparison** says the regimes are equal when both taxable results are.
+- **The furnished tab** shows on a furnished asset only.
+- **Year fields with buttons** (charges, documents) keep their width and no longer cover the
+  next field.
