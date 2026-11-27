@@ -167,7 +167,7 @@ test('an unknown asset says so', async ({ page }) => {
 // deadlines tab has its title; the home names the jobs in words.
 test('a diagnostic shows its effective expiry, tabs and job runs are in words', async ({ page }) => {
   await mock(page, {
-    assets: [{ id: 'a1', kind: 'apartment', address: '5 quai Perrache, Lyon', surface_hundredths_m2: 3000, version: 1, shares: [] }],
+    assets: [{ id: 'a1', kind: 'apartment', address: '5 quai Perrache, Lyon', surface_hundredths_m2: 3000, furnished: false, version: 1, shares: [] }],
     diagnostics: [{ id: 'g1', asset_id: 'a1', kind: 'erp', done_on: '2026-06-01', valid_until: '2030-12-31', expires_on: '2026-11-30', version: 1 }],
     runs: [{ id: 'r1', job: 'billing.monthly', period: '2026-11', status: 'succeeded', finished_at: '2026-11-01T05:04:00Z' }],
   })

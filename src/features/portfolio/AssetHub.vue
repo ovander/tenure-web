@@ -93,7 +93,7 @@ watch(id, load)
       <ActivityList v-else-if="tab === 'activity'" entity-type="asset" :entity-id="asset.id ?? ''" />
       <ChargesLedger v-else-if="tab === 'charges'" :asset-id="asset.id ?? ''" embedded />
       <AssetLoans v-else-if="tab === 'loans'" :asset-id="asset.id ?? ''" />
-      <AssetBIC v-else-if="tab === 'furnished'" :asset-id="asset.id ?? ''" />
+      <AssetBIC v-else-if="tab === 'furnished' && asset.furnished" :asset-id="asset.id ?? ''" />
       <DocumentsView v-else-if="tab === 'documents'" :asset-id="asset.id ?? ''" embedded />
       <AssetCalendar v-else-if="tab === 'deadlines'" :asset-id="asset.id ?? ''" />
       <ComingSoonPanel v-else />
