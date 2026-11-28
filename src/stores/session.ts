@@ -11,6 +11,9 @@ export interface BffSession {
   authenticated: boolean
   user?: { sub: string; email?: string; name?: string; roles: string[] }
   csrf?: string
+  // account_security_url is Socrate's page where the user turns on their
+  // second factor (tenure-api #270).
+  account_security_url?: string
 }
 
 const scopeKey = 'tenure.scope'
@@ -28,6 +31,8 @@ export const useSession = defineStore('session', () => {
   const me = ref<Me | null>(null)
   const activeOwnerId = ref<string | undefined>()
   const stepUpPending = ref(false)
+  const mfaRequired = ref(false)
+  const accountSecurityUrl = computed(() => session.value?.account_security_url ?? '')
 
   const scopes = computed<Scope[]>(() => me.value?.scopes ?? [])
   const active = computed<Scope | undefined>(
@@ -85,5 +90,5 @@ export const useSession = defineStore('session', () => {
     }
   }
 
-  return { session, me, scopes, active, role, canWrite, isSCI, displayName, stepUpPending, load, refreshMe, selectScope, logout }
+  return { session, me, scopes, active, role, canWrite, isSCI, displayName, stepUpPending, mfaRequired, accountSecurityUrl, load, refreshMe, selectScope, logout }
 })

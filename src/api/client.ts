@@ -7,6 +7,9 @@
 import type { Problem } from './types'
 
 export const STEP_UP = 'auth/step-up-required'
+// MFA_REQUIRED: a recent sign-in without a second factor (tenure-api #262);
+// signing in again does not help, the account needs MFA turned on.
+export const MFA_REQUIRED = 'auth/mfa-required'
 
 // ApiError is a problem answered by the API.
 export class ApiError extends Error {
@@ -24,6 +27,7 @@ export class ApiError extends Error {
 
 // StepUpRequired asks for a recent multi-factor sign-in before retrying.
 export class StepUpRequired extends ApiError {}
+export class MFARequired extends ApiError {}
 
 // NetworkError is a request that got no answer.
 export class NetworkError extends Error {}
@@ -143,6 +147,7 @@ export async function request<T>(method: string, path: string, opts: Options = {
 // login on a 401 that is not a step-up.
 async function failure(res: Response): Promise<ApiError> {
   const problem = await readProblem(res)
+  if (problem.type === MFA_REQUIRED) return new MFARequired(res.status, problem)
   if (res.status === 401) {
     if (problem.type === STEP_UP) return new StepUpRequired(401, problem)
     state.onUnauthenticated()

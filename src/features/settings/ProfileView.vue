@@ -131,6 +131,13 @@ async function save(): Promise<void> {
       <Button type="button" :label="t('sci.create')" icon="pi pi-plus" severity="secondary" data-test="sci-create" @click="creatingSCI = true" />
       <EntityDialog v-model:visible="creatingSCI" @saved="sciCreated" />
     </section>
+    <section v-if="s.accountSecurityUrl" class="mt-8 border-t border-slate-200 pt-4" data-test="mfa-section">
+      <h2 class="mb-1 font-medium">{{ t('mfa.link') }}</h2>
+      <p class="mb-3 text-sm text-slate-600">{{ t('mfa.settings') }}</p>
+      <a :href="s.accountSecurityUrl" target="_blank" rel="noopener noreferrer" data-test="mfa-settings-link">
+        <Button type="button" :label="t('mfa.manage')" icon="pi pi-external-link" severity="secondary" />
+      </a>
+    </section>
     <section class="mt-8 border-t border-slate-200 pt-4">
       <h2 class="mb-1 flex items-center gap-1 font-medium">{{ t('profile.myData') }} <HelpTip id="my_data" :text="t('help.profile.myData')" /></h2>
       <p class="mb-3 text-sm text-slate-600">{{ t('profile.myDataBody') }}</p>
