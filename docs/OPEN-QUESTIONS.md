@@ -795,3 +795,9 @@ tenure v0.1.40 showed screens that misled the owner:
 - **The furnished tab** shows on a furnished asset only.
 - **Year fields with buttons** (charges, documents) keep their width and no longer cover the
   next field.
+
+**Q-W45 The link to Socrate's second factor page — Provisional (#113).** A step-up needs a sign-in
+with a second factor, turned on at Socrate's `/account/security`. The app takes that address
+from `GET /bff/session` (`account_security_url`, tenure-api #270), never from its own code:
+Settings › Profil links to it in a « Double authentification » section, and `auth/mfa-required`
+opens a dialog with the same link instead of the sign-in to Socrate (opened in a new tab).

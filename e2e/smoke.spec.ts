@@ -110,3 +110,16 @@ test('an unknown hashed asset is a 404, an unknown route is the app', async ({ p
   await page.goto('/nope/nothing')
   await expect(page.getByText('Page introuvable')).toBeVisible()
 })
+
+// The settings link to Socrate's page where the second factor is turned on,
+// as the session gives it (tenure-api #270).
+test('the profile links to Socrate’s two-factor page', async ({ page }) => {
+  await mock(page)
+  const violations = await watchCSP(page)
+  await page.goto('/settings/profile')
+  const link = page.getByTestId('mfa-settings-link')
+  await expect(page.getByTestId('mfa-section')).toContainText('Double authentification')
+  await expect(link).toHaveAttribute('href', 'https://socrate.example.test/account/security')
+  await expect(link).toHaveAttribute('target', '_blank')
+  expect(violations).toEqual([])
+})

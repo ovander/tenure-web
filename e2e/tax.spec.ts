@@ -138,7 +138,10 @@ test('a sign-in without a second factor says MFA is needed, without looping to S
   const violations = await watchCSP(page)
   await page.goto('/tax/2025')
   await page.getByTestId('compute').click()
-  await expect(page.getByText('activez-la dans votre compte Socrate')).toBeVisible()
+  // A dialog says so and links to Socrate's second factor page (tenure-api #270).
+  const dialog = page.getByTestId('mfa-required')
+  await expect(dialog).toContainText('Double authentification requise')
+  await expect(dialog.getByTestId('mfa-link')).toHaveAttribute('href', 'https://socrate.example.test/account/security')
   await expect(page.getByTestId('step-up')).toHaveCount(0)
   expect((await requests(page)).filter((r) => r.path === '/bff/login')).toHaveLength(0)
   expect(violations).toEqual([])

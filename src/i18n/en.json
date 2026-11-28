@@ -1938,5 +1938,10 @@
   "inventory.steps": "Steps: 1. schedule the appointment; 2. start it on site; 3. finish the capture; 4. review and sign. You can fill in the rooms now.",
   "bank.linkSelected": "Link the selection ({sum} of {amount})",
   "job.irl.cache": "IRL indices loaded",
-  "bic.equal": "Both regimes give the same taxable result this year."
+  "bic.equal": "Both regimes give the same taxable result this year.",
+  "mfa.title": "Two-factor sign-in required",
+  "mfa.body": "This action needs a sign-in with a second factor, which your Socrate account did not use. Turn it on in your Socrate account, then sign out and back in before trying again.",
+  "mfa.link": "Two-factor authentication",
+  "mfa.manage": "Manage two-factor authentication on Socrate",
+  "mfa.settings": "Computing and issuing the tax summary, exports and managing access need a sign-in with a second factor. It is turned on in your Socrate account."
 }
